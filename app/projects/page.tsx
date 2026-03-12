@@ -9,8 +9,7 @@ import type { Project } from "@/data/projects";
 
 const ROTATE_MS = 6500;
 const ALL_CATEGORIES = [
-  "All", "AI/ML", "Data & Analytics", "Product/UX", "Engineering",
-  "Case Competition", "Math & Modeling",
+  "All", "Product/UX", "Data & Analytics", "Case Competition", "AI/ML", "Engineering", "Math & Modeling",
 ] as const;
 type Cat = typeof ALL_CATEGORIES[number];
 
@@ -23,7 +22,7 @@ const featuredWork = displayWork.filter((p) => p.prize);
 function groupWork(filter: Cat) {
   const list = filter === "All" ? displayWork : displayWork.filter((p) => p.category === filter);
   if (filter !== "All") return [{ cat: filter as string, items: list }];
-  const cats = ["AI/ML", "Data & Analytics", "Product/UX", "Engineering", "Case Competition", "Math & Modeling"];
+  const cats = ["Product/UX", "Data & Analytics", "Case Competition", "AI/ML", "Engineering", "Math & Modeling"];
   return cats.map((c) => ({ cat: c, items: list.filter((p) => p.category === c) })).filter((g) => g.items.length > 0);
 }
 
@@ -132,11 +131,22 @@ function ProjectModal({ project, initialTab, onClose }: { project: Project; init
             {tab === "stack" && (
               <motion.div key="stack" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
                 <p className="font-mono text-[10px] text-white/30 uppercase tracking-widest mb-4">Tech Stack</p>
-                <div className="flex flex-wrap gap-2">
-                  {project.tools.map((t) => (
-                    <span key={t} className="font-mono text-xs text-white/70 border border-white/15 bg-white/5 px-3 py-1.5 rounded-full">{t}</span>
-                  ))}
-                </div>
+                {project.stack ? (
+                  <div className="border border-white/10 rounded-xl overflow-hidden">
+                    {project.stack.map((row, i) => (
+                      <div key={i} className={`flex items-start gap-4 px-4 py-3 ${i !== 0 ? "border-t border-white/10" : ""}`}>
+                        <span className="font-mono text-[11px] text-white/35 w-28 flex-shrink-0 pt-0.5 uppercase tracking-wide">{row.layer}</span>
+                        <span className="font-body text-sm text-white/75 leading-snug">{row.tech}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {project.tools.map((t) => (
+                      <span key={t} className="font-mono text-xs text-white/70 border border-white/15 bg-white/5 px-3 py-1.5 rounded-full">{t}</span>
+                    ))}
+                  </div>
+                )}
               </motion.div>
             )}
 
@@ -277,7 +287,7 @@ function WorkHero({ onSelect }: { onSelect: (p: Project, t: Tab) => void }) {
   const project = featuredWork[idx];
 
   return (
-    <div className="relative w-full h-[55vh] md:h-[68vh] overflow-hidden" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+    <div className="relative w-full h-[42vh] md:h-[52vh] overflow-hidden" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       <AnimatePresence mode="sync">
         <motion.div key={project.slug} className="absolute inset-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.8 }}>
           <div className="absolute inset-0" style={{ background: project.gradient }} />

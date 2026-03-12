@@ -149,6 +149,9 @@ export default function CVPage() {
                       </div>
                       <span className="font-mono text-xs text-muted dark:text-white/40 whitespace-nowrap">{exp.period}</span>
                     </div>
+                    {"description" in exp && exp.description && (
+                      <p className="font-body text-sm text-muted/80 dark:text-white/35 italic mt-1.5 mb-2 leading-relaxed">{exp.description as string}</p>
+                    )}
                     <ul className="space-y-1.5 mt-2">
                       {exp.bullets.map((b, bi) => (
                         <li key={bi} className="flex items-start gap-2">

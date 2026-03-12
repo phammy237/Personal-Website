@@ -1,6 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 
 const highlights = [
@@ -18,7 +19,7 @@ function Headshot() {
     <div className="relative w-full aspect-[3/4] max-w-[340px] mx-auto md:mx-0 rounded-2xl overflow-hidden border border-border shadow-xl shadow-accent/5">
       {!error ? (
         <Image
-          src="/headshot.jpg"
+          src="/headshot.JPG"
           alt="My Pham"
           fill
           className={`object-cover transition-opacity duration-500 ${loaded ? "opacity-100" : "opacity-0"}`}
@@ -98,24 +99,24 @@ export function Backstory() {
 
             <p className="font-body text-xl text-muted dark:text-white/60 leading-relaxed">
               I&apos;m a Data Science student at the University of Florida originally from Vietnam,
-              and I am most energized by turning ambiguity into direction. I love working at the
-              intersection of product, strategy, and execution — where the challenge is not just
-              building something, but figuring out what is actually worth building, why it matters,
+              and I&apos;m most energized by work that turns ambiguity into direction. I&apos;m drawn
+              to the space where product, strategy, and execution meet — where the challenge is not
+              just building something, but figuring out what is actually worth building, why it matters,
               and how to make it work in the real world.
             </p>
             <p className="font-body text-xl text-muted dark:text-white/60 leading-relaxed">
               What draws me to both product management and consulting is the same core mindset:
-              understanding people, breaking down messy problems, asking better questions, and
-              turning insights into action. I enjoy thinking structurally, finding patterns in
-              complexity, and connecting the dots between user needs, business goals, and technical
-              possibilities.
+              understanding people, breaking down messy problems, asking better questions, and turning
+              insights into action. I enjoy connecting the dots between user needs, business goals,
+              and technical possibilities, then translating that into something practical, thoughtful,
+              and useful.
             </p>
             <p className="font-body text-xl text-muted dark:text-white/60 leading-relaxed">
-              Across my projects I&apos;ve worked on dashboards, data pipelines, backend systems,
-              and end-to-end product ideas — which has taught me how to move between the big picture
-              and the details. I like being both analytical and creative: someone who can zoom out to
-              frame the problem, then zoom in to make sure the solution is thoughtful, practical, and
-              well executed.
+              Across my academic, project, and internship experiences, I&apos;ve worked on full-stack
+              products, backend systems, dashboards, research, analytics, and go-to-market planning.
+              Whether I&apos;m designing a KPI system, shaping a product concept, or building a
+              decision-support tool, I care most about creating clarity and moving ideas toward
+              real impact.
             </p>
 
             {/* Tags */}
@@ -128,6 +129,16 @@ export function Backstory() {
                   {tag}
                 </span>
               ))}
+            </div>
+
+            {/* Arrow links */}
+            <div className="flex flex-wrap gap-6 mt-3">
+              <Link href="/biography" className="font-mono text-sm text-white/50 hover:text-white transition-colors duration-200">
+                wanna learn more → biography
+              </Link>
+              <Link href="/connect" className="font-mono text-sm text-white/50 hover:text-white transition-colors duration-200">
+                wanna hang out → contact
+              </Link>
             </div>
 
           </motion.div>
@@ -170,13 +181,6 @@ export function Backstory() {
               <p className="font-mono text-xs text-muted dark:text-white/40">
                 Certificate in AI Fundamentals and Applications
               </p>
-              <div className="flex flex-wrap gap-1.5 mt-4">
-                {["Emerging Gator Award", "Dean's List", "Top 20 McKinsey"].map((h) => (
-                  <span key={h} className="font-mono text-xs text-accent/80 border border-accent/20 bg-accent-light px-2 py-0.5 rounded-full">
-                    {h}
-                  </span>
-                ))}
-              </div>
             </div>
 
             {/* Early career programs */}
@@ -193,6 +197,35 @@ export function Backstory() {
               </div>
             </div>
           </div>
+        </motion.div>
+
+        {/* How I Think */}
+        <motion.div
+          className="mt-16"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ type: "spring", stiffness: 80, damping: 20 }}
+        >
+          <p className="font-mono text-xs text-muted dark:text-white/40 tracking-widest uppercase mb-4">How I Think</p>
+          <p className="font-body text-lg text-muted dark:text-white/60 max-w-2xl mb-6 leading-relaxed">
+            I&apos;m most interested in roles where I can bring structure to ambiguity, understand what really matters,
+            and turn ideas into thoughtful, practical solutions.
+          </p>
+          <ul className="space-y-3 max-w-xl">
+            {[
+              "I start with the problem before the feature",
+              "I like understanding user behavior, friction, and decision points",
+              "I think in tradeoffs: user needs, business goals, and technical constraints",
+              "I care about clarity, prioritization, and execution",
+              "I enjoy translating messy information into actionable direction",
+            ].map((item) => (
+              <li key={item} className="flex items-start gap-3">
+                <span className="text-accent mt-1 flex-shrink-0 text-xs">▸</span>
+                <span className="font-body text-sm text-muted dark:text-white/50 leading-relaxed">{item}</span>
+              </li>
+            ))}
+          </ul>
         </motion.div>
       </div>
     </section>

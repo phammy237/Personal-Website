@@ -3,13 +3,6 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 
-const prizes = [
-  { award: "Best Finance Project", competition: "SASE Hacks 2026", project: "CartCoach" },
-  { award: "3rd Place Overall", competition: "Code4Change", project: "Kite" },
-  { award: "Outstanding Award", competition: "SCUDEM X 2025", project: "SCUDEM" },
-  { award: "Top 20 Nationally", competition: "McKinsey Case", project: "McKinsey" },
-];
-
 /* Social icon SVGs */
 function GithubIcon() {
   return (
@@ -104,7 +97,7 @@ export function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.55, type: "spring", stiffness: 100, damping: 20 }}
         >
-          I turn ambiguous problems into product, strategy, and data-driven solutions.
+          I turn ambiguity into product, strategy, and data-driven solutions.
         </motion.p>
 
         <motion.p
@@ -113,8 +106,9 @@ export function Hero() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
         >
-          Data Science student at UF from Vietnam — interested in product management,
-          consulting, and building thoughtful solutions that create real impact.
+          I&apos;m My Pham, a Data Science student at the University of Florida from Vietnam,
+          interested in product management, consulting, and building thoughtful solutions
+          at the intersection of technology, strategy, and execution.
         </motion.p>
 
         <motion.div
@@ -124,27 +118,16 @@ export function Hero() {
           transition={{ delay: 0.85 }}
         >
           <Link href="/projects" className="font-mono text-sm px-6 py-3 bg-accent text-white hover:bg-accent/90 transition-colors duration-200">
-            View Work →
+            View Projects →
           </Link>
           <Link href="/cv" className="font-mono text-sm px-6 py-3 border border-white/30 text-white/70 hover:text-white hover:border-white/60 transition-colors duration-200">
-            View CV
+            Resume / CV
+          </Link>
+          <Link href="/connect" className="font-mono text-sm px-6 py-3 border border-white/20 text-white/50 hover:text-white hover:border-white/50 transition-colors duration-200">
+            Let&apos;s Connect
           </Link>
         </motion.div>
 
-        {/* Prize badges */}
-        <motion.div
-          className="flex flex-wrap gap-3 mt-1"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.0 }}
-        >
-          {prizes.map((p, i) => (
-            <div key={i} className="flex flex-col border border-white/10 bg-white/5 px-3 py-2">
-              <span className="font-mono text-sm text-white/90">{p.project}</span>
-              <span className="font-mono text-[10px] text-yellow-400/80 tracking-wide">🏆 {p.award} · {p.competition}</span>
-            </div>
-          ))}
-        </motion.div>
       </div>
 
       {/* Bottom bar */}
