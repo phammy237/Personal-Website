@@ -4,6 +4,7 @@ export const experience = [
     company: "Product Space (Client: Lattéra, Gator Creek LLC)",
     period: "Feb 2026 — Present",
     bullets: [
+      "Ranked Top 3 out of the entire fellowship class for capstone project score.",
       "Designing Lattéra's MVP pilot measurement system for a pre-revenue functional beverage launch, defining a KPI tree across 3 stages (pilot, launch, operations), metric definitions/owners, and a weekly review cadence.",
       "Conducting customer-channel and placement research across 2 launch markets (Gainesville and Orlando), prioritizing 30–60 candidate locations and a Top 10 target list using a fit rubric.",
       "Developing go-to-market and partner enablement assets for 1–2 priority segments, including ICPs, positioning, value proposition messaging, and launch-ready one-pager/outreach copy.",

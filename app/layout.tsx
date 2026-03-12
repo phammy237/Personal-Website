@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { DM_Serif_Display, Inter, JetBrains_Mono } from "next/font/google";
 import { CustomCursor } from "@/components/layout/CustomCursor";
+import { ChatBot } from "@/components/ui/ChatBot";
+import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import "@/styles/globals.css";
 
 const dmSerif = DM_Serif_Display({
@@ -36,9 +38,12 @@ export default function RootLayout({
       lang="en"
       className={`${dmSerif.variable} ${inter.variable} ${jetbrains.variable}`}
     >
-      <body className="bg-base text-surface font-body antialiased min-h-screen">
-        <CustomCursor />
-        {children}
+      <body className="bg-base dark:bg-navy text-surface dark:text-white font-body antialiased min-h-screen">
+        <ThemeProvider>
+          <CustomCursor />
+          {children}
+          <ChatBot />
+        </ThemeProvider>
       </body>
     </html>
   );

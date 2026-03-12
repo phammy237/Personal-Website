@@ -1,7 +1,14 @@
 export type Project = {
   slug: string;
   title: string;
-  category: "AI/ML" | "Data & Analytics" | "Product/UX" | "Engineering";
+  category:
+    | "AI/ML"
+    | "Data & Analytics"
+    | "Product/UX"
+    | "Engineering"
+    | "Hackathon"
+    | "Case Competition"
+    | "Math & Modeling";
   year: string;
   month: string;
   logline: string;
@@ -13,8 +20,11 @@ export type Project = {
   liveUrl?: string;
   slides?: string;
   video?: string;
-  outcome?: string;
+  image?: string;      // drop file in public/projects/<slug>.jpg
   gradient: string;
+  prize?: boolean;
+  competition?: string;
+  award?: string;
 };
 
 export const projects: Project[] = [
@@ -103,7 +113,7 @@ export const projects: Project[] = [
     category: "Product/UX",
     year: "2025",
     month: "Oct 2025",
-    logline: "Connecting People through Personalized Travel & Experiences.",
+    logline: "Connecting People through Personalized Travel and Experiences.",
     description: "Led the design of user flows, MVP roadmap, and ID & selfie verification system for a travel app connecting like-minded travelers.",
     bullets: [
       "Designed ID & selfie verification system increasing user safety by 30%.",
@@ -119,7 +129,7 @@ export const projects: Project[] = [
     category: "Engineering",
     year: "2025",
     month: "Sep 2025",
-    logline: "Collaborative Platform for Healthcare Professionals — LinkedIn for healthcare.",
+    logline: "Collaborative Platform for Healthcare Professionals. LinkedIn for healthcare.",
     description: "Collaborated with a 5-person team to build a professional networking platform for healthcare, leading backend development and data infrastructure.",
     bullets: [
       "Led backend development for 10+ RESTful APIs.",
@@ -167,15 +177,13 @@ export const projects: Project[] = [
     category: "AI/ML",
     year: "2025",
     month: "Apr 2025",
-    logline: "Deloitte Innovation Challenge — AI chatbot for campus support.",
+    logline: "AI chatbot centralizing campus support services at UF",
     description: "Built GatorBot, an AI chatbot using Python and NLP to centralize student support services at the University of Florida.",
     bullets: [
       "Cut referral time by ~70% and addressed 60%+ awareness gaps.",
       "Architecture projected to reduce workload by 40% and save ~$50,000+ annually.",
-      "Won Deloitte Innovation Challenge.",
     ],
     tools: ["Python", "NLP", "Chatbot", "AI"],
-    outcome: "Won Deloitte Innovation Challenge",
     gradient: "linear-gradient(135deg, #1D4ED8 0%, #7C3AED 100%)",
   },
   {
@@ -184,8 +192,8 @@ export const projects: Project[] = [
     category: "Data & Analytics",
     year: "2025",
     month: "Mar 2025",
-    logline: "ASA DataFest — Advanced analysis of 100,000+ U.S. commercial leasing transactions.",
-    description: "Worked with a team of 4 to conduct advanced data analysis on 100,000+ U.S. leasing transactions (2018–2024) using Python and pandas.",
+    logline: "ASA DataFest. Advanced analysis of 100,000+ U.S. commercial leasing transactions.",
+    description: "Worked with a team of 4 to conduct advanced data analysis on 100,000+ U.S. leasing transactions (2018-2024) using Python and pandas.",
     bullets: [
       "Identified trends in office space demand across tech, legal, and financial sectors.",
       "Translated complex datasets into business insights for 10+ major cities.",
@@ -212,11 +220,185 @@ export const projects: Project[] = [
   },
 ];
 
-export const caseStudies = [
+export const competitions: Project[] = [
+  {
+    slug: "sase-hacks",
+    title: "SASE Hacks 2026",
+    category: "Hackathon",
+    year: "2026",
+    month: "Feb 2026",
+    logline: "Best Finance Project — Society of Asian Scientists and Engineers Hackathon",
+    description: "Built a finance-focused hackathon project at SASE Hacks 2026, winning Best Finance Project.",
+    bullets: [
+      "Developed a data-driven finance tool addressing real student financial challenges.",
+      "Competed against teams across STEM disciplines.",
+    ],
+    tools: ["Python", "Data Analysis", "Finance"],
+    award: "Best Finance Project",
+    competition: "SASE Hacks 2026",
+    prize: true,
+    gradient: "linear-gradient(135deg, #F59E0B 0%, #EF4444 100%)",
+  },
+  {
+    slug: "code4change",
+    title: "Code4Change",
+    category: "Hackathon",
+    year: "2025",
+    month: "Apr 2025",
+    logline: "3rd Place Overall — Technology for social good hackathon",
+    description: "Built a tech-for-good solution at Code4Change, placing 3rd overall.",
+    bullets: [
+      "Designed and built a social impact product addressing community needs.",
+      "Placed 3rd overall across all competing teams.",
+    ],
+    tools: ["Engineering", "Social Impact"],
+    award: "3rd Place Overall",
+    competition: "Code4Change",
+    prize: true,
+    gradient: "linear-gradient(135deg, #059669 0%, #3B82F6 100%)",
+  },
+  {
+    slug: "mckinsey-case",
+    title: "McKinsey Case Competition",
+    category: "Case Competition",
+    year: "2025",
+    month: "Oct 2025",
+    logline: "Top 20 nationally — Strategy consulting case competition",
+    description: "Competed in McKinsey's case competition, finishing Top 20 out of hundreds of university teams.",
+    bullets: [
+      "Applied structured problem-solving and consulting frameworks to a live business case.",
+      "Delivered recommendations to a panel of McKinsey consultants.",
+      "Finished Top 20 nationally.",
+    ],
+    tools: ["Strategy", "Consulting", "Case Analysis", "Presentation"],
+    award: "Top 20",
+    competition: "McKinsey Case Competition",
+    prize: true,
+    gradient: "linear-gradient(135deg, #0F172A 0%, #1D4ED8 100%)",
+  },
+  {
+    slug: "scudem",
+    title: "SCUDEM X 2025",
+    category: "Math & Modeling",
+    year: "2025",
+    month: "Nov 2025",
+    logline: "Outstanding Award — International mathematical modeling competition",
+    description: "Received the Outstanding Award at SCUDEM X 2025 for mathematical modeling work.",
+    bullets: [
+      "Built and validated a differential equations model for a real-world problem.",
+      "Received Outstanding Award recognition from judges.",
+    ],
+    tools: ["MATLAB", "Python", "Math Modeling", "Differential Equations"],
+    award: "Outstanding Award",
+    competition: "SCUDEM X 2025",
+    prize: true,
+    gradient: "linear-gradient(135deg, #7C3AED 0%, #EC4899 100%)",
+  },
+  {
+    slug: "gatorbot-deloitte",
+    title: "GatorBot — Deloitte Challenge",
+    category: "Case Competition",
+    year: "2025",
+    month: "Apr 2025",
+    logline: "AI chatbot for campus support — Deloitte Innovation Challenge",
+    description: "Presented GatorBot, an AI chatbot centralizing student support services at UF, at the Deloitte Innovation Challenge.",
+    bullets: [
+      "Pitched product vision, technical architecture, and projected impact to Deloitte judges.",
+      "Demonstrated 70% reduction in student referral time through chatbot automation.",
+    ],
+    tools: ["Python", "NLP", "Chatbot", "Product Strategy", "Presentation"],
+    competition: "Deloitte Innovation Challenge",
+    gradient: "linear-gradient(135deg, #1D4ED8 0%, #7C3AED 100%)",
+  },
+  {
+    slug: "uaa-case",
+    title: "UAA Case Competition",
+    category: "Case Competition",
+    year: "2025",
+    month: "Mar 2025",
+    logline: "University Athletic Association business case competition",
+    description: "Competed in the UAA Case Competition solving a real business strategy challenge.",
+    bullets: [
+      "Analyzed business problem and developed strategic recommendations.",
+      "Presented findings to a panel of judges.",
+    ],
+    tools: ["Strategy", "Consulting", "Case Analysis"],
+    competition: "2025 UAA Case Competition",
+    gradient: "linear-gradient(135deg, #F97316 0%, #EF4444 100%)",
+  },
+  {
+    slug: "bloomberg-bpuzzled",
+    title: "Bloomberg Bpuzzled",
+    category: "Case Competition",
+    year: "2025",
+    month: "2025",
+    logline: "Bloomberg's competitive analytical puzzle challenge",
+    description: "Participated in Bloomberg's Bpuzzled, a competitive analytical and finance puzzle challenge.",
+    bullets: [
+      "Solved complex analytical puzzles under time pressure.",
+      "Applied quantitative reasoning and financial concepts.",
+    ],
+    tools: ["Finance", "Analytics", "Quantitative Reasoning"],
+    competition: "Bloomberg Bpuzzled",
+    gradient: "linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%)",
+  },
+  {
+    slug: "comap-mcm",
+    title: "COMAP MCM",
+    category: "Math & Modeling",
+    year: "2025",
+    month: "Feb 2025",
+    logline: "International mathematical modeling contest",
+    description: "Participated in the COMAP Mathematical/Interdisciplinary Contest in Modeling, an international competition.",
+    bullets: [
+      "Built a mathematical model addressing a real-world problem over 96 hours.",
+      "Wrote a full technical report presenting findings and sensitivity analysis.",
+    ],
+    tools: ["Python", "R", "Math Modeling", "LaTeX"],
+    competition: "COMAP MCM",
+    gradient: "linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%)",
+  },
+  {
+    slug: "asa-datafest",
+    title: "ASA DataFest",
+    category: "Hackathon",
+    year: "2025",
+    month: "Mar 2025",
+    logline: "Advanced analysis of 100,000+ U.S. commercial leasing transactions",
+    description: "Worked with a team of 4 to conduct advanced data analysis on 100,000+ U.S. leasing transactions (2018-2024) for Savills.",
+    bullets: [
+      "Identified trends in office space demand across tech, legal, and financial sectors.",
+      "Translated complex datasets into business insights for 10+ major cities.",
+      "Delivered market entry, relocation, and expansion strategy recommendations.",
+    ],
+    tools: ["Python", "pandas", "Data Visualization", "Statistical Analysis"],
+    competition: "ASA DataFest",
+    gradient: "linear-gradient(135deg, #0369A1 0%, #0EA5E9 100%)",
+  },
+];
+
+export const allWork: Project[] = [...projects, ...competitions];
+
+export type CaseStudy = {
+  slug: string;
+  title: string;
+  competition: string;
+  category: "Hackathon" | "Case Competition" | "Math & Modeling" | "Data Science" | "Finance";
+  award: string;
+  year: string;
+  description: string;
+  tags: string[];
+  gradient: string;
+  slides?: string;
+  image?: string;
+};
+
+export const caseStudies: CaseStudy[] = [
   {
     slug: "gatorbot-deloitte",
     title: "GatorBot",
     competition: "Deloitte Innovation Challenge",
+    category: "Hackathon",
     award: "Winner",
     year: "2025",
     description: "AI chatbot solution for centralized campus support, reducing referral time by ~70%.",
@@ -224,79 +406,87 @@ export const caseStudies = [
     gradient: "linear-gradient(135deg, #1D4ED8 0%, #7C3AED 100%)",
   },
   {
-    slug: "scudem",
-    title: "SCUDEM X 2025",
-    competition: "SCUDEM X 2025",
-    award: "Outstanding Award",
-    year: "2025",
-    description: "Mathematical modeling competition with outstanding recognition.",
-    tags: ["Math Modeling", "Research"],
-    gradient: "linear-gradient(135deg, #7C3AED 0%, #EC4899 100%)",
+    slug: "sase-hacks",
+    title: "SASE Hacks Finance",
+    competition: "SASE Hacks 2026",
+    category: "Hackathon",
+    award: "Best Finance Project",
+    year: "2026",
+    description: "Best Finance Project at the Society of Asian Scientists and Engineers Hackathon.",
+    tags: ["Finance", "Data", "Hackathon"],
+    gradient: "linear-gradient(135deg, #F59E0B 0%, #EF4444 100%)",
   },
   {
     slug: "code4change",
     title: "Code4Change",
     competition: "Code4Change",
+    category: "Hackathon",
     award: "3rd Place Overall",
     year: "2025",
-    description: "Technology for social good competition.",
+    description: "Technology for social good hackathon. 3rd place overall.",
     tags: ["Engineering", "Social Impact"],
     gradient: "linear-gradient(135deg, #059669 0%, #3B82F6 100%)",
-  },
-  {
-    slug: "sase-hacks",
-    title: "SASE Hacks Finance",
-    competition: "SASE Hacks 2026",
-    award: "Best Finance Project",
-    year: "2026",
-    description: "Best Finance Project in the Society of Asian Scientists and Engineers Hackathon.",
-    tags: ["Finance", "Data", "Hackathon"],
-    gradient: "linear-gradient(135deg, #F59E0B 0%, #EF4444 100%)",
-  },
-  {
-    slug: "mckinsey",
-    title: "McKinsey Case Competition",
-    competition: "McKinsey Case Competition",
-    award: "Top 20",
-    year: "2025",
-    description: "Strategy consulting case competition.",
-    tags: ["Consulting", "Strategy"],
-    gradient: "linear-gradient(135deg, #0F172A 0%, #1D4ED8 100%)",
-  },
-  {
-    slug: "savills-datafest",
-    title: "Savills CRE Analysis",
-    competition: "ASA DataFest",
-    award: "Participant",
-    year: "2025",
-    description: "Advanced data analysis on 100,000+ U.S. commercial leasing transactions.",
-    tags: ["Data Analysis", "Real Estate"],
-    gradient: "linear-gradient(135deg, #0369A1 0%, #0EA5E9 100%)",
   },
   {
     slug: "hacklytics",
     title: "Hacklytics 2026",
     competition: "Hacklytics 2026",
+    category: "Hackathon",
     award: "Participant",
     year: "2026",
-    description: "Data science hackathon at Georgia Tech.",
+    description: "Data science hackathon hosted at Georgia Tech.",
     tags: ["Data Science", "Hackathon"],
     gradient: "linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)",
+  },
+  {
+    slug: "mckinsey",
+    title: "McKinsey Case Competition",
+    competition: "McKinsey Case Competition",
+    category: "Case Competition",
+    award: "Top 20",
+    year: "2025",
+    description: "Strategy consulting case competition. Top 20 finish nationwide.",
+    tags: ["Consulting", "Strategy"],
+    gradient: "linear-gradient(135deg, #0F172A 0%, #1D4ED8 100%)",
+  },
+  {
+    slug: "uaa-case",
+    title: "UAA Case Competition",
+    competition: "2025 UAA Case Competition",
+    category: "Case Competition",
+    award: "Participant",
+    year: "2025",
+    description: "University Athletic Association business case competition.",
+    tags: ["Strategy", "Consulting"],
+    gradient: "linear-gradient(135deg, #F97316 0%, #EF4444 100%)",
   },
   {
     slug: "bloomberg",
     title: "Bloomberg Bpuzzled",
     competition: "Bloomberg Bpuzzled",
+    category: "Finance",
     award: "Participant",
     year: "2025",
-    description: "Bloomberg's competitive puzzle challenge.",
+    description: "Bloomberg's competitive analytical puzzle challenge.",
     tags: ["Finance", "Analytics"],
     gradient: "linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%)",
+  },
+  {
+    slug: "scudem",
+    title: "SCUDEM X 2025",
+    competition: "SCUDEM X 2025",
+    category: "Math & Modeling",
+    award: "Outstanding Award",
+    year: "2025",
+    description: "Mathematical modeling competition. Outstanding Award.",
+    tags: ["Math Modeling", "Research"],
+    gradient: "linear-gradient(135deg, #7C3AED 0%, #EC4899 100%)",
   },
   {
     slug: "comap-mcm",
     title: "COMAP MCM",
     competition: "COMAP Mathematical/Interdisciplinary Contest in Modeling",
+    category: "Math & Modeling",
     award: "Participant",
     year: "2025",
     description: "International mathematical modeling competition.",
@@ -304,13 +494,14 @@ export const caseStudies = [
     gradient: "linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%)",
   },
   {
-    slug: "uaa-case",
-    title: "UAA Case Competition",
-    competition: "2025 UAA Case Competition",
+    slug: "savills-datafest",
+    title: "Savills CRE Analysis",
+    competition: "ASA DataFest",
+    category: "Data Science",
     award: "Participant",
     year: "2025",
-    description: "University Athletic Association case competition.",
-    tags: ["Strategy", "Consulting"],
-    gradient: "linear-gradient(135deg, #F97316 0%, #EF4444 100%)",
+    description: "Advanced data analysis on 100,000+ U.S. commercial leasing transactions.",
+    tags: ["Data Analysis", "Real Estate"],
+    gradient: "linear-gradient(135deg, #0369A1 0%, #0EA5E9 100%)",
   },
 ];

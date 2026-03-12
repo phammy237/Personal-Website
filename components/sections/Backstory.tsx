@@ -60,11 +60,11 @@ function Headshot() {
 
 export function Backstory() {
   return (
-    <section id="about" className="bg-base px-[5vw] py-24 md:py-32">
+    <section id="about" className="bg-base dark:bg-[#0A0C1E] px-[5vw] py-28 md:py-40">
       <div className="max-w-[1200px] mx-auto">
         {/* Section label */}
         <motion.p
-          className="font-mono text-xs text-muted tracking-widest uppercase mb-12"
+          className="font-mono text-xs text-muted dark:text-white/40 tracking-widest uppercase mb-12"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
@@ -92,25 +92,25 @@ export function Backstory() {
             viewport={{ once: true }}
             transition={{ type: "spring", stiffness: 80, damping: 20, delay: 0.1 }}
           >
-            <h2 className="font-display text-5xl md:text-6xl text-surface leading-tight">
+            <h2 className="font-display text-7xl md:text-8xl text-surface dark:text-white leading-tight">
               Hi, I&apos;m My.
             </h2>
 
-            <p className="font-body text-lg text-muted leading-relaxed">
+            <p className="font-body text-xl text-muted dark:text-white/60 leading-relaxed">
               I&apos;m a Data Science student at the University of Florida originally from Vietnam,
               and I am most energized by turning ambiguity into direction. I love working at the
               intersection of product, strategy, and execution — where the challenge is not just
               building something, but figuring out what is actually worth building, why it matters,
               and how to make it work in the real world.
             </p>
-            <p className="font-body text-lg text-muted leading-relaxed">
+            <p className="font-body text-xl text-muted dark:text-white/60 leading-relaxed">
               What draws me to both product management and consulting is the same core mindset:
               understanding people, breaking down messy problems, asking better questions, and
               turning insights into action. I enjoy thinking structurally, finding patterns in
               complexity, and connecting the dots between user needs, business goals, and technical
               possibilities.
             </p>
-            <p className="font-body text-lg text-muted leading-relaxed">
+            <p className="font-body text-xl text-muted dark:text-white/60 leading-relaxed">
               Across my projects I&apos;ve worked on dashboards, data pipelines, backend systems,
               and end-to-end product ideas — which has taught me how to move between the big picture
               and the details. I like being both analytical and creative: someone who can zoom out to
@@ -130,23 +130,6 @@ export function Backstory() {
               ))}
             </div>
 
-            <div className="flex gap-4 mt-1">
-              <a
-                href="mailto:phamlehamy2307@gmail.com"
-                className="font-mono text-sm text-accent hover:underline"
-              >
-                phamlehamy2307@gmail.com
-              </a>
-              <span className="text-border">·</span>
-              <a
-                href="https://linkedin.com/in/mypham237"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-mono text-sm text-accent hover:underline"
-              >
-                LinkedIn ↗
-              </a>
-            </div>
           </motion.div>
         </div>
 
@@ -163,28 +146,28 @@ export function Backstory() {
             {highlights.map((h) => (
               <div
                 key={h.label}
-                className="bg-card border border-border rounded-xl p-6 text-center"
+                className="bg-card dark:bg-white/5 border border-border dark:border-white/10 rounded-xl p-6 text-center"
               >
                 <p className="font-display text-4xl text-accent mb-1">{h.value}</p>
-                <p className="font-mono text-xs text-muted uppercase tracking-widest">{h.label}</p>
+                <p className="font-mono text-xs text-muted dark:text-white/40 uppercase tracking-widest">{h.label}</p>
               </div>
             ))}
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
             {/* Education card */}
-            <div className="bg-card border border-border rounded-xl p-6">
+            <div className="bg-card dark:bg-white/5 border border-border dark:border-white/10 rounded-xl p-6">
               <div className="flex items-start justify-between mb-3">
                 <div>
-                  <p className="font-body font-semibold text-surface">University of Florida</p>
-                  <p className="font-mono text-xs text-muted mt-1">Gainesville, FL</p>
+                  <p className="font-body font-semibold text-surface dark:text-white">University of Florida</p>
+                  <p className="font-mono text-xs text-muted dark:text-white/40 mt-1">Gainesville, FL</p>
                 </div>
                 <span className="font-mono text-xs text-accent bg-accent-light px-2 py-1 rounded">
                   Expected May 2028
                 </span>
               </div>
-              <p className="font-body text-sm text-surface/80 mb-2">B.S. Data Science · GPA 3.83</p>
-              <p className="font-mono text-xs text-muted">
+              <p className="font-body text-sm text-surface/80 dark:text-white/70 mb-2">B.S. Data Science · GPA 3.83</p>
+              <p className="font-mono text-xs text-muted dark:text-white/40">
                 Certificate in AI Fundamentals and Applications
               </p>
               <div className="flex flex-wrap gap-1.5 mt-4">
@@ -197,13 +180,13 @@ export function Backstory() {
             </div>
 
             {/* Early career programs */}
-            <div className="bg-card border border-border rounded-xl p-6">
-              <p className="font-mono text-xs text-muted uppercase tracking-widest mb-3">
+            <div className="bg-card dark:bg-white/5 border border-border dark:border-white/10 rounded-xl p-6">
+              <p className="font-mono text-xs text-muted dark:text-white/40 uppercase tracking-widest mb-3">
                 Selected Early Career Programs
               </p>
               <div className="flex flex-wrap gap-2">
                 {["BCG Launch", "McKinsey Forward", "Forte Career Ready", "JPMorgan Spring Insights", "Morgan Stanley Early Insights"].map((p) => (
-                  <span key={p} className="font-mono text-xs text-surface/70 border border-border px-2 py-1 rounded">
+                  <span key={p} className="font-mono text-xs text-surface/70 dark:text-white/50 border border-border dark:border-white/10 px-2 py-1 rounded">
                     {p}
                   </span>
                 ))}

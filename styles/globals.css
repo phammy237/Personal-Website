@@ -47,6 +47,10 @@ body {
   margin-bottom: 1.5rem;
 }
 
+/* Hide scrollbars utility */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
 /* Print stylesheet for CV */
 @media print {
   .no-print { display: none !important; }

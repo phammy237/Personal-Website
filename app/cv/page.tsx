@@ -19,7 +19,7 @@ export default function CVPage() {
   const [era, setEra] = useState<Era>("university");
 
   return (
-    <main className="min-h-screen bg-base">
+    <main className="min-h-screen bg-base dark:bg-[#0A0C1E]">
       <Navbar />
 
       <div className="px-[5vw] pt-28 pb-24 max-w-[900px] mx-auto">
@@ -27,14 +27,14 @@ export default function CVPage() {
         <div className="flex items-start justify-between mb-8 flex-wrap gap-4">
           <div>
             <motion.h1
-              className="font-display text-5xl text-surface mb-2"
+              className="font-display text-5xl text-surface dark:text-white mb-2"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
               My Pham
             </motion.h1>
             <motion.div
-              className="flex flex-wrap gap-3 font-mono text-sm text-muted"
+              className="flex flex-wrap gap-3 font-mono text-sm text-muted dark:text-white/40"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.1 }}
@@ -71,19 +71,19 @@ export default function CVPage() {
 
         {/* Era toggle */}
         <motion.div
-          className="flex gap-1 mb-12 border border-border rounded-full p-1 w-fit"
+          className="flex gap-1 mb-12 border border-border dark:border-white/10 rounded-full p-1 w-fit"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.25 }}
         >
-          {([["university", "University (UF)"], ["highschool", "High School (Vietnam)"]] as [Era, string][]).map(([key, label]) => (
+          {([["university", "University (UF)"], ["highschool", "High School"]] as [Era, string][]).map(([key, label]) => (
             <button
               key={key}
               onClick={() => setEra(key)}
               className={`font-mono text-xs px-5 py-2 rounded-full transition-all duration-200 ${
                 era === key
                   ? "bg-accent text-white"
-                  : "text-muted hover:text-surface"
+                  : "text-muted dark:text-white/40 hover:text-surface dark:hover:text-white"
               }`}
             >
               {label}
@@ -105,20 +105,20 @@ export default function CVPage() {
                 <div key={i} className="mb-4">
                   <div className="flex items-baseline justify-between gap-4 flex-wrap">
                     <div>
-                      <p className="font-body font-semibold text-surface text-lg">{edu.school}</p>
-                      <p className="font-body text-surface/80">{edu.degree} · GPA {edu.gpa}</p>
-                      <p className="font-mono text-xs text-muted mt-1">{edu.location}</p>
+                      <p className="font-body font-semibold text-surface dark:text-white text-lg">{edu.school}</p>
+                      <p className="font-body text-surface/80 dark:text-white/60">{edu.degree} · GPA {edu.gpa}</p>
+                      <p className="font-mono text-xs text-muted dark:text-white/40 mt-1">{edu.location}</p>
                     </div>
-                    <span className="font-mono text-xs text-muted whitespace-nowrap">{edu.period}</span>
+                    <span className="font-mono text-xs text-muted dark:text-white/40 whitespace-nowrap">{edu.period}</span>
                   </div>
                   {edu.details.map((d, di) => (
                     <p key={di} className="font-body text-sm text-muted mt-2 leading-relaxed">{d}</p>
                   ))}
                   {edu.honors.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mt-3">
-                      <span className="font-mono text-xs text-surface/50 mr-1">Honors:</span>
+                      <span className="font-mono text-xs text-surface/50 dark:text-white/30 mr-1">Honors:</span>
                       {edu.honors.map((h) => (
-                        <span key={h} className="font-mono text-xs text-accent border border-accent/20 bg-accent-light px-2 py-0.5 rounded-full">
+                        <span key={h} className="font-mono text-xs text-accent border border-accent/20 bg-accent-light dark:bg-accent/10 px-2 py-0.5 rounded-full">
                           {h}
                         </span>
                       ))}
@@ -131,7 +131,7 @@ export default function CVPage() {
             {/* Experience */}
             <Section title="Experience">
               <div className="relative">
-                <div className="absolute left-0 top-0 bottom-0 w-px bg-border" />
+                <div className="absolute left-0 top-0 bottom-0 w-px bg-border dark:bg-white/10" />
                 {experience.map((exp, i) => (
                   <motion.div
                     key={i}
@@ -144,16 +144,16 @@ export default function CVPage() {
                     <div className="absolute left-0 top-1.5 w-2 h-2 rounded-full -translate-x-[3px] bg-accent" />
                     <div className="flex items-baseline justify-between gap-4 mb-1 flex-wrap">
                       <div>
-                        <span className="font-body font-semibold text-surface">{exp.role}</span>
-                        <span className="font-body text-muted"> · {exp.company}</span>
+                        <span className="font-body font-semibold text-surface dark:text-white">{exp.role}</span>
+                        <span className="font-body text-muted dark:text-white/50"> · {exp.company}</span>
                       </div>
-                      <span className="font-mono text-xs text-muted whitespace-nowrap">{exp.period}</span>
+                      <span className="font-mono text-xs text-muted dark:text-white/40 whitespace-nowrap">{exp.period}</span>
                     </div>
                     <ul className="space-y-1.5 mt-2">
                       {exp.bullets.map((b, bi) => (
                         <li key={bi} className="flex items-start gap-2">
                           <span className="text-accent mt-1 flex-shrink-0 text-xs">▸</span>
-                          <span className="font-body text-sm text-muted leading-relaxed">{b}</span>
+                          <span className="font-body text-sm text-muted dark:text-white/50 leading-relaxed">{b}</span>
                         </li>
                       ))}
                     </ul>
@@ -167,10 +167,10 @@ export default function CVPage() {
               <div className="space-y-4">
                 {Object.entries(skills).map(([category, items]) => (
                   <div key={category}>
-                    <p className="font-mono text-xs text-muted uppercase tracking-widest mb-2">{category}</p>
+                    <p className="font-mono text-xs text-muted dark:text-white/40 uppercase tracking-widest mb-2">{category}</p>
                     <div className="flex flex-wrap gap-2">
                       {items.map((skill) => (
-                        <span key={skill} className="font-mono text-xs text-surface/70 border border-border bg-card px-3 py-1 rounded">
+                        <span key={skill} className="font-mono text-xs text-surface/70 dark:text-white/50 border border-border dark:border-white/10 bg-card dark:bg-white/5 px-3 py-1 rounded">
                           {skill}
                         </span>
                       ))}
@@ -184,7 +184,7 @@ export default function CVPage() {
             <Section title="Selected Early Career Programs">
               <div className="flex flex-wrap gap-2">
                 {earlyCareerPrograms.map((p) => (
-                  <span key={p} className="font-mono text-xs text-accent border border-accent/20 bg-accent-light px-3 py-1.5 rounded-full">
+                  <span key={p} className="font-mono text-xs text-accent border border-accent/20 bg-accent-light dark:bg-accent/10 px-3 py-1.5 rounded-full">
                     {p}
                   </span>
                 ))}
@@ -204,7 +204,7 @@ export default function CVPage() {
             {/* HS Education */}
             <Section title="Education">
               <div className="relative">
-                <div className="absolute left-0 top-0 bottom-0 w-px bg-border" />
+                <div className="absolute left-0 top-0 bottom-0 w-px bg-border dark:bg-white/10" />
                 {highSchoolEducation.map((edu, i) => (
                   <motion.div
                     key={i}
@@ -217,8 +217,8 @@ export default function CVPage() {
                     <div className="absolute left-0 top-1.5 w-2 h-2 rounded-full -translate-x-[3px] bg-accent-blue" />
                     <div className="flex items-baseline justify-between gap-4 mb-1 flex-wrap">
                       <div>
-                        <p className="font-body font-semibold text-surface">{edu.school}</p>
-                        <p className="font-mono text-xs text-muted mt-0.5">{edu.location}</p>
+                        <p className="font-body font-semibold text-surface dark:text-white">{edu.school}</p>
+                        <p className="font-mono text-xs text-muted dark:text-white/40 mt-0.5">{edu.location}</p>
                       </div>
                       <div className="text-right">
                         <span className="font-mono text-xs text-muted whitespace-nowrap block">{edu.period}</span>
@@ -237,7 +237,7 @@ export default function CVPage() {
             {highSchoolExperience.map((group, gi) => (
               <Section key={group.category} title={group.category}>
                 <div className="relative">
-                  <div className="absolute left-0 top-0 bottom-0 w-px bg-border" />
+                  <div className="absolute left-0 top-0 bottom-0 w-px bg-border dark:bg-white/10" />
                   {group.entries.map((entry, ei) => (
                     <motion.div
                       key={ei}
@@ -250,19 +250,19 @@ export default function CVPage() {
                       <div className="absolute left-0 top-1.5 w-2 h-2 rounded-full -translate-x-[3px] bg-accent" />
                       <div className="flex items-baseline justify-between gap-4 mb-1 flex-wrap">
                         <div>
-                          <span className="font-body font-semibold text-surface">{entry.role}</span>
-                          <span className="font-body text-muted"> · {entry.org}</span>
+                          <span className="font-body font-semibold text-surface dark:text-white">{entry.role}</span>
+                          <span className="font-body text-muted dark:text-white/50"> · {entry.org}</span>
                         </div>
-                        <span className="font-mono text-xs text-muted whitespace-nowrap">{entry.period}</span>
+                        <span className="font-mono text-xs text-muted dark:text-white/40 whitespace-nowrap">{entry.period}</span>
                       </div>
                       {"description" in entry && entry.description && (
-                        <p className="font-body text-sm text-muted/70 italic mt-1 mb-2">{entry.description as string}</p>
+                        <p className="font-body text-sm text-muted/70 dark:text-white/30 italic mt-1 mb-2">{entry.description as string}</p>
                       )}
                       <ul className="space-y-1.5 mt-2">
                         {entry.bullets.map((b, bi) => (
                           <li key={bi} className="flex items-start gap-2">
                             <span className="text-accent mt-1 flex-shrink-0 text-xs">▸</span>
-                            <span className="font-body text-sm text-muted leading-relaxed">{b}</span>
+                            <span className="font-body text-sm text-muted dark:text-white/50 leading-relaxed">{b}</span>
                           </li>
                         ))}
                       </ul>
@@ -276,7 +276,7 @@ export default function CVPage() {
             <Section title="Interests & Hobbies">
               <div className="flex flex-wrap gap-2">
                 {hobbies.map((h) => (
-                  <span key={h} className="font-mono text-xs text-surface/70 border border-border bg-card px-3 py-1.5 rounded-full">
+                  <span key={h} className="font-mono text-xs text-surface/70 dark:text-white/50 border border-border dark:border-white/10 bg-card dark:bg-white/5 px-3 py-1.5 rounded-full">
                     {h}
                   </span>
                 ))}
@@ -307,10 +307,10 @@ function Section({
       transition={{ type: "spring", stiffness: 100 }}
     >
       <div className="flex items-center gap-4 mb-6">
-        <h2 className="font-mono text-xs text-muted tracking-widest uppercase whitespace-nowrap">
+        <h2 className="font-mono text-xs text-muted dark:text-white/40 tracking-widest uppercase whitespace-nowrap">
           {title}
         </h2>
-        <div className="h-px bg-border flex-1" />
+        <div className="h-px bg-border dark:bg-white/10 flex-1" />
       </div>
       {children}
     </motion.div>

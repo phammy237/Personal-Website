@@ -28,8 +28,8 @@ export function CustomCursor() {
         dotRef.current.style.transform = `translate(${pos.current.x - 4}px, ${pos.current.y - 4}px)`;
       }
       // Ring lags behind with lerp
-      ring.current.x += (pos.current.x - ring.current.x) * 0.12;
-      ring.current.y += (pos.current.y - ring.current.y) * 0.12;
+      ring.current.x += (pos.current.x - ring.current.x) * 0.28;
+      ring.current.y += (pos.current.y - ring.current.y) * 0.28;
       if (ringRef.current) {
         const size = hovered ? 44 : 28;
         ringRef.current.style.transform = `translate(${ring.current.x - size / 2}px, ${ring.current.y - size / 2}px)`;

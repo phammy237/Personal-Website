@@ -156,12 +156,6 @@ export function ProjectDetailClient({
                   </ul>
                 )}
 
-                {project.outcome && (
-                  <div className="border-l-4 border-accent pl-8 mt-16 py-2">
-                    <span className="font-mono text-xs text-accent uppercase tracking-widest block mb-3">Outcome</span>
-                    <p className="font-body text-xl text-surface">{project.outcome}</p>
-                  </div>
-                )}
               </motion.div>
             )}
 
