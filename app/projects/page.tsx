@@ -181,6 +181,15 @@ function ProjectModal({ project, initialTab, onClose }: { project: Project; init
 function WorkCard({ project, onSelect }: { project: Project; onSelect: (p: Project, t: Tab) => void }) {
   const [hovered, setHovered] = useState(false);
   const isComp = !!project.competition;
+  const hasMedia = !!(project.video || project.slides);
+
+  const extLinks = [
+    project.github  && { key: "gh",      href: project.github,   label: "GitHub",   icon: "GH" },
+    project.devpost && { key: "dp",       href: project.devpost,  label: "Devpost",  icon: "DP" },
+    project.video   && { key: "yt",       href: project.video,    label: "Video",    icon: "▶" },
+    project.slides  && { key: "slides",   href: project.slides,   label: "Slides",   icon: "⊞" },
+    project.liveUrl && { key: "live",     href: project.liveUrl,  label: "Live",     icon: "↗" },
+  ].filter(Boolean) as { key: string; href: string; label: string; icon: string }[];
 
   return (
     <motion.div className="relative flex-shrink-0 w-[220px] md:w-[260px]" onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
@@ -188,32 +197,48 @@ function WorkCard({ project, onSelect }: { project: Project; onSelect: (p: Proje
         className="relative w-full aspect-video rounded-xl overflow-hidden cursor-pointer"
         animate={{ scale: hovered ? 1.05 : 1 }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        onClick={() => onSelect(project, "overview")}
+        onClick={() => onSelect(project, hasMedia ? "media" : "overview")}
       >
         <div className="absolute inset-0" style={{ background: project.gradient }} />
         {project.image && <Image src={project.image} alt={project.title} fill className="object-cover opacity-50" />}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
-
-        {/* Center icon */}
+        {/* Center play/badge icon */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
           <motion.div
             animate={{ scale: hovered ? 1.15 : 1, opacity: hovered ? 1 : isComp ? 0.6 : 0.7 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="w-10 h-10 rounded-full bg-white/20 border-2 border-white/60 flex items-center justify-center backdrop-blur-sm"
+            className={`w-10 h-10 rounded-full border-2 flex items-center justify-center backdrop-blur-sm ${hovered && hasMedia ? "bg-white border-white" : "bg-white/20 border-white/60"}`}
           >
-            {isComp
+            {isComp && !hasMedia
               ? <span className="text-white text-xs">🏅</span>
-              : <svg width="11" height="11" viewBox="0 0 12 12" fill="white"><polygon points="2,0 12,6 2,12" /></svg>
+              : <svg width="11" height="11" viewBox="0 0 12 12" fill={hovered && hasMedia ? "#080D24" : "white"}><polygon points="2,0 12,6 2,12" /></svg>
             }
           </motion.div>
         </div>
 
-        {/* Info button on hover */}
+        {/* Top-right links + info on hover */}
         <AnimatePresence>
           {hovered && (
-            <motion.div className="absolute top-2 right-2" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ duration: 0.15 }}>
-              <button onClick={(e) => { e.stopPropagation(); onSelect(project, "overview"); }} className="w-7 h-7 rounded-full bg-black/50 border border-white/30 flex items-center justify-center text-white text-xs hover:bg-black/70 transition-colors" title="More Info">ⓘ</button>
+            <motion.div
+              className="absolute top-2 right-2 flex gap-1"
+              initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.15 }}
+            >
+              {extLinks.map((l) => (
+                <a key={l.key} href={l.href} target="_blank" rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  title={l.label}
+                  className="w-7 h-7 rounded-full bg-black/60 border border-white/25 flex items-center justify-center font-mono text-[10px] text-white/70 hover:text-white hover:bg-black/80 transition-colors">
+                  {l.icon}
+                </a>
+              ))}
+              <button
+                onClick={(e) => { e.stopPropagation(); onSelect(project, "overview"); }}
+                title="More Info"
+                className="w-7 h-7 rounded-full bg-black/50 border border-white/25 flex items-center justify-center text-white/60 hover:text-white hover:bg-black/70 transition-colors text-xs">
+                ⓘ
+              </button>
             </motion.div>
           )}
         </AnimatePresence>
@@ -230,19 +255,7 @@ function WorkCard({ project, onSelect }: { project: Project; onSelect: (p: Proje
       <AnimatePresence>
         {hovered && (
           <motion.div className="absolute left-0 right-0 top-full z-30 bg-[#161828] border border-white/10 rounded-b-xl px-3 py-2.5 shadow-xl" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.15 }}>
-            <p className="font-body text-xs text-white/60 leading-relaxed line-clamp-2 mb-2">{project.logline}</p>
-            <div className="flex items-center justify-between">
-              <div className="flex flex-wrap gap-1">
-                {project.tools.slice(0, 2).map((t) => (
-                  <span key={t} className="font-mono text-[10px] text-white/40 border border-white/10 px-1.5 py-0.5 rounded">{t}</span>
-                ))}
-              </div>
-              {/* Quick links */}
-              <div className="flex gap-2">
-                {project.github && <a href={project.github} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="font-mono text-[10px] text-white/50 hover:text-white transition-colors">GH↗</a>}
-                {project.devpost && <a href={project.devpost} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="font-mono text-[10px] text-white/50 hover:text-white transition-colors">DP↗</a>}
-              </div>
-            </div>
+            <p className="font-body text-xs text-white/60 leading-relaxed line-clamp-2">{project.logline}</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -308,11 +321,15 @@ function WorkHero({ onSelect }: { onSelect: (p: Project, t: Tab) => void }) {
             <h2 className="font-display text-5xl md:text-7xl text-white leading-none mb-2">{project.title}</h2>
             <p className="font-mono text-xs text-white/40 mb-3">{project.competition ?? project.category} · {project.month}</p>
             <p className="font-body text-white/60 max-w-md mb-5 leading-relaxed text-sm">{project.logline}</p>
-            <div className="flex gap-3 flex-wrap">
-              <button onClick={() => onSelect(project, "media")} className="flex items-center gap-2 font-mono text-sm px-6 py-2.5 bg-white text-navy hover:bg-white/90 transition-colors rounded-full">
-                <svg width="10" height="10" viewBox="0 0 12 12" fill="currentColor"><polygon points="1,0 12,6 1,12" /></svg> Play
-              </button>
+            <div className="flex gap-3 flex-wrap items-center">
+              {(project.video || project.slides) && (
+                <button onClick={() => onSelect(project, "media")} className="flex items-center gap-2 font-mono text-sm px-6 py-2.5 bg-white text-navy hover:bg-white/90 transition-colors rounded-full">
+                  <svg width="10" height="10" viewBox="0 0 12 12" fill="currentColor"><polygon points="1,0 12,6 1,12" /></svg> Play
+                </button>
+              )}
               <button onClick={() => onSelect(project, "overview")} className="flex items-center gap-2 font-mono text-sm px-6 py-2.5 bg-white/15 border border-white/30 text-white hover:bg-white/25 transition-colors rounded-full">ⓘ More Info</button>
+              {project.github && <a href={project.github} target="_blank" rel="noopener noreferrer" className="font-mono text-sm px-4 py-2.5 bg-white/10 border border-white/20 text-white/70 hover:text-white hover:bg-white/20 transition-colors rounded-full">GH ↗</a>}
+              {project.devpost && <a href={project.devpost} target="_blank" rel="noopener noreferrer" className="font-mono text-sm px-4 py-2.5 bg-white/10 border border-white/20 text-white/70 hover:text-white hover:bg-white/20 transition-colors rounded-full">Devpost ↗</a>}
             </div>
           </motion.div>
         </AnimatePresence>

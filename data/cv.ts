@@ -82,9 +82,9 @@ export const education = [
 
 export const skills = {
   "Product & Analytics": ["Figma", "Jira", "Productboard", "Miro", "Amplitude", "Mixpanel", "Tableau", "Google Analytics", "Notion"],
-  Programming: ["Python", "R", "JavaScript", "C++"],
+  Programming: ["Python", "R", "JavaScript", "TypeScript", "C++", "Lua", "HTML"],
   "Frameworks & Libraries": ["React.js", "Node.js", "Django", "Pandas", "PyTorch", "ggplot2", "Matplotlib"],
-  Technologies: ["GitHub", "Jupyter Notebook", "MongoDB", "PostgreSQL", "MATLAB"],
+  Technologies: ["GitHub", "Jupyter Notebook", "MongoDB", "PostgreSQL (basic)", "MATLAB"],
   Languages: ["English (Fluent)", "Vietnamese (Native)", "Russian (Conversational)"],
 };
 
