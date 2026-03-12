@@ -10,21 +10,24 @@ import type { Project } from "@/data/projects";
 const ROTATE_MS = 6500;
 const ALL_CATEGORIES = [
   "All", "AI/ML", "Data & Analytics", "Product/UX", "Engineering",
-  "Hackathon", "Case Competition", "Math & Modeling",
+  "Case Competition", "Math & Modeling",
 ] as const;
 type Cat = typeof ALL_CATEGORIES[number];
 
+/* exclude hackathon-only entries — they're covered by their project counterpart */
+const displayWork = allWork.filter((p) => p.category !== "Hackathon");
+
 /* only prize winners rotate in hero */
-const featuredWork = allWork.filter((p) => p.prize);
+const featuredWork = displayWork.filter((p) => p.prize);
 
 function groupWork(filter: Cat) {
-  const list = filter === "All" ? allWork : allWork.filter((p) => p.category === filter);
+  const list = filter === "All" ? displayWork : displayWork.filter((p) => p.category === filter);
   if (filter !== "All") return [{ cat: filter as string, items: list }];
-  const cats = ["AI/ML", "Data & Analytics", "Product/UX", "Engineering", "Hackathon", "Case Competition", "Math & Modeling"];
+  const cats = ["AI/ML", "Data & Analytics", "Product/UX", "Engineering", "Case Competition", "Math & Modeling"];
   return cats.map((c) => ({ cat: c, items: list.filter((p) => p.category === c) })).filter((g) => g.items.length > 0);
 }
 
-type Tab = "overview" | "media";
+type Tab = "overview" | "role" | "stack" | "media";
 
 const AWARD_BADGE: Record<string, string> = {
   "Best Finance Project": "bg-yellow-500/20 text-yellow-300 border-yellow-500/40",
@@ -33,10 +36,18 @@ const AWARD_BADGE: Record<string, string> = {
   "Outstanding Award": "bg-purple-500/20 text-purple-300 border-purple-500/40",
 };
 
+const MODAL_TABS: { key: Tab; label: string }[] = [
+  { key: "overview", label: "Overview" },
+  { key: "role", label: "What I Did" },
+  { key: "stack", label: "Stack" },
+  { key: "media", label: "Media" },
+];
+
 /* ─── Modal ────────────────────────────────────────── */
 function ProjectModal({ project, initialTab, onClose }: { project: Project; initialTab: Tab; onClose: () => void }) {
   const [tab, setTab] = useState<Tab>(initialTab);
   const hasMedia = !!(project.video || project.slides);
+  const visibleTabs = MODAL_TABS.filter((t) => t.key !== "media" || hasMedia);
 
   const links = [
     project.github && { label: "GitHub", href: project.github },
@@ -60,66 +71,75 @@ function ProjectModal({ project, initialTab, onClose }: { project: Project; init
         initial={{ y: 60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 60, opacity: 0 }}
         transition={{ type: "spring", stiffness: 200, damping: 28 }}
       >
-        <div className="relative h-52 md:h-64 flex items-end p-6 overflow-hidden" style={{ background: project.gradient }}>
+        {/* Header */}
+        <div className="relative h-52 md:h-60 flex items-end p-6 overflow-hidden" style={{ background: project.gradient }}>
           {project.image && <Image src={project.image} alt={project.title} fill className="object-cover opacity-30" />}
           <div className="absolute inset-0 bg-gradient-to-t from-[#0D0F1A] via-black/30 to-transparent" />
           <button onClick={onClose} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/70 transition-colors z-10">✕</button>
           <div className="relative z-10 w-full">
             <span className="font-mono text-xs text-white/50 block mb-1">{project.competition ?? project.category} · {project.month}</span>
-            <h2 className="font-display text-4xl md:text-5xl text-white leading-none mb-3">{project.title}</h2>
+            <h2 className="font-display text-4xl md:text-5xl text-white leading-none mb-1">{project.title}</h2>
             {project.award && (
-              <span className={`inline-block font-mono text-xs px-3 py-1 rounded-full border mb-3 ${AWARD_BADGE[project.award] ?? "bg-white/10 text-white/60 border-white/20"}`}>
-                🏆 {project.award}
-              </span>
+              <p className="font-mono text-xs text-yellow-400/70 mt-1.5">🏆 {project.award}</p>
             )}
-            <div className="flex gap-3 flex-wrap mt-2">
-              {hasMedia && (
-                <button onClick={() => setTab("media")} className="flex items-center gap-2 font-mono text-xs px-4 py-2 bg-white text-navy rounded-full hover:bg-white/90 transition-colors">
-                  <svg width="9" height="9" viewBox="0 0 10 10" fill="currentColor"><polygon points="1,0 10,5 1,10" /></svg> Play Demo
-                </button>
-              )}
-              {links.map((l) => (
-                <a key={l.label} href={l.href} target="_blank" rel="noopener noreferrer" className="font-mono text-xs px-4 py-2 bg-white/10 border border-white/20 text-white rounded-full hover:bg-white/20 transition-colors">{l.label} ↗</a>
-              ))}
-            </div>
+            {links.length > 0 && (
+              <div className="flex gap-2 flex-wrap mt-3">
+                {links.map((l) => (
+                  <a key={l.label} href={l.href} target="_blank" rel="noopener noreferrer" className="font-mono text-xs px-3 py-1.5 bg-white/10 border border-white/20 text-white rounded-full hover:bg-white/20 transition-colors">{l.label} ↗</a>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
+        {/* Tabs */}
         <div className="flex border-b border-white/10 px-6">
-          {(["overview", ...(hasMedia ? ["media"] : [])] as Tab[]).map((t) => (
-            <button key={t} onClick={() => setTab(t)} className={`relative font-mono text-xs px-4 py-3 capitalize transition-colors ${tab === t ? "text-white" : "text-white/40 hover:text-white/70"}`}>
-              {t === "media" ? "Media & Demo" : "Overview"}
-              {tab === t && <motion.div layoutId="modal-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-white" />}
+          {visibleTabs.map(({ key, label }) => (
+            <button key={key} onClick={() => setTab(key)} className={`relative font-mono text-xs px-4 py-3 transition-colors ${tab === key ? "text-white" : "text-white/40 hover:text-white/70"}`}>
+              {label}
+              {tab === key && <motion.div layoutId="modal-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-white" />}
             </button>
           ))}
         </div>
 
+        {/* Tab content */}
         <div className="p-6">
           <AnimatePresence mode="wait">
             {tab === "overview" && (
               <motion.div key="ov" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-                {/* Tech stack */}
-                {project.tools.length > 0 && (
-                  <div className="mb-5">
-                    <p className="font-mono text-[10px] text-white/30 uppercase tracking-widest mb-2">Tech Stack</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {project.tools.map((t) => (
-                        <span key={t} className="font-mono text-xs text-white/60 border border-white/15 bg-white/5 px-2.5 py-1 rounded-full">{t}</span>
-                      ))}
-                    </div>
-                  </div>
+                <p className="font-mono text-[10px] text-white/30 uppercase tracking-widest mb-2">The Problem</p>
+                <p className="font-body text-white/70 leading-relaxed">{project.description}</p>
+                {project.logline && (
+                  <p className="font-body text-sm text-white/40 italic mt-3 leading-relaxed">{project.logline}</p>
                 )}
-                <p className="font-body text-white/70 leading-relaxed mb-5">{project.description}</p>
-                <ul className="space-y-3">
+              </motion.div>
+            )}
+
+            {tab === "role" && (
+              <motion.div key="role" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+                <p className="font-mono text-[10px] text-white/30 uppercase tracking-widest mb-4">What I Did</p>
+                <ul className="space-y-4">
                   {project.bullets.map((b, i) => (
                     <li key={i} className="flex items-start gap-3">
                       <span className="text-accent mt-1.5 flex-shrink-0 text-xs">▸</span>
-                      <span className="font-body text-sm text-white/60 leading-relaxed">{b}</span>
+                      <span className="font-body text-sm text-white/65 leading-relaxed">{b}</span>
                     </li>
                   ))}
                 </ul>
               </motion.div>
             )}
+
+            {tab === "stack" && (
+              <motion.div key="stack" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+                <p className="font-mono text-[10px] text-white/30 uppercase tracking-widest mb-4">Tech Stack</p>
+                <div className="flex flex-wrap gap-2">
+                  {project.tools.map((t) => (
+                    <span key={t} className="font-mono text-xs text-white/70 border border-white/15 bg-white/5 px-3 py-1.5 rounded-full">{t}</span>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
             {tab === "media" && (
               <motion.div key="md" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="space-y-8">
                 {project.video && (
@@ -136,11 +156,6 @@ function ProjectModal({ project, initialTab, onClose }: { project: Project; init
                     <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-black">
                       <iframe src={project.slides} className="absolute inset-0 w-full h-full" title={`${project.title} slides`} allowFullScreen />
                     </div>
-                  </div>
-                )}
-                {!project.video && !project.slides && (
-                  <div className="py-16 text-center">
-                    <p className="font-mono text-sm text-white/40">Media coming soon.</p>
                   </div>
                 )}
               </motion.div>
@@ -169,14 +184,6 @@ function WorkCard({ project, onSelect }: { project: Project; onSelect: (p: Proje
         {project.image && <Image src={project.image} alt={project.title} fill className="object-cover opacity-50" />}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
-        {/* Award badge for prize winners */}
-        {project.award && (
-          <div className="absolute top-2 left-2">
-            <span className={`font-mono text-[10px] px-2 py-0.5 rounded-full border ${AWARD_BADGE[project.award] ?? "bg-white/10 text-white/60 border-white/20"}`}>
-              🏆 {project.award}
-            </span>
-          </div>
-        )}
 
         {/* Center icon */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -203,6 +210,9 @@ function WorkCard({ project, onSelect }: { project: Project; onSelect: (p: Proje
 
         <div className="absolute bottom-0 left-0 right-0 p-2.5">
           <p className="font-display text-white text-sm leading-tight">{project.title}</p>
+          {project.award && (
+            <p className="font-mono text-[9px] text-yellow-400/70 mt-0.5 leading-tight">🏆 {project.award}</p>
+          )}
         </div>
       </motion.div>
 
@@ -337,7 +347,7 @@ export default function WorkPage() {
             <button key={cat} onClick={() => setActiveCategory(cat)}
               className={`font-mono text-xs px-4 py-2 rounded-full border transition-all duration-200 ${activeCategory === cat ? "bg-accent text-white border-accent" : "bg-white/5 text-white/50 border-white/10 hover:border-white/30 hover:text-white/80"}`}>
               {cat}
-              {cat !== "All" && <span className="ml-1.5 opacity-50">({allWork.filter((p) => p.category === cat).length})</span>}
+              {cat !== "All" && <span className="ml-1.5 opacity-50">({displayWork.filter((p) => p.category === cat).length})</span>}
             </button>
           ))}
         </motion.div>

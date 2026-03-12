@@ -32,7 +32,7 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastY]);
 
-  const isDark = (isHome && !scrolled) || pathname === "/projects" || pathname === "/involvements" || pathname === "/case-studies" || pathname === "/biography";
+  const isDark = (isHome && !scrolled) || pathname === "/case-studies";
 
   return (
     <motion.header
@@ -56,7 +56,7 @@ export function Navbar() {
           return (
             <Link key={label} href={href}
               className={`font-mono text-xs tracking-wider uppercase transition-colors duration-200 hidden md:block ${
-                isActive ? "text-accent" : dark ? "text-white/70 hover:text-white" : "text-muted dark:text-white/50 hover:text-surface dark:hover:text-white"
+                isActive ? "text-accent" : dark ? "text-white/70 hover:text-white" : "text-surface/80 dark:text-white/50 hover:text-surface dark:hover:text-white"
               }`}
             >
               {label}
