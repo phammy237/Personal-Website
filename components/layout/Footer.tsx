@@ -1,0 +1,61 @@
+import Link from "next/link";
+
+export function Footer() {
+  return (
+    <footer className="bg-navy border-t border-white/10 px-[5vw] py-16">
+      <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+        <div>
+          <p className="font-mono text-sm text-white/40 mb-1">
+            UF Data Science · Class of 2028
+          </p>
+          <p className="font-body text-2xl text-white">
+            Open to opportunities →
+          </p>
+        </div>
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+          <a
+            href="mailto:phamlehamy2307@gmail.com"
+            className="font-mono text-sm text-white/60 hover:text-accent transition-colors duration-200"
+          >
+            phamlehamy2307@gmail.com
+          </a>
+          <a
+            href="https://linkedin.com/in/mypham237"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-mono text-sm text-white/60 hover:text-accent transition-colors duration-200"
+          >
+            LinkedIn ↗
+          </a>
+          <a
+            href="tel:3527454868"
+            className="font-mono text-sm text-white/60 hover:text-accent transition-colors duration-200"
+          >
+            352-745-4868
+          </a>
+        </div>
+      </div>
+      <div className="max-w-[1200px] mx-auto mt-12 pt-8 border-t border-white/5 flex flex-wrap gap-6">
+        {[
+          ["Projects", "/projects"],
+          ["Case Studies", "/case-studies"],
+          ["Involvements", "/involvements"],
+          ["CV", "/cv"],
+        ].map(([label, href]) => (
+          <Link
+            key={label}
+            href={href}
+            className="font-mono text-xs text-white/30 hover:text-white/60 transition-colors duration-200"
+          >
+            {label}
+          </Link>
+        ))}
+      </div>
+      <div className="max-w-[1200px] mx-auto mt-6">
+        <p className="font-mono text-xs text-white/20">
+          © 2026 My Pham · Built with Next.js &amp; Framer Motion
+        </p>
+      </div>
+    </footer>
+  );
+}

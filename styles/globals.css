@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --accent: #8B5CF6;
+  --accent-blue: #3B82F6;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: #F8F9FF;
+  color: #1E1B4B;
+}
+
+body {
+  background-color: #F8F9FF;
+}
+
+/* Hide default cursor on desktop */
+@media (pointer: fine) {
+  * { cursor: none !important; }
+}
+
+/* Scroll indicator pulse */
+@keyframes pulse-scroll {
+  0%, 100% { opacity: 1; transform: translateY(0); }
+  50% { opacity: 0.5; transform: translateY(8px); }
+}
+.scroll-indicator {
+  animation: pulse-scroll 2s ease-in-out infinite;
+}
+
+/* Masonry grid */
+.masonry-grid {
+  columns: 1;
+  column-gap: 1.5rem;
+}
+@media (min-width: 640px) {
+  .masonry-grid { columns: 2; }
+}
+@media (min-width: 1024px) {
+  .masonry-grid { columns: 3; }
+}
+.masonry-item {
+  break-inside: avoid;
+  margin-bottom: 1.5rem;
+}
+
+/* Print stylesheet for CV */
+@media print {
+  .no-print { display: none !important; }
+  body { background: white; color: black; }
+  .cv-section { page-break-inside: avoid; }
+}
