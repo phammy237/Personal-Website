@@ -330,7 +330,7 @@ export const competitions: Project[] = [
     category: "Case Competition",
     year: "2025",
     month: "Oct 2025",
-    logline: "Top 20 nationally — Strategy consulting case competition",
+    logline: "Top 20 — Strategy consulting case competition",
     description: "Competed in McKinsey's case competition, finishing Top 20 out of hundreds of university teams.",
     bullets: [
       "Applied structured problem-solving and consulting frameworks to a live business case.",

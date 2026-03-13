@@ -192,6 +192,10 @@ export default function ConnectPage() {
             <a href={`mailto:${email}`} className="font-mono text-sm text-accent hover:underline">{email}</a>
             <span className="text-border dark:text-white/10">·</span>
             <a href="https://linkedin.com/in/mypham237" target="_blank" rel="noopener noreferrer" className="font-mono text-sm text-accent hover:underline">LinkedIn ↗</a>
+            <span className="text-border dark:text-white/10">·</span>
+            <a href="https://www.instagram.com/whyy.pmyy_/" target="_blank" rel="noopener noreferrer" className="font-mono text-sm text-accent hover:underline">Instagram ↗</a>
+            <span className="text-border dark:text-white/10">·</span>
+            <a href="https://www.facebook.com/pmyy237/" target="_blank" rel="noopener noreferrer" className="font-mono text-sm text-accent hover:underline">Facebook ↗</a>
           </div>
         </motion.div>
       </div>

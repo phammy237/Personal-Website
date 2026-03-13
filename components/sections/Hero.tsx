@@ -54,24 +54,44 @@ export function Hero() {
       id="hero"
       className="relative min-h-screen flex flex-col px-[5vw] pt-32 pb-12 overflow-hidden"
     >
-      {/* Background — drop public/hero-bg.jpg to use a photo */}
+      {/* Background */}
       <div className="absolute inset-0">
-        {/* Try loading a background photo */}
         <Image
           src="/hero-bg.jpg"
           alt=""
           fill
           className="object-cover opacity-20"
-          onError={() => {/* silently fail, gradient shows */}}
+          onError={() => {}}
           priority
         />
         {/* Base dark gradient */}
         <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, #050818 0%, #0D1030 40%, #130820 70%, #080D24 100%)" }} />
-        {/* Radial color blobs */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_15%,_#8B5CF640,_transparent_55%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_85%,_#3B82F630,_transparent_55%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_60%_30%,_#EC489920,_transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_10%_80%,_#06B6D420,_transparent_45%)]" />
+
+        {/* Floating animated orbs */}
+        <motion.div
+          className="absolute w-[600px] h-[600px] rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(circle, #8B5CF640 0%, transparent 70%)", top: "-10%", left: "-5%" }}
+          animate={{ x: [0, 40, -20, 0], y: [0, -30, 20, 0] }}
+          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute w-[500px] h-[500px] rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(circle, #3B82F630 0%, transparent 70%)", bottom: "-5%", right: "-5%" }}
+          animate={{ x: [0, -50, 30, 0], y: [0, 40, -20, 0] }}
+          transition={{ duration: 22, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+        />
+        <motion.div
+          className="absolute w-[400px] h-[400px] rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(circle, #EC489922 0%, transparent 70%)", top: "20%", right: "20%" }}
+          animate={{ x: [0, 30, -40, 0], y: [0, -40, 15, 0] }}
+          transition={{ duration: 26, repeat: Infinity, ease: "easeInOut", delay: 6 }}
+        />
+        <motion.div
+          className="absolute w-[350px] h-[350px] rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(circle, #06B6D422 0%, transparent 70%)", bottom: "20%", left: "15%" }}
+          animate={{ x: [0, -25, 45, 0], y: [0, 35, -25, 0] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 9 }}
+        />
       </div>
 
       {/* Main content */}
