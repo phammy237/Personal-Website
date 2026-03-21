@@ -54,6 +54,8 @@ export const projects: Project[] = [
     award: "Best Finance Project",
     competition: "SASE Hacks 2026",
     prize: true,
+    github: "#",
+    devpost: "#",
   },
   {
     slug: "kite",
@@ -82,6 +84,8 @@ export const projects: Project[] = [
     award: "3rd Place Overall",
     competition: "Code4Change",
     prize: true,
+    github: "#",
+    devpost: "#",
   },
   {
     slug: "wnba-simulator",
@@ -99,6 +103,7 @@ export const projects: Project[] = [
       "The project helped me think more deeply about tradeoffs, uncertainty, and strategic decision support.",
     ],
     tools: ["Python", "Monte Carlo Simulation", "Excel", "Data Modeling"],
+    github: "#",
     stack: [
       { layer: "Modeling", tech: "Python (pandas, NumPy)" },
       { layer: "Simulation", tech: "Monte Carlo (200 trials)" },
@@ -122,6 +127,7 @@ export const projects: Project[] = [
       "The project pushed me to think beyond analysis and toward usability and applied value.",
     ],
     tools: ["Python", "Streamlit", "scikit-learn", "pandas", "R"],
+    github: "#",
     stack: [
       { layer: "Data", tech: "Python + pandas (20K+ records)" },
       { layer: "Model", tech: "scikit-learn (least-squares MLR)" },
@@ -179,6 +185,7 @@ export const projects: Project[] = [
       "The project taught me a lot about platform thinking, infrastructure, and analytics-driven product support.",
     ],
     tools: ["Node.js", "REST APIs", "PostgreSQL", "Tableau", "Healthcare Data"],
+    github: "#",
     stack: [
       { layer: "Backend", tech: "Node.js (10+ RESTful APIs)" },
       { layer: "Database", tech: "PostgreSQL (50K+ records migrated)" },
@@ -201,6 +208,8 @@ export const projects: Project[] = [
       "The product concept centered on convenience, personalization, and reducing avoidable food waste.",
     ],
     tools: ["Python", "Computer Vision", "Mobile", "AI", "UX"],
+    github: "#",
+    devpost: "#",
     gradient: "linear-gradient(135deg, #16A34A 0%, #84CC16 100%)",
   },
   {
@@ -218,6 +227,7 @@ export const projects: Project[] = [
       "What interested me most was translating model-risk concepts into something decision-makers could actually interpret and use.",
     ],
     tools: ["Python", "Streamlit", "Fairlearn", "scikit-learn", "Data Ethics"],
+    github: "#",
     gradient: "linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%)",
   },
   {
@@ -235,6 +245,8 @@ export const projects: Project[] = [
       "This project strengthened my interest in service design and operational problem-solving.",
     ],
     tools: ["Python", "NLP", "Chatbot", "AI"],
+    github: "#",
+    devpost: "#",
     stack: [
       { layer: "Language", tech: "Python" },
       { layer: "NLP", tech: "Natural Language Processing" },
@@ -259,6 +271,7 @@ export const projects: Project[] = [
       "The project was a strong exercise in applied analytics and communicating business insight from large datasets.",
     ],
     tools: ["Python", "pandas", "Data Visualization", "Statistical Analysis"],
+    github: "#",
     gradient: "linear-gradient(135deg, #0369A1 0%, #0EA5E9 100%)",
   },
   {
@@ -276,6 +289,7 @@ export const projects: Project[] = [
       "The project gave me a strong foundation in backend thinking and data architecture.",
     ],
     tools: ["MongoDB", "Mongoose", "React", "Node.js", "3D Visualization"],
+    github: "#",
     stack: [
       { layer: "Frontend", tech: "React + 3D visualization" },
       { layer: "Backend", tech: "Node.js" },
