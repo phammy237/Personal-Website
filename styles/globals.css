@@ -5,6 +5,11 @@
 :root {
   --accent: #8B5CF6;
   --accent-blue: #3B82F6;
+  --page-bg: #F8F9FF;
+}
+
+.dark {
+  --page-bg: #080D24;
 }
 
 html {

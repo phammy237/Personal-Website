@@ -238,12 +238,12 @@ function InvCard({ inv, onSelect }: { inv: Involvement; onSelect: (inv: Involvem
       <AnimatePresence>
         {hovered && (
           <motion.div
-            className="absolute left-0 right-0 top-full z-30 bg-[#161828] border border-white/10 rounded-b-xl px-3 py-2.5 shadow-xl"
+            className="absolute left-0 right-0 top-full z-30 bg-white dark:bg-[#161828] border border-gray-200 dark:border-white/10 rounded-b-xl px-3 py-2.5 shadow-xl"
             initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.15 }}
           >
-            <p className="font-body text-xs text-white/60 line-clamp-2 leading-relaxed mb-1.5">{inv.description}</p>
-            <p className="font-mono text-[10px] text-white/30">{inv.period}</p>
+            <p className="font-body text-xs text-surface/60 dark:text-white/60 line-clamp-2 leading-relaxed mb-1.5">{inv.description}</p>
+            <p className="font-mono text-[10px] text-surface/30 dark:text-white/30">{inv.period}</p>
             {inv.awards.length > 0 && (
               <div className="flex gap-1 mt-1.5 flex-wrap">
                 {inv.awards.map((a) => <span key={a} className="font-mono text-[10px] text-yellow-300/80">🏆 {a}</span>)}
@@ -279,8 +279,8 @@ function InvHero({ onSelect }: { onSelect: (inv: Involvement) => void }) {
       <AnimatePresence mode="sync">
         <motion.div key={inv.org} className="absolute inset-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.8 }}>
           <div className="absolute inset-0" style={{ background: inv.gradient }} />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#080D24] via-[#080D24]/40 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#080D24]/70 via-transparent to-transparent" />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, var(--page-bg) 0%, transparent 60%)" }} />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent" />
         </motion.div>
       </AnimatePresence>
 
@@ -308,13 +308,13 @@ function InvHero({ onSelect }: { onSelect: (inv: Involvement) => void }) {
 
         {/* Dots + arrows */}
         <div className="absolute bottom-4 right-[5vw] flex items-center gap-3">
-          <button onClick={() => { setIdx((i) => (i - 1 + featured.length) % featured.length); setPaused(true); }} className="w-7 h-7 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white/60 hover:bg-white/20 hover:text-white transition-colors text-xs">‹</button>
+          <button onClick={() => { setIdx((i) => (i - 1 + featured.length) % featured.length); setPaused(true); }} className="w-7 h-7 rounded-full bg-black/20 dark:bg-white/10 border border-black/30 dark:border-white/20 flex items-center justify-center text-white/80 hover:bg-black/40 dark:hover:bg-white/20 hover:text-white transition-colors text-xs">‹</button>
           {featured.map((_, i) => (
             <button key={i} onClick={() => { setIdx(i); setPaused(true); }}>
               <div className={`rounded-full transition-all duration-300 ${i === idx ? "w-6 h-1.5 bg-white" : "w-1.5 h-1.5 bg-white/30"}`} />
             </button>
           ))}
-          <button onClick={() => { advance(); setPaused(true); }} className="w-7 h-7 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white/60 hover:bg-white/20 hover:text-white transition-colors text-xs">›</button>
+          <button onClick={() => { advance(); setPaused(true); }} className="w-7 h-7 rounded-full bg-black/20 dark:bg-white/10 border border-black/30 dark:border-white/20 flex items-center justify-center text-white/80 hover:bg-black/40 dark:hover:bg-white/20 hover:text-white transition-colors text-xs">›</button>
         </div>
       </div>
 
@@ -332,7 +332,7 @@ export default function InvolvementsPage() {
   const [selected, setSelected] = useState<Involvement | null>(null);
 
   return (
-    <main className="min-h-screen" style={{ background: "linear-gradient(180deg, #080D24 0%, #0A0C1E 100%)" }}>
+    <main className="min-h-screen bg-base dark:bg-navy">
       <Navbar />
 
       <div className="pt-16">
@@ -345,7 +345,7 @@ export default function InvolvementsPage() {
           if (!items.length) return null;
           return (
             <motion.div key={cat} className="mb-10" initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-60px" }} transition={{ type: "spring", stiffness: 100, damping: 20 }}>
-              <p className="font-mono text-sm text-white/60 uppercase tracking-widest mb-3 px-[5vw]">{cat}</p>
+              <p className="font-mono text-sm text-surface/60 dark:text-white/60 uppercase tracking-widest mb-3 px-[5vw]">{cat}</p>
               <div className="flex gap-4 px-[5vw] overflow-x-auto pb-14 scrollbar-hide">
                 {items.map((inv) => <InvCard key={`${inv.role}-${inv.org}`} inv={inv} onSelect={setSelected} />)}
               </div>

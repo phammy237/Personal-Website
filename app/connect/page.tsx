@@ -125,7 +125,6 @@ export default function ConnectPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.25 + i * 0.05, type: "spring", stiffness: 120, damping: 20 }}
             >
-              <div className="text-3xl mb-4">{opt.emoji}</div>
               <h3 className="font-display text-xl text-surface dark:text-white mb-2 group-hover:text-accent transition-colors duration-200">
                 {opt.title}
               </h3>
@@ -146,7 +145,7 @@ export default function ConnectPage() {
             transition={{ type: "spring", stiffness: 120, damping: 20 }}
           >
             <p className="font-mono text-xs text-accent tracking-widest uppercase mb-5">
-              {selectedOpt?.emoji} {selected}
+              {selected}
             </p>
             <form onSubmit={handleSend} className="flex flex-col gap-4">
               <div className="flex flex-col sm:flex-row gap-4">

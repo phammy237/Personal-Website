@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DM_Serif_Display, Inter, JetBrains_Mono } from "next/font/google";
+import { DM_Serif_Display, Inter, JetBrains_Mono, Roboto } from "next/font/google";
 import { CustomCursor } from "@/components/layout/CustomCursor";
 import { ChatBot } from "@/components/ui/ChatBot";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
@@ -23,6 +23,12 @@ const jetbrains = JetBrains_Mono({
   weight: ["400", "500"],
 });
 
+const roboto = Roboto({
+  subsets: ["latin"],
+  variable: "--font-roboto",
+  weight: ["400", "500"],
+});
+
 export const metadata: Metadata = {
   title: "My Pham — Data Scientist & Product Strategist",
   description: "Data Science student at UF · Product Strategist · Builder. Formerly Deloitte Risk Advisory.",
@@ -36,7 +42,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${dmSerif.variable} ${inter.variable} ${jetbrains.variable}`}
+      className={`${dmSerif.variable} ${inter.variable} ${jetbrains.variable} ${roboto.variable}`}
     >
       <body className="bg-base dark:bg-navy text-surface dark:text-white font-body antialiased min-h-screen">
         <ThemeProvider>

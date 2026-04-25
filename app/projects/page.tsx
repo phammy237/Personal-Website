@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { SignatureIntro } from "@/components/ui/SignatureIntro";
 import { allWork } from "@/data/projects";
 import type { Project } from "@/data/projects";
 
@@ -271,8 +270,8 @@ function WorkCard({ project, onSelect }: { project: Project; onSelect: (p: Proje
       {/* Hover strip */}
       <AnimatePresence>
         {hovered && (
-          <motion.div className="absolute left-0 right-0 top-full z-30 bg-[#161828] border border-white/10 rounded-b-xl px-3 py-2.5 shadow-xl" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.15 }}>
-            <p className="font-body text-xs text-white/60 leading-relaxed line-clamp-2">{project.logline}</p>
+          <motion.div className="absolute left-0 right-0 top-full z-30 bg-white dark:bg-[#161828] border border-gray-200 dark:border-white/10 rounded-b-xl px-3 py-2.5 shadow-xl" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.15 }}>
+            <p className="font-body text-xs text-surface/60 dark:text-white/60 leading-relaxed line-clamp-2">{project.logline}</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -288,10 +287,10 @@ function WorkRow({ cat, items, onSelect }: { cat: string; items: Project[]; onSe
   return (
     <motion.div className="mb-10 group/row" initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-60px" }} transition={{ type: "spring", stiffness: 100, damping: 20 }}>
       <div className="flex items-center justify-between px-[5vw] mb-3">
-        <p className="font-mono text-sm text-white/60 uppercase tracking-widest">{cat}</p>
+        <p className="font-mono text-sm text-surface/60 dark:text-white/60 uppercase tracking-widest">{cat}</p>
         <div className="flex gap-1.5 opacity-0 group-hover/row:opacity-100 transition-opacity duration-200">
-          <button onClick={() => scroll(-1)} className="w-7 h-7 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white/60 hover:bg-white/20 hover:text-white transition-colors text-sm">‹</button>
-          <button onClick={() => scroll(1)} className="w-7 h-7 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white/60 hover:bg-white/20 hover:text-white transition-colors text-sm">›</button>
+          <button onClick={() => scroll(-1)} className="w-7 h-7 rounded-full bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 flex items-center justify-center text-surface/60 dark:text-white/60 hover:bg-black/20 dark:hover:bg-white/20 hover:text-surface dark:hover:text-white transition-colors text-sm">‹</button>
+          <button onClick={() => scroll(1)} className="w-7 h-7 rounded-full bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 flex items-center justify-center text-surface/60 dark:text-white/60 hover:bg-black/20 dark:hover:bg-white/20 hover:text-surface dark:hover:text-white transition-colors text-sm">›</button>
         </div>
       </div>
       <div ref={rowRef} className="flex gap-4 px-[5vw] overflow-x-auto pb-14 scrollbar-hide">
@@ -322,8 +321,8 @@ function WorkHero({ onSelect }: { onSelect: (p: Project, t: Tab) => void }) {
         <motion.div key={project.slug} className="absolute inset-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.8 }}>
           <div className="absolute inset-0" style={{ background: project.gradient }} />
           {project.image && <Image src={project.image} alt={project.title} fill className="object-cover opacity-40" priority />}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#080D24] via-[#080D24]/30 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#080D24]/70 via-transparent to-transparent" />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, var(--page-bg) 0%, transparent 60%)" }} />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent" />
         </motion.div>
       </AnimatePresence>
 
@@ -352,13 +351,13 @@ function WorkHero({ onSelect }: { onSelect: (p: Project, t: Tab) => void }) {
         </AnimatePresence>
 
         <div className="absolute bottom-4 right-[5vw] flex items-center gap-3">
-          <button onClick={() => { setIdx((i) => (i - 1 + featuredWork.length) % featuredWork.length); setPaused(true); }} className="w-7 h-7 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white/60 hover:bg-white/20 hover:text-white transition-colors text-xs">‹</button>
+          <button onClick={() => { setIdx((i) => (i - 1 + featuredWork.length) % featuredWork.length); setPaused(true); }} className="w-7 h-7 rounded-full bg-black/20 dark:bg-white/10 border border-black/30 dark:border-white/20 flex items-center justify-center text-white/80 hover:bg-black/40 dark:hover:bg-white/20 hover:text-white transition-colors text-xs">‹</button>
           {featuredWork.map((_, i) => (
             <button key={i} onClick={() => { setIdx(i); setPaused(true); }}>
               <div className={`rounded-full transition-all duration-300 ${i === idx ? "w-6 h-1.5 bg-white" : "w-1.5 h-1.5 bg-white/30"}`} />
             </button>
           ))}
-          <button onClick={() => { advance(); setPaused(true); }} className="w-7 h-7 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white/60 hover:bg-white/20 hover:text-white transition-colors text-xs">›</button>
+          <button onClick={() => { advance(); setPaused(true); }} className="w-7 h-7 rounded-full bg-black/20 dark:bg-white/10 border border-black/30 dark:border-white/20 flex items-center justify-center text-white/80 hover:bg-black/40 dark:hover:bg-white/20 hover:text-white transition-colors text-xs">›</button>
         </div>
       </div>
 
@@ -378,8 +377,7 @@ export default function WorkPage() {
   const groups = groupWork(activeCategory);
 
   return (
-    <main className="min-h-screen" style={{ background: "linear-gradient(180deg, #080D24 0%, #0A0C1E 100%)" }}>
-      <SignatureIntro />
+    <main className="min-h-screen bg-base dark:bg-navy">
       <Navbar />
       <div className="pt-16">
         <WorkHero onSelect={(p, t) => setSelected({ project: p, tab: t })} />
@@ -390,7 +388,7 @@ export default function WorkPage() {
         <motion.div className="flex flex-wrap gap-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
           {ALL_CATEGORIES.map((cat) => (
             <button key={cat} onClick={() => setActiveCategory(cat)}
-              className={`font-mono text-xs px-4 py-2 rounded-full border transition-all duration-200 ${activeCategory === cat ? "bg-accent text-white border-accent" : "bg-white/5 text-white/50 border-white/10 hover:border-white/30 hover:text-white/80"}`}>
+              className={`font-mono text-xs px-4 py-2 rounded-full border transition-all duration-200 ${activeCategory === cat ? "bg-accent text-white border-accent" : "bg-black/5 dark:bg-white/5 text-surface/60 dark:text-white/50 border-black/10 dark:border-white/10 hover:border-black/30 dark:hover:border-white/30 hover:text-surface dark:hover:text-white/80"}`}>
               {cat}
               {cat !== "All" && <span className="ml-1.5 opacity-50">({displayWork.filter((p) => p.category === cat).length})</span>}
             </button>

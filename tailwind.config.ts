@@ -8,6 +8,7 @@ const config: Config = {
         display: ["var(--font-dm-serif)", "serif"],
         body: ["var(--font-inter)", "sans-serif"],
         mono: ["var(--font-jetbrains)", "monospace"],
+        roboto: ["var(--font-roboto)", "sans-serif"],
       },
       colors: {
         accent: "#8B5CF6",
