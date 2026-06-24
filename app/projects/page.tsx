@@ -88,7 +88,7 @@ function ProjectModal({ project, initialTab, onClose }: { project: Project; init
       >
         {/* Header */}
         <div className="relative h-52 md:h-60 flex items-end p-6 overflow-hidden" style={{ background: project.gradient }}>
-          {project.image && <Image src={project.image} alt={project.title} fill className="object-cover opacity-30" />}
+          {project.image && <Image src={project.image} alt={project.title} fill className="object-contain opacity-30" />}
           <div className="absolute inset-0 bg-gradient-to-t from-[#0D0F1A] via-black/30 to-transparent" />
           <button onClick={onClose} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/70 transition-colors z-10">✕</button>
           <div className="relative z-10 w-full">
@@ -216,7 +216,7 @@ function WorkCard({ project, onSelect }: { project: Project; onSelect: (p: Proje
         onClick={() => onSelect(project, hasMedia ? "media" : "overview")}
       >
         <div className="absolute inset-0" style={{ background: project.gradient }} />
-        {project.image && <Image src={project.image} alt={project.title} fill className="object-cover opacity-50" />}
+        {project.image && <Image src={project.image} alt={project.title} fill className="object-contain opacity-50" />}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
         {/* Center play/badge icon */}
@@ -320,7 +320,7 @@ function WorkHero({ onSelect }: { onSelect: (p: Project, t: Tab) => void }) {
       <AnimatePresence mode="sync">
         <motion.div key={project.slug} className="absolute inset-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.8 }}>
           <div className="absolute inset-0" style={{ background: project.gradient }} />
-          {project.image && <Image src={project.image} alt={project.title} fill className="object-cover opacity-40" priority />}
+          {project.image && <Image src={project.image} alt={project.title} fill className="object-contain opacity-40" priority />}
           <div className="absolute inset-0" style={{ background: "linear-gradient(to top, var(--page-bg) 0%, transparent 60%)" }} />
           <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent" />
         </motion.div>

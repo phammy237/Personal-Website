@@ -173,7 +173,7 @@ export function ProjectDetailClient({
                     <p className="font-mono text-xs text-muted uppercase tracking-widest mb-5">Demo Video</p>
                     <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-border bg-surface/5">
                       <iframe
-                        src={project.video}
+                        src={project.video.replace("watch?v=", "embed/")}
                         title={`${project.title} demo`}
                         className="absolute inset-0 w-full h-full"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

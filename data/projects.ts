@@ -54,6 +54,8 @@ export const projects: Project[] = [
     award: "Best Finance Project",
     competition: "SASE Hacks 2026",
     prize: true,
+    image: "/projects/cartcoach.png",
+    video: "https://www.youtube.com/watch?v=udcMLWCatSg",
     github: "#",
     devpost: "#",
   },
@@ -84,6 +86,8 @@ export const projects: Project[] = [
     award: "3rd Place Overall",
     competition: "Code4Change",
     prize: true,
+    image: "/projects/kite.png",
+    video: "https://www.youtube.com/watch?v=WizNYIdEKoo",
     github: "#",
     devpost: "#",
   },
@@ -151,6 +155,7 @@ export const projects: Project[] = [
       "This project reflects my interest in behavioral UX, product intuition, and redesigning around real user habits.",
     ],
     tools: ["Figma", "User Research", "Prototyping", "AI UX"],
+    image: "/projects/tiktok-redesign.png",
     gradient: "linear-gradient(135deg, #EC4899 0%, #8B5CF6 100%)",
   },
   {
@@ -168,6 +173,8 @@ export const projects: Project[] = [
       "I was especially interested in balancing delight, discovery, and user trust in one experience.",
     ],
     tools: ["Figma", "Product Strategy", "UX Research", "MVP Planning"],
+    image: "/projects/wandr.png",
+    slides: "/slides/wandr.pdf",
     gradient: "linear-gradient(135deg, #F59E0B 0%, #EF4444 100%)",
   },
   {
@@ -185,7 +192,6 @@ export const projects: Project[] = [
       "The project taught me a lot about platform thinking, infrastructure, and analytics-driven product support.",
     ],
     tools: ["Node.js", "REST APIs", "PostgreSQL", "Tableau", "Healthcare Data"],
-    github: "#",
     stack: [
       { layer: "Backend", tech: "Node.js (10+ RESTful APIs)" },
       { layer: "Database", tech: "PostgreSQL (50K+ records migrated)" },
@@ -208,8 +214,6 @@ export const projects: Project[] = [
       "The product concept centered on convenience, personalization, and reducing avoidable food waste.",
     ],
     tools: ["Python", "Computer Vision", "Mobile", "AI", "UX"],
-    github: "#",
-    devpost: "#",
     gradient: "linear-gradient(135deg, #16A34A 0%, #84CC16 100%)",
   },
   {
@@ -271,7 +275,6 @@ export const projects: Project[] = [
       "The project was a strong exercise in applied analytics and communicating business insight from large datasets.",
     ],
     tools: ["Python", "pandas", "Data Visualization", "Statistical Analysis"],
-    github: "#",
     gradient: "linear-gradient(135deg, #0369A1 0%, #0EA5E9 100%)",
   },
   {
@@ -289,7 +292,6 @@ export const projects: Project[] = [
       "The project gave me a strong foundation in backend thinking and data architecture.",
     ],
     tools: ["MongoDB", "Mongoose", "React", "Node.js", "3D Visualization"],
-    github: "#",
     stack: [
       { layer: "Frontend", tech: "React + 3D visualization" },
       { layer: "Backend", tech: "Node.js" },
