@@ -289,6 +289,12 @@ const DESTINATIONS = [
     desc: "Leadership, competitions, research, and the places where I show up and contribute.",
     href: "/involvements",
   },
+  {
+    num: "04",
+    title: "CV",
+    desc: "Full résumé — experience, education, skills, and early career programs.",
+    href: "/cv",
+  },
 ];
 
 function DestinationCards() {
@@ -299,16 +305,16 @@ function DestinationCards() {
           Destinations
         </span>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/[0.07]">
+      <div className="grid grid-cols-2 md:grid-cols-4 divide-y-0 divide-x-0 md:divide-x divide-white/[0.07] gap-y-0">
         {DESTINATIONS.map((dest, i) => (
           <motion.div
             key={dest.num}
-            className="group px-[5vw] md:px-6 first:md:pl-[5vw] last:md:pr-[5vw] py-6"
+            className="group px-[5vw] md:px-5 first:md:pl-[5vw] last:md:pr-[5vw] py-5 border-t border-white/[0.07] md:border-t-0"
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.9 + i * 0.1 }}
+            transition={{ delay: 0.9 + i * 0.08 }}
           >
-            <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start justify-between gap-3">
               <div className="flex-1 min-w-0">
                 <span className="font-mono text-[10px] text-white/20 tracking-widest block mb-2">
                   {dest.num}
@@ -339,19 +345,18 @@ export function Hero() {
   return (
     <section
       id="hero"
-      className="relative min-h-screen flex flex-col overflow-hidden"
-      style={{ background: "linear-gradient(160deg, #050818 0%, #0D1030 40%, #0A0520 70%, #080D24 100%)" }}
+      className="relative min-h-screen flex flex-col overflow-hidden bg-navy"
     >
       {/* Ambient orbs */}
       <motion.div
         className="absolute w-[650px] h-[650px] rounded-full pointer-events-none"
-        style={{ background: "radial-gradient(circle, #8B5CF622 0%, transparent 70%)", top: "-10%", left: "-5%" }}
+        style={{ background: "radial-gradient(circle, #8B5CF630 0%, transparent 70%)", top: "-10%", left: "-5%" }}
         animate={{ x: [0, 30, -15, 0], y: [0, -25, 15, 0] }}
         transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
         className="absolute w-[500px] h-[500px] rounded-full pointer-events-none"
-        style={{ background: "radial-gradient(circle, #3B82F618 0%, transparent 70%)", bottom: "8%", right: "-3%" }}
+        style={{ background: "radial-gradient(circle, #8B5CF615 0%, transparent 70%)", bottom: "8%", right: "-3%" }}
         animate={{ x: [0, -30, 18, 0], y: [0, 28, -14, 0] }}
         transition={{ duration: 24, repeat: Infinity, ease: "easeInOut", delay: 4 }}
       />
@@ -494,12 +499,37 @@ export function Hero() {
 
           {/* Boarding pass column */}
           <motion.div
-            className="hidden lg:block w-[400px] xl:w-[460px] flex-shrink-0 self-stretch"
+            className="hidden lg:flex w-[400px] xl:w-[460px] flex-shrink-0 self-stretch relative rounded-2xl overflow-hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
           >
-            <BoardingPass />
+            {/* Atmospheric background */}
+            <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 65% 35%, #1A1030 0%, #0C0A1E 55%, #080718 100%)" }} />
+              <div className="absolute right-0 top-0 w-64 h-64 rounded-full opacity-60" style={{ background: "radial-gradient(circle, #8B5CF625 0%, transparent 70%)" }} />
+              <div className="absolute left-4 bottom-12 w-40 h-40 rounded-full opacity-40" style={{ background: "radial-gradient(circle, #3B82F618 0%, transparent 70%)" }} />
+              {/* Scattered city-light dots */}
+              {[
+                { x: "18%", y: "22%", s: 1.5, o: 0.35 },
+                { x: "72%", y: "15%", s: 1,   o: 0.25 },
+                { x: "85%", y: "38%", s: 2,   o: 0.2  },
+                { x: "60%", y: "72%", s: 1,   o: 0.3  },
+                { x: "28%", y: "80%", s: 1.5, o: 0.2  },
+                { x: "90%", y: "60%", s: 1,   o: 0.15 },
+                { x: "42%", y: "12%", s: 1,   o: 0.18 },
+                { x: "10%", y: "55%", s: 2,   o: 0.12 },
+              ].map((d, i) => (
+                <div
+                  key={i}
+                  className="absolute rounded-full bg-white"
+                  style={{ left: d.x, top: d.y, width: d.s, height: d.s, opacity: d.o }}
+                />
+              ))}
+            </div>
+            <div className="relative z-10 w-full flex">
+              <BoardingPass />
+            </div>
           </motion.div>
         </div>
 

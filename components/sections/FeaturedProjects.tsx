@@ -8,7 +8,7 @@ const featured = FEATURED_SLUGS.map((s) => projects.find((p) => p.slug === s)).f
 
 export function FeaturedProjects() {
   return (
-    <section id="work" className="bg-[#06091A] px-[5vw] py-24">
+    <section id="work" className="bg-[#F4F3FF] dark:bg-navy px-[5vw] py-24">
       <div className="max-w-[1200px] mx-auto">
 
         {/* Header row */}
@@ -19,13 +19,13 @@ export function FeaturedProjects() {
           viewport={{ once: true }}
         >
           <div>
-            <p className="font-mono text-[10px] text-white/30 tracking-[0.25em] uppercase mb-2">
+            <p className="font-mono text-[10px] text-muted dark:text-white/30 tracking-[0.25em] uppercase mb-2">
               Portfolio
             </p>
-            <h2 className="font-display text-4xl text-white">Work Library</h2>
+            <h2 className="font-display text-4xl text-surface dark:text-white">Work Library</h2>
           </div>
           <div className="flex flex-col md:items-end gap-3">
-            <p className="font-mono text-xs text-white/35 max-w-xs leading-relaxed text-left md:text-right">
+            <p className="font-mono text-xs text-muted dark:text-white/35 max-w-xs leading-relaxed text-left md:text-right">
               Projects in data, product, and operations — tools, models, and
               interfaces built to solve real problems.
             </p>

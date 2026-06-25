@@ -42,7 +42,7 @@ function Counter({ value, suffix, decimal }: { value: number; suffix: string; de
 
 export function StatsBar() {
   return (
-    <section className="bg-[#06091A] border-y border-white/[0.06] px-[5vw] py-14">
+    <section className="bg-white dark:bg-navy border-y border-border dark:border-white/[0.06] px-[5vw] py-14">
       <div className="max-w-[1200px] mx-auto">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-8 lg:gap-4">
           {stats.map((s, i) => (
@@ -54,10 +54,10 @@ export function StatsBar() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.08 }}
             >
-              <p className="font-display text-white" style={{ fontSize: "clamp(32px, 4vw, 52px)" }}>
+              <p className="font-display text-surface dark:text-white" style={{ fontSize: "clamp(32px, 4vw, 52px)" }}>
                 <Counter value={s.value} suffix={s.suffix} decimal={s.decimal} />
               </p>
-              <p className="font-mono text-[10px] text-white/30 tracking-[0.2em] uppercase">
+              <p className="font-mono text-[10px] text-muted dark:text-white/30 tracking-[0.2em] uppercase">
                 {s.label}
               </p>
               <div className="w-6 h-px bg-accent/40 mt-1" />

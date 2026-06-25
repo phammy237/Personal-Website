@@ -48,7 +48,7 @@ function Headshot() {
   const [error, setError] = useState(false);
 
   return (
-    <div className="relative w-full aspect-[3/4] max-w-[340px] mx-auto md:mx-0 rounded-2xl overflow-hidden border border-border shadow-xl shadow-accent/5">
+    <div className="relative w-full aspect-[3/4] max-w-[380px] mx-auto md:mx-0 rounded-2xl overflow-hidden border border-border shadow-xl shadow-accent/5">
       {!error ? (
         <Image
           src="/headshot.JPG"
@@ -122,11 +122,11 @@ function HowIThink() {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
             >
-              <span className={`text-sm transition-colors duration-200 ${active === i ? "text-accent" : "text-white/30"}`}>
+              <span className={`text-sm transition-colors duration-200 ${active === i ? "text-accent" : "text-surface/30 dark:text-white/30"}`}>
                 {p.icon}
               </span>
               <span className="font-mono text-xs tracking-wide whitespace-nowrap">{p.label}</span>
-              <span className={`ml-1 text-xs transition-transform duration-200 ${active === i ? "rotate-180 text-accent" : "text-white/20"}`}>
+              <span className={`ml-1 text-xs transition-transform duration-200 ${active === i ? "rotate-180 text-accent" : "text-surface/20 dark:text-white/20"}`}>
                 ▾
               </span>
             </motion.button>
@@ -161,7 +161,7 @@ function HowIThink() {
 
 export function Backstory() {
   return (
-    <section id="about" className="bg-base dark:bg-[#0A0C1E] px-[5vw] py-28 md:py-40">
+    <section id="about" className="bg-white dark:bg-navy px-[5vw] py-28 md:py-40">
       <div className="max-w-[1200px] mx-auto">
         {/* Section label */}
         <motion.p
@@ -176,7 +176,7 @@ export function Backstory() {
         <div className="grid md:grid-cols-[auto_1fr] gap-12 md:gap-16 items-start mb-16">
           {/* Headshot */}
           <motion.div
-            className="w-full md:w-[280px]"
+            className="w-full md:w-[380px]"
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
@@ -198,29 +198,30 @@ export function Backstory() {
             </h2>
 
             <p className="font-body text-xl text-muted dark:text-white/60 leading-relaxed">
-              I&apos;m a Data Science student at the University of Florida. My work sits at the
-              intersection of data, product, and operations. I am interested in using analytical
-              thinking to clarify complex problems, improve workflows, and build systems that are
-              practical for the people using them. Most recently, I have been designing product
-              workflows for Lattera, an F&amp;B startup where I work as a Product Management Intern.
-              I have also worked in Risk Advisory at Deloitte and built projects across fairness
-              analytics, campus support tools, and decision modeling.
+              I&apos;m My Pham, a Data Science student at the University of Florida working at the
+              intersection of data, product, and operations.
             </p>
             <p className="font-body text-xl text-muted dark:text-white/60 leading-relaxed">
-              My research interests include sustainability, ESG, and data-driven decision-making.
-              At UF, I have worked on research related to end-of-life cycles for batteries, and
-              during my time at Deloitte, I explored sustainable finance and its role in shaping
-              ESG strategy.
+              I&apos;m interested in turning complex problems into practical systems — from product
+              workflows and decision tools to analytics projects that support better decisions.
+              I&apos;m currently a Product Management Intern at Lattera, an F&amp;B startup, and
+              previously worked in Risk Advisory at Deloitte. My work and research span fairness
+              analytics, decision modeling, sustainability, ESG, and end-of-life battery systems.
             </p>
             <p className="font-body text-xl text-muted dark:text-white/60 leading-relaxed">
-              Outside of my academic and professional work, I have served as External Vice President
-              of UF&apos;s Data Science &amp; Informatics club for two years, previously served as
-              Treasurer for the Vietnamese International Student Association, and will serve as Head
-              of Operations for WingHacks this upcoming year.
+              At UF, I&apos;ve served as External Vice President of Data Science &amp; Informatics
+              for two years, previously served as Treasurer for the Vietnamese International Student
+              Association, and will be Head of Operations for WingHacks this upcoming year.
             </p>
             <p className="font-body text-xl text-muted dark:text-white/60 leading-relaxed">
-              I am currently exploring opportunities in data analytics, product management, tech
-              consulting, and AI-driven business solutions.
+              Outside of work, I&apos;m usually planning my next trip, exploring a new city, taking
+              photos, café-hopping for matcha, or making food with whatever ingredients I have
+              around. I like movement, good design, and small details that make a place or product
+              feel memorable.
+            </p>
+            <p className="font-body text-xl text-muted dark:text-white/60 leading-relaxed">
+              I&apos;m currently exploring data analytics, product management, tech consulting, and
+              AI-driven business solutions.
             </p>
 
             {/* Tags */}
@@ -237,10 +238,10 @@ export function Backstory() {
 
             {/* Arrow links */}
             <div className="flex flex-wrap gap-6 mt-3">
-              <Link href="/biography" className="font-mono text-sm text-white/50 hover:text-white transition-colors duration-200">
+              <Link href="/biography" className="font-mono text-sm text-muted dark:text-white/50 hover:text-surface dark:hover:text-white transition-colors duration-200">
                 wanna learn more → biography
               </Link>
-              <Link href="/connect" className="font-mono text-sm text-white/50 hover:text-white transition-colors duration-200">
+              <Link href="/connect" className="font-mono text-sm text-muted dark:text-white/50 hover:text-surface dark:hover:text-white transition-colors duration-200">
                 wanna hang out → contact
               </Link>
             </div>
