@@ -3,79 +3,99 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { projects } from "@/data/projects";
 
-const FEATURED_SLUGS = ["cartcoach", "kite", "wnba-simulator"];
+const FEATURED_SLUGS = ["cartcoach", "kite", "wnba-simulator", "housing-model"];
 const featured = FEATURED_SLUGS.map((s) => projects.find((p) => p.slug === s)).filter(Boolean) as typeof projects;
 
 export function FeaturedProjects() {
   return (
-    <section id="featured-projects" className="bg-base px-[5vw] py-24">
+    <section id="work" className="bg-[#06091A] px-[5vw] py-24">
       <div className="max-w-[1200px] mx-auto">
-        <div className="flex items-end justify-between mb-12">
-          <motion.h2
-            className="font-mono text-sm text-surface/40 tracking-widest uppercase"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            Featured Work
-          </motion.h2>
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-          >
+
+        {/* Header row */}
+        <motion.div
+          className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <div>
+            <p className="font-mono text-[10px] text-white/30 tracking-[0.25em] uppercase mb-2">
+              Portfolio
+            </p>
+            <h2 className="font-display text-4xl text-white">Work Library</h2>
+          </div>
+          <div className="flex flex-col md:items-end gap-3">
+            <p className="font-mono text-xs text-white/35 max-w-xs leading-relaxed text-left md:text-right">
+              Projects in data, product, and operations — tools, models, and
+              interfaces built to solve real problems.
+            </p>
             <Link
               href="/projects"
-              className="font-mono text-xs text-accent hover:text-accent/70 transition-colors duration-200 tracking-widest uppercase"
+              className="font-mono text-xs text-accent hover:text-accent/70 transition-colors duration-200 tracking-widest uppercase self-start md:self-end"
             >
-              See All Work →
+              View All Projects →
             </Link>
-          </motion.div>
-        </div>
+          </div>
+        </motion.div>
 
-        <div className="flex gap-5 overflow-x-auto pb-4 md:grid md:grid-cols-3 md:overflow-visible snap-x snap-mandatory">
+        {/* Cards */}
+        <div className="flex gap-4 overflow-x-auto pb-4 md:grid md:grid-cols-4 md:overflow-visible snap-x snap-mandatory">
           {featured.map((project, i) => (
             <motion.div
               key={project.slug}
-              className="flex-shrink-0 w-[82vw] sm:w-80 md:w-auto snap-start rounded-2xl overflow-hidden relative group cursor-pointer"
-              style={{ background: project.gradient }}
-              initial={{ opacity: 0, y: 30 }}
+              className="flex-shrink-0 w-[76vw] sm:w-72 md:w-auto snap-start rounded-xl overflow-hidden relative group cursor-pointer"
+              style={{ background: project.gradient, minHeight: 280 }}
+              initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              whileHover={{ scale: 1.02 }}
+              transition={{ delay: i * 0.09 }}
+              whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
             >
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+              {/* Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent" />
 
-              <Link href="/projects" className="block p-6 pt-32 relative z-10">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="font-mono text-[10px] text-white/50 uppercase tracking-widest">
+              <Link href="/projects" className="absolute inset-0 z-10 p-5 flex flex-col justify-end">
+                {/* Category + award */}
+                <div className="flex items-center gap-2 mb-2.5">
+                  <span className="font-mono text-[9px] text-white/45 uppercase tracking-widest">
                     {project.category}
                   </span>
                   {project.award && (
-                    <span className="font-mono text-[10px] bg-accent/20 text-accent border border-accent/30 rounded-full px-2 py-0.5">
+                    <span className="font-mono text-[9px] bg-accent/20 text-accent border border-accent/30 rounded-full px-2 py-[2px]">
                       {project.award}
                     </span>
                   )}
                 </div>
-                <h3 className="font-display text-xl text-white mb-2 group-hover:text-accent transition-colors duration-200">
+
+                {/* Title */}
+                <h3 className="font-display text-2xl text-white mb-1.5 group-hover:text-accent/90 transition-colors duration-200">
                   {project.title}
                 </h3>
-                <p className="font-body text-sm text-white/60 leading-snug line-clamp-2">
+
+                {/* Logline */}
+                <p className="font-body text-xs text-white/50 leading-snug line-clamp-2 mb-3">
                   {project.logline}
                 </p>
-                <div className="mt-4 flex flex-wrap gap-1.5">
+
+                {/* Stack chips */}
+                <div className="flex flex-wrap gap-1">
                   {project.tools.slice(0, 3).map((t) => (
                     <span
                       key={t}
-                      className="font-mono text-[10px] text-white/40 border border-white/10 rounded px-1.5 py-0.5"
+                      className="font-mono text-[9px] text-white/30 border border-white/10 rounded px-1.5 py-[2px]"
                     >
                       {t}
                     </span>
                   ))}
                 </div>
               </Link>
+
+              {/* Year badge top right */}
+              <div className="absolute top-4 right-4 z-10">
+                <span className="font-mono text-[9px] text-white/30 tracking-widest">
+                  {project.year}
+                </span>
+              </div>
             </motion.div>
           ))}
         </div>

@@ -42,12 +42,6 @@ const principles = [
   },
 ];
 
-const highlights = [
-  { label: "Internships", value: "3" },
-  { label: "Projects", value: "12+" },
-  { label: "Awards", value: "6+" },
-  { label: "Members Led", value: "350+" },
-];
 
 function Headshot() {
   const [loaded, setLoaded] = useState(false);
@@ -254,7 +248,7 @@ export function Backstory() {
           </motion.div>
         </div>
 
-        {/* Stats + Cards row */}
+        {/* Cards row */}
         <motion.div
           className="flex flex-col gap-8"
           initial={{ opacity: 0, y: 30 }}
@@ -262,19 +256,6 @@ export function Backstory() {
           viewport={{ once: true }}
           transition={{ type: "spring", stiffness: 80, damping: 20 }}
         >
-          {/* Stats grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {highlights.map((h) => (
-              <div
-                key={h.label}
-                className="bg-card dark:bg-white/5 border border-border dark:border-white/10 rounded-xl p-6 text-center"
-              >
-                <p className="font-display text-4xl text-accent mb-1">{h.value}</p>
-                <p className="font-mono text-xs text-muted dark:text-white/40 uppercase tracking-widest">{h.label}</p>
-              </div>
-            ))}
-          </div>
-
           <div className="grid md:grid-cols-2 gap-4">
             {/* Education card */}
             <div className="bg-card dark:bg-white/5 border border-border dark:border-white/10 rounded-xl p-6">
