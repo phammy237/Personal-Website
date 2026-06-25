@@ -1,8 +1,46 @@
 "use client";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+
+const principles = [
+  {
+    label: "Problem First",
+    icon: "◎",
+    short: "Start with the problem, not the feature",
+    detail:
+      "Before thinking about solutions, I ask what the actual problem is — who has it, how often, and why it matters. The feature comes after.",
+  },
+  {
+    label: "User Behavior",
+    icon: "◈",
+    short: "Understand friction and decision points",
+    detail:
+      "I map how people actually move through a system, where they get stuck, and what drives their choices. Behavior reveals what requirements documents miss.",
+  },
+  {
+    label: "Tradeoffs",
+    icon: "⌥",
+    short: "Balance user needs, business goals, and constraints",
+    detail:
+      "Good decisions require holding multiple competing pressures at once. I try to make those tensions explicit rather than pretending they don't exist.",
+  },
+  {
+    label: "Clarity First",
+    icon: "⊡",
+    short: "Clarity, prioritization, and execution",
+    detail:
+      "Most problems are solvable if you're ruthlessly clear about what matters and what doesn't. Vagueness is usually where projects go wrong.",
+  },
+  {
+    label: "Signal → Action",
+    icon: "→",
+    short: "Turn messy information into actionable direction",
+    detail:
+      "I enjoy synthesizing noisy, incomplete information into a clear next step. That translation — from data to decision — is where I think I add the most value.",
+  },
+];
 
 const highlights = [
   { label: "Internships", value: "3" },
@@ -59,6 +97,74 @@ function Headshot() {
   );
 }
 
+function HowIThink() {
+  const [active, setActive] = useState<number | null>(null);
+
+  return (
+    <motion.div
+      className="mt-16"
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ type: "spring", stiffness: 80, damping: 20 }}
+    >
+      <p className="font-mono text-xs text-muted dark:text-white/40 tracking-widest uppercase mb-2">
+        How I Think
+      </p>
+      <p className="font-body text-sm text-muted dark:text-white/40 mb-8">
+        Click any principle to expand it.
+      </p>
+
+      <div className="flex flex-wrap gap-3">
+        {principles.map((p, i) => (
+          <div key={i} className="w-full sm:w-auto">
+            <motion.button
+              onClick={() => setActive(active === i ? null : i)}
+              className={`group relative flex items-center gap-2.5 px-4 py-2.5 rounded-full border transition-all duration-200 text-left ${
+                active === i
+                  ? "border-accent bg-accent/10 text-accent"
+                  : "border-border dark:border-white/10 text-muted dark:text-white/50 hover:border-accent/50 hover:text-accent/70"
+              }`}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              <span className={`text-sm transition-colors duration-200 ${active === i ? "text-accent" : "text-white/30"}`}>
+                {p.icon}
+              </span>
+              <span className="font-mono text-xs tracking-wide whitespace-nowrap">{p.label}</span>
+              <span className={`ml-1 text-xs transition-transform duration-200 ${active === i ? "rotate-180 text-accent" : "text-white/20"}`}>
+                ▾
+              </span>
+            </motion.button>
+
+            <AnimatePresence>
+              {active === i && (
+                <motion.div
+                  key="detail"
+                  initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                  animate={{ opacity: 1, height: "auto", marginTop: 8 }}
+                  exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                  transition={{ duration: 0.22, ease: "easeInOut" }}
+                  className="overflow-hidden"
+                >
+                  <div className="border border-accent/20 bg-accent/5 rounded-2xl px-5 py-4 max-w-sm">
+                    <p className="font-body text-sm text-surface/80 dark:text-white/70 leading-relaxed mb-1">
+                      {p.short}
+                    </p>
+                    <p className="font-body text-xs text-muted dark:text-white/40 leading-relaxed">
+                      {p.detail}
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
 export function Backstory() {
   return (
     <section id="about" className="bg-base dark:bg-[#0A0C1E] px-[5vw] py-28 md:py-40">
@@ -98,25 +204,29 @@ export function Backstory() {
             </h2>
 
             <p className="font-body text-xl text-muted dark:text-white/60 leading-relaxed">
-              I&apos;m a Data Science student at the University of Florida originally from Vietnam,
-              and I&apos;m most energized by work that turns ambiguity into direction. I&apos;m drawn
-              to the space where product, strategy, and execution meet — where the challenge is not
-              just building something, but figuring out what is actually worth building, why it matters,
-              and how to make it work in the real world.
+              I&apos;m a Data Science student at the University of Florida. My work sits at the
+              intersection of data, product, and operations. I am interested in using analytical
+              thinking to clarify complex problems, improve workflows, and build systems that are
+              practical for the people using them. Most recently, I have been designing product
+              workflows for Lattera, an F&amp;B startup where I work as a Product Management Intern.
+              I have also worked in Risk Advisory at Deloitte and built projects across fairness
+              analytics, campus support tools, and decision modeling.
             </p>
             <p className="font-body text-xl text-muted dark:text-white/60 leading-relaxed">
-              What draws me to both product management and consulting is the same core mindset:
-              understanding people, breaking down messy problems, asking better questions, and turning
-              insights into action. I enjoy connecting the dots between user needs, business goals,
-              and technical possibilities, then translating that into something practical, thoughtful,
-              and useful.
+              My research interests include sustainability, ESG, and data-driven decision-making.
+              At UF, I have worked on research related to end-of-life cycles for batteries, and
+              during my time at Deloitte, I explored sustainable finance and its role in shaping
+              ESG strategy.
             </p>
             <p className="font-body text-xl text-muted dark:text-white/60 leading-relaxed">
-              Across my academic, project, and internship experiences, I&apos;ve worked on full-stack
-              products, backend systems, dashboards, research, analytics, and go-to-market planning.
-              Whether I&apos;m designing a KPI system, shaping a product concept, or building a
-              decision-support tool, I care most about creating clarity and moving ideas toward
-              real impact.
+              Outside of my academic and professional work, I have served as External Vice President
+              of UF&apos;s Data Science &amp; Informatics club for two years, previously served as
+              Treasurer for the Vietnamese International Student Association, and will serve as Head
+              of Operations for WingHacks this upcoming year.
+            </p>
+            <p className="font-body text-xl text-muted dark:text-white/60 leading-relaxed">
+              I am currently exploring opportunities in data analytics, product management, tech
+              consulting, and AI-driven business solutions.
             </p>
 
             {/* Tags */}
@@ -200,33 +310,7 @@ export function Backstory() {
         </motion.div>
 
         {/* How I Think */}
-        <motion.div
-          className="mt-16"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ type: "spring", stiffness: 80, damping: 20 }}
-        >
-          <p className="font-mono text-xs text-muted dark:text-white/40 tracking-widest uppercase mb-4">How I Think</p>
-          <p className="font-body text-lg text-muted dark:text-white/60 max-w-2xl mb-6 leading-relaxed">
-            I&apos;m most interested in roles where I can bring structure to ambiguity, understand what really matters,
-            and turn ideas into thoughtful, practical solutions.
-          </p>
-          <ul className="space-y-3 max-w-xl">
-            {[
-              "I start with the problem before the feature",
-              "I like understanding user behavior, friction, and decision points",
-              "I think in tradeoffs: user needs, business goals, and technical constraints",
-              "I care about clarity, prioritization, and execution",
-              "I enjoy translating messy information into actionable direction",
-            ].map((item) => (
-              <li key={item} className="flex items-start gap-3">
-                <span className="text-accent mt-1 flex-shrink-0 text-xs">▸</span>
-                <span className="font-body text-sm text-muted dark:text-white/50 leading-relaxed">{item}</span>
-              </li>
-            ))}
-          </ul>
-        </motion.div>
+        <HowIThink />
       </div>
     </section>
   );
