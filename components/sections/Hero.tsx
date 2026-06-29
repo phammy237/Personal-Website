@@ -1,540 +1,338 @@
 "use client";
+
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
+import { SocialLinks } from "@/components/ui/SocialLinks";
 
-/* ─── Social icons ────────────────────────────────────────────── */
-function GithubIcon() {
+function PlaneIcon() {
   return (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
-    </svg>
-  );
-}
-function LinkedInIcon() {
-  return (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-    </svg>
-  );
-}
-function EmailIcon() {
-  return (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="4" width="20" height="16" rx="2" />
-      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-    </svg>
-  );
-}
-function InstagramIcon() {
-  return (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z" />
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M2 16 22 8l-20-1 7 5-7 4Z" />
+      <path d="m9 12 2 7 3-9" />
     </svg>
   );
 }
 
-/* ─── Vertical slide indicator ────────────────────────────────── */
-function SlideIndicator() {
-  return (
-    <motion.div
-      className="hidden lg:flex flex-col items-center gap-3 pt-2"
-      initial={{ opacity: 0, x: -10 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: 1 }}
-    >
-      <span
-        className="font-mono text-[9px] text-white/20 tracking-[0.2em] uppercase select-none"
-        style={{ writingMode: "vertical-lr", transform: "rotate(180deg)" }}
-      >
-        My Journey
-      </span>
-      <div className="relative w-px h-28 bg-white/10 overflow-hidden rounded-full">
-        <motion.div
-          className="absolute top-0 left-0 w-full bg-accent/60 rounded-full"
-          initial={{ height: "0%" }}
-          animate={{ height: "35%" }}
-          transition={{ delay: 1.2, duration: 1, ease: "easeOut" }}
-        />
-      </div>
-      <span className="font-mono text-[9px] text-white/20 tracking-widest">01</span>
-    </motion.div>
-  );
-}
-
-/* ─── Flip board ──────────────────────────────────────────────── */
-const PHRASES = [
-  "PRODUCT THINKER ",
-  "DATA SCIENTIST  ",
-  "PROBLEM SOLVER  ",
-  "SUSTAINABILITY  ",
-  "DECISION MAKER  ",
-  "BUILDER         ",
+const ticketChips = [
+  { eyebrow: "Arrival", title: "Data Science",     meta: "MP 2026" },
+  { eyebrow: "Arrival", title: "Product Strategy", meta: "MP 2026" },
+  { eyebrow: "Arrival", title: "Operations",       meta: "MP 2026" },
+  { eyebrow: "Arrival", title: "AI / ML",          meta: "MP 2026" },
+  { eyebrow: "Arrival", title: "Research",         meta: "MP 2026" },
 ];
-const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ·—0123456789";
-const BARCODE_HEIGHTS = Array.from({ length: 56 }, (_, i) =>
-  `${48 + Math.abs(Math.sin(i * 2.3 + 0.7) * 52)}%`
-);
 
-function FlipBoard() {
-  const [text, setText] = useState(PHRASES[0]);
-  const idxRef = useRef(0);
-  const scrambleRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  useEffect(() => {
-    const tick = setInterval(() => {
-      idxRef.current = (idxRef.current + 1) % PHRASES.length;
-      const target = PHRASES[idxRef.current];
-      let frame = 0;
-      const frames = 16;
-      if (scrambleRef.current) clearInterval(scrambleRef.current);
-      scrambleRef.current = setInterval(() => {
-        frame++;
-        setText(
-          target
-            .split("")
-            .map((ch, i) => {
-              if (ch === " ") return " ";
-              if (frame / frames > i / target.length + 0.25) return ch;
-              return CHARS[Math.floor(Math.random() * CHARS.length)];
-            })
-            .join("")
-        );
-        if (frame >= frames) {
-          clearInterval(scrambleRef.current!);
-          scrambleRef.current = null;
-        }
-      }, 40);
-    }, 3200);
-    return () => {
-      clearInterval(tick);
-      if (scrambleRef.current) clearInterval(scrambleRef.current);
-    };
-  }, []);
-
-  return (
-    <div className="flex flex-col gap-1.5">
-      <span className="font-mono text-[10px] text-white/25 tracking-[0.25em] uppercase">
-        Boarding Text
-      </span>
-      <div className="inline-flex bg-white/5 border border-white/10 rounded px-4 py-2.5 gap-[2px]">
-        {text.split("").map((ch, i) =>
-          ch === " " ? (
-            <span key={i} className="w-2 inline-block" />
-          ) : (
-            <span
-              key={i}
-              className="font-mono text-sm text-accent tracking-widest"
-              style={{ fontVariantNumeric: "tabular-nums" }}
-            >
-              {ch}
-            </span>
-          )
-        )}
-      </div>
-    </div>
-  );
-}
-
-/* ─── Boarding pass ───────────────────────────────────────────── */
-function BoardingPass() {
-  return (
-    <motion.div
-      className="relative flex flex-col bg-white/[0.04] border border-white/10 rounded-2xl overflow-hidden h-full min-h-[520px]"
-      initial={{ opacity: 0, x: 50 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: 0.45, type: "spring", stiffness: 70, damping: 18 }}
-      whileHover={{ boxShadow: "0 0 60px rgba(139, 92, 246, 0.12)" }}
-    >
-      {/* Subtle gradient wash */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{ background: "radial-gradient(ellipse at 80% 20%, #8B5CF615 0%, transparent 60%)" }}
-      />
-
-      {/* Header */}
-      <div className="flex justify-between items-center px-7 pt-6 pb-5 border-b border-white/[0.07]">
-        <span className="font-mono text-[10px] text-white/30 tracking-[0.22em] uppercase">
-          Boarding Pass
-        </span>
-        <span className="font-mono text-[10px] text-white/20 tracking-widest">
-          No. MY-2028
-        </span>
-      </div>
-
-      {/* Route — HAN → GNV */}
-      <div className="px-7 pt-7 pb-5">
-        <div className="flex items-end justify-between gap-2">
-          {/* Origin */}
-          <div>
-            <p
-              className="font-display text-white leading-none"
-              style={{ fontSize: "clamp(52px, 6vw, 80px)" }}
-            >
-              HAN
-            </p>
-            <p className="font-mono text-[10px] text-white/30 mt-2 tracking-widest uppercase">
-              Hanoi
-            </p>
-          </div>
-
-          {/* Arrow */}
-          <div className="flex-1 flex flex-col items-center pb-5 gap-1.5">
-            <span className="text-white/20 text-xl">✈</span>
-            <div className="w-full h-px bg-white/[0.08]" />
-          </div>
-
-          {/* Destination */}
-          <div className="text-right">
-            <p
-              className="font-display text-white leading-none"
-              style={{ fontSize: "clamp(52px, 6vw, 80px)" }}
-            >
-              GNV
-            </p>
-            <p className="font-mono text-[10px] text-white/30 mt-2 tracking-widest uppercase">
-              Gainesville
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Dashed tear line */}
-      <div className="mx-7 border-t border-dashed border-white/[0.08] mb-6" />
-
-      {/* Details */}
-      <div className="px-7 flex flex-col gap-5 flex-1">
-        <div className="grid grid-cols-3 gap-4">
-          {[
-            { label: "Major", value: "Data Science" },
-            { label: "Status", value: "In Progress", accent: true },
-            { label: "GPA", value: "3.83" },
-          ].map((row) => (
-            <div key={row.label}>
-              <p className="font-mono text-[9px] text-white/25 uppercase tracking-widest mb-1.5">
-                {row.label}
-              </p>
-              <p className={`font-mono text-xs ${row.accent ? "text-accent" : "text-white/60"}`}>
-                {row.value}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          {[
-            { label: "Class", value: "2028" },
-            { label: "Seat", value: "PDO" },
-          ].map((row) => (
-            <div key={row.label}>
-              <p className="font-mono text-[9px] text-white/25 uppercase tracking-widest mb-1.5">
-                {row.label}
-              </p>
-              <p className="font-mono text-xs text-white/60">{row.value}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Tags */}
-        <div className="flex flex-wrap gap-2">
-          {["Builder", "Problem Solver", "PM Intern", "ESG Research"].map((tag) => (
-            <span
-              key={tag}
-              className="font-mono text-[10px] text-accent/60 border border-accent/20 bg-accent/5 rounded-sm px-2 py-0.5"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* Barcode + stamp */}
-      <div className="px-7 pb-6 pt-5 mt-auto">
-        <div className="flex gap-[2px] items-end h-8 opacity-15">
-          {BARCODE_HEIGHTS.map((h, i) => (
-            <div key={i} className="flex-1 bg-white rounded-[1px]" style={{ height: h }} />
-          ))}
-        </div>
-      </div>
-
-      {/* Decorative stamp — bottom right corner */}
-      <div className="absolute bottom-14 right-6 w-16 h-16 rounded-full border border-accent/15 flex items-center justify-center">
-        <div className="w-10 h-10 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center">
-          <span className="font-mono text-[7px] text-accent/45 text-center leading-tight">
-            UF<br />2028
-          </span>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-/* ─── Destination cards ───────────────────────────────────────── */
-const DESTINATIONS = [
+const destinations = [
   {
     num: "01",
     title: "Work Library",
-    desc: "Projects in data, product, and operations — tools, models, and interfaces built to solve real problems.",
+    desc: "Projects in data, product, and operations. Case studies, code, and impact.",
     href: "/projects",
+    image: "/projects/wandr.png",
   },
   {
     num: "02",
     title: "Biography",
-    desc: "My story — where I began, what shaped my path, and what drives me forward.",
+    desc: "My story, values, and the journey that shapes my work.",
     href: "/biography",
+    image: "/headshot.jpg",
   },
   {
     num: "03",
     title: "Involvements",
-    desc: "Leadership, competitions, research, and the places where I show up and contribute.",
+    desc: "Leadership, communities, initiatives, and causes I care about.",
     href: "/involvements",
-  },
-  {
-    num: "04",
-    title: "CV",
-    desc: "Full résumé — experience, education, skills, and early career programs.",
-    href: "/cv",
+    image: "/projects/kite.png",
   },
 ];
 
-function DestinationCards() {
+function SideRail() {
   return (
-    <div className="relative -mx-[5vw] border-t border-white/[0.07]">
-      <div className="px-[5vw] pt-3 pb-1">
-        <span className="font-mono text-[9px] text-white/20 tracking-[0.3em] uppercase">
-          Destinations
-        </span>
+    <motion.aside
+      className="absolute left-0 top-0 hidden h-full w-[72px] border-r border-white/10 lg:block"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.15 }}
+    >
+      <div className="flex h-full flex-col items-center justify-between pb-10 pt-28">
+        <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/45">
+          <div>MP</div>
+          <div className="mt-2">00</div>
+        </div>
+        <div className="flex flex-1 flex-col items-center gap-5 py-8">
+          <div className="h-52 w-px bg-gradient-to-b from-accent via-accent/70 to-transparent" />
+          <div className="flex flex-col gap-4">
+            {Array.from({ length: 9 }).map((_, i) => (
+              <span key={i} className="h-1 w-1 rounded-full bg-white/35" />
+            ))}
+          </div>
+        </div>
+        <div className="flex flex-col items-center gap-3">
+          <span className="font-mono text-[8px] uppercase tracking-[0.25em] text-white/35">Scroll</span>
+          <div className="h-6 w-px bg-accent" />
+        </div>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 divide-y-0 divide-x-0 md:divide-x divide-white/[0.07] gap-y-0">
-        {DESTINATIONS.map((dest, i) => (
-          <motion.div
-            key={dest.num}
-            className="group px-[5vw] md:px-5 first:md:pl-[5vw] last:md:pr-[5vw] py-5 border-t border-white/[0.07] md:border-t-0"
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.9 + i * 0.08 }}
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex-1 min-w-0">
-                <span className="font-mono text-[10px] text-white/20 tracking-widest block mb-2">
-                  {dest.num}
-                </span>
-                <h3 className="font-display text-xl text-white mb-2 group-hover:text-accent transition-colors duration-200">
-                  {dest.title}
-                </h3>
-                <p className="font-mono text-[11px] text-white/35 leading-relaxed">
-                  {dest.desc}
-                </p>
-              </div>
-              <Link
-                href={dest.href}
-                className="flex-shrink-0 w-8 h-8 border border-white/15 rounded-full flex items-center justify-center text-white/35 hover:border-accent hover:text-accent transition-all duration-200 mt-1 hover:scale-110"
-              >
-                →
-              </Link>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </div>
+    </motion.aside>
   );
 }
 
-/* ─── Hero ────────────────────────────────────────────────────── */
-export function Hero() {
+function BoardingPass() {
   return (
-    <section
-      id="hero"
-      className="relative min-h-screen flex flex-col overflow-hidden bg-navy"
+    <motion.div
+      className="relative overflow-hidden rounded-[18px] border border-accent/35 bg-[#101020]/85 shadow-[0_20px_70px_rgba(0,0,0,0.45)] backdrop-blur-md"
+      initial={{ opacity: 0, x: 34 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: 0.38, duration: 0.65, ease: "easeOut" }}
     >
-      {/* Ambient orbs */}
-      <motion.div
-        className="absolute w-[650px] h-[650px] rounded-full pointer-events-none"
-        style={{ background: "radial-gradient(circle, #8B5CF630 0%, transparent 70%)", top: "-10%", left: "-5%" }}
-        animate={{ x: [0, 30, -15, 0], y: [0, -25, 15, 0] }}
-        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        className="absolute w-[500px] h-[500px] rounded-full pointer-events-none"
-        style={{ background: "radial-gradient(circle, #8B5CF615 0%, transparent 70%)", bottom: "8%", right: "-3%" }}
-        animate={{ x: [0, -30, 18, 0], y: [0, 28, -14, 0] }}
-        transition={{ duration: 24, repeat: Infinity, ease: "easeInOut", delay: 4 }}
-      />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_10%,rgba(139,92,246,0.18),transparent_32%),linear-gradient(135deg,rgba(255,255,255,0.06),transparent_42%)]" />
 
-      {/* Inner layout with padding */}
-      <div className="flex-1 flex flex-col px-[5vw] pt-28">
+      {/* Header */}
+      <div className="relative flex items-center justify-between border-b border-white/10 px-5 py-3">
+        <div className="flex items-center gap-2.5">
+          <span className="grid h-4 w-4 place-items-center rounded-full border border-white/20 text-[10px] text-white/35">G</span>
+          <span className="font-mono text-[11px] uppercase tracking-[0.28em] text-white/55">Boarding Pass</span>
+        </div>
+        <span className="font-mono text-[11px] uppercase tracking-[0.15em] text-white/35">MP-2026</span>
+      </div>
 
-        {/* Top departure bar */}
-        <motion.div
-          className="flex justify-between items-center mb-10 font-mono text-[10px] text-white/20 tracking-[0.2em] uppercase"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.15 }}
-        >
-          <span>Departure Track</span>
-          <span>FLT No. MY-2028</span>
-        </motion.div>
+      {/* HAN → GNV */}
+      <div className="relative px-5 py-5">
+        <div className="grid grid-cols-[1fr_1.15fr_1fr] items-end gap-3">
+          <div>
+            <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/35">From</p>
+            <p className="mt-1.5 font-display text-4xl leading-none text-white sm:text-5xl">HAN</p>
+            <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-white/45">Hanoi</p>
+          </div>
+          <div className="pb-6 text-accent">
+            <div className="flex items-center justify-center gap-2">
+              <span className="h-px flex-1 border-t border-dashed border-accent/70" />
+              <PlaneIcon />
+              <span className="h-px flex-1 border-t border-dashed border-accent/70" />
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/35">To</p>
+            <p className="mt-1.5 font-display text-4xl leading-none text-white sm:text-5xl">GNV</p>
+            <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-white/45">Gainesville</p>
+          </div>
+        </div>
+      </div>
 
-        {/* Main content row: slide indicator | left content | boarding pass */}
-        <div className="flex-1 flex gap-8 xl:gap-12 items-start">
-
-          {/* Vertical slide indicator */}
-          <SlideIndicator />
-
-          {/* Left column */}
-          <div className="flex-1 flex flex-col gap-6 min-w-0">
-
-            {/* MY PHAM */}
-            <div className="leading-none">
-              {"MY PHAM".split("").map((ch, i) => (
-                <motion.span
-                  key={i}
-                  className="inline-block font-display text-white"
-                  style={{ fontSize: "clamp(52px, 9.5vw, 118px)", lineHeight: 1 }}
-                  initial={{ opacity: 0, y: 22 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.05 + i * 0.045, type: "spring", stiffness: 160, damping: 22 }}
-                >
-                  {ch === " " ? " " : ch}
-                </motion.span>
+      {/* Gate / Status / Seat */}
+      <div className="relative border-y border-dashed border-white/16 px-5 py-3">
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/35">Gate</p>
+            <div className="mt-2.5 flex justify-between">
+              {[["P","Product"],["D","Data"],["O","Ops"]].map(([letter, word]) => (
+                <div key={letter} className="flex flex-col items-center gap-1">
+                  <span className="font-display text-xl text-white">{letter}</span>
+                  <span className="font-mono text-[8px] uppercase tracking-[0.12em] text-white/35">{word}</span>
+                </div>
               ))}
             </div>
+          </div>
+          <div className="border-l border-white/10 pl-4">
+            <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/35">Status</p>
+            <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.18em] text-accent">
+              <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-accent" />
+              In Progress
+            </p>
+          </div>
+          <div className="border-l border-white/10 pl-4">
+            <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/35">Seat</p>
+            <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.18em] text-white/65">Builder</p>
+          </div>
+        </div>
+      </div>
 
-            {/* Now Boarding — same font as heading, smaller */}
-            <motion.p
-              className="font-display text-white/50 leading-tight"
-              style={{ fontSize: "clamp(18px, 2.2vw, 30px)" }}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.55 }}
-            >
-              Now Boarding:{" "}
-              <span className="text-accent">My Pham</span>
-            </motion.p>
+      {/* Passenger info + barcode */}
+      <div className="relative grid grid-cols-[1fr_auto] gap-4 px-5 py-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/35">Passenger</p>
+            <p className="mt-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-white/75">My Pham</p>
+          </div>
+          <div>
+            <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/35">Class</p>
+            <p className="mt-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-white/75">First Class</p>
+          </div>
+          <div>
+            <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/35">Role</p>
+            <p className="mt-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-white/75">Builder · Problem Solver</p>
+          </div>
+          <div>
+            <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/35">Term</p>
+            <p className="mt-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-white/75">2026</p>
+          </div>
+        </div>
+        <div className="hidden h-12 w-16 items-end gap-[2px] opacity-40 sm:flex">
+          {Array.from({ length: 18 }).map((_, i) => (
+            <span key={i} className="flex-1 bg-white" style={{ height: `${20 + ((i * 19) % 28)}px` }} />
+          ))}
+        </div>
+      </div>
 
-            {/* Flip board */}
+      {/* Bottom tagline */}
+      <div className="relative flex items-end justify-between border-t border-dashed border-accent/35 px-5 py-3">
+        <p className="max-w-[260px] font-display text-sm italic leading-snug text-white/55">
+          I turn ambiguity into product, strategy, and data-driven solutions.
+        </p>
+        <div className="grid h-12 w-12 place-items-center rounded-full border border-accent/50 text-center font-mono text-[7px] uppercase leading-tight tracking-[0.14em] text-accent/75">
+          Building<br />Impact
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function TicketChips() {
+  return (
+    <motion.div
+      className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5"
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.75, duration: 0.5 }}
+    >
+      {ticketChips.map((ticket) => (
+        <div
+          key={ticket.title}
+          className="relative min-h-[76px] rounded-lg border border-accent/35 bg-[#0b1020]/70 px-4 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.25)] backdrop-blur"
+        >
+          <div className="absolute inset-x-2 top-1 border-t border-dashed border-white/15" />
+          <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/45">{ticket.eyebrow}</p>
+          <p className="mt-2 font-mono text-[12px] uppercase tracking-[0.08em] text-accent">{ticket.title}</p>
+          <div className="mt-3 flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.16em] text-white/45">
+            <span>{ticket.meta}</span>
+            <span>+</span>
+          </div>
+        </div>
+      ))}
+    </motion.div>
+  );
+}
+
+function DestinationCards() {
+  return (
+    <motion.div
+      className="grid gap-4 md:grid-cols-3"
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.88, duration: 0.55 }}
+    >
+      {destinations.map((destination) => (
+        <Link
+          key={destination.num}
+          href={destination.href}
+          className="group relative min-h-[180px] overflow-hidden rounded-lg border border-white/14 bg-white/[0.03]"
+        >
+          <div
+            className="absolute inset-0 scale-105 bg-cover bg-center opacity-55 transition duration-500 group-hover:scale-100 group-hover:opacity-70"
+            style={{ backgroundImage: `url(${destination.image})` }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#060914] via-[#060914]/80 to-[#060914]/25" />
+          <div className="relative flex h-full flex-col justify-between p-6">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/55">
+              Gate <span className="block pt-1 font-display text-3xl tracking-normal text-white">{destination.num}</span>
+            </p>
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <h3 className="font-display text-3xl text-white md:text-4xl">{destination.title}</h3>
+                <p className="mt-3 max-w-[280px] font-mono text-[12px] leading-relaxed text-white/68">{destination.desc}</p>
+              </div>
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-white/80 text-lg text-white transition group-hover:border-accent group-hover:text-accent">
+                &rarr;
+              </span>
+            </div>
+          </div>
+        </Link>
+      ))}
+    </motion.div>
+  );
+}
+
+export function Hero() {
+  return (
+    <section id="hero" className="relative min-h-screen overflow-hidden bg-[#030813] text-white">
+      <SideRail />
+
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-[url('/headshot.jpg')] bg-cover bg-[center_28%] opacity-30" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_45%_42%,rgba(139,92,246,0.2),transparent_28%),linear-gradient(90deg,#030813_0%,rgba(3,8,19,0.9)_36%,rgba(3,8,19,0.72)_58%,#030813_100%)]" />
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#030813] via-[#030813]/88 to-transparent" />
+        <div className="absolute left-[12%] top-[50%] hidden h-px w-[44%] bg-gradient-to-r from-transparent via-white/20 to-transparent lg:block" />
+        <div className="absolute left-[16%] top-[48%] hidden h-24 w-[64%] bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.14),transparent_60%)] blur-xl lg:block" />
+      </div>
+
+      <div className="relative z-10 mx-auto flex min-h-screen max-w-[1680px] flex-col px-4 pb-6 pt-24 sm:px-6 lg:px-20 xl:px-24">
+        <div className="grid flex-1 items-center gap-6 lg:grid-cols-[1.3fr_1fr] xl:gap-10">
+          <div className="pt-4">
             <motion.div
+              className="mb-7 flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.24em] text-accent"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.65 }}
+              transition={{ delay: 0.18 }}
             >
-              <FlipBoard />
+              <span className="h-3 w-3 rounded-full bg-accent shadow-[0_0_18px_rgba(139,92,246,0.95)]" />
+              Flight MP-2026
             </motion.div>
 
-            {/* Tagline */}
-            <motion.p
-              className="font-body text-base text-white/50 max-w-md leading-relaxed"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.75 }}
+            <motion.h1
+              className="font-display text-[clamp(3.5rem,8vw,7rem)] leading-[0.82] tracking-normal text-white"
+              initial={{ opacity: 0, y: 28 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25, duration: 0.7, ease: "easeOut" }}
             >
-              Data Science student building product, operations, sustainability,
-              and decision systems.
+              MY PHAM
+            </motion.h1>
+
+            <motion.p
+              className="mt-4 font-display text-[clamp(1.3rem,2.4vw,2.6rem)] leading-none text-white"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.42, duration: 0.55 }}
+            >
+              Now Boarding: <span className="text-accent">My Pham</span>
             </motion.p>
 
-            {/* Explore My Journey CTA */}
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
+            <motion.p
+              className="mt-5 max-w-2xl font-mono text-sm leading-7 tracking-[0.03em] text-white/62 sm:text-base"
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.85 }}
+              transition={{ delay: 0.52, duration: 0.5 }}
+            >
+              Data Science student building across product, operations, and decision systems.
+            </motion.p>
+
+            <motion.div
+              className="mt-8"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.62, duration: 0.5 }}
             >
               <Link
                 href="#about"
-                className="inline-flex items-stretch border border-white/20 hover:border-white/40 transition-colors duration-200 group"
+                className="group inline-flex w-fit items-center border border-accent/55 bg-[#0c0c1f]/70 text-accent transition hover:border-accent hover:bg-accent hover:text-white"
               >
-                <span className="font-mono text-xs px-6 py-3 text-white/55 group-hover:text-white/80 tracking-widest uppercase transition-colors duration-200">
-                  Explore My Journey
-                </span>
-                <span className="border-l border-white/20 group-hover:border-white/40 w-11 flex items-center justify-center text-white/35 group-hover:text-white group-hover:bg-white/5 transition-all duration-200">
-                  →
-                </span>
+                <span className="px-4 py-2.5 font-mono text-[11px] uppercase tracking-[0.22em]">Explore My Journey</span>
+                <span className="border-l border-current/35 px-4 py-2.5 text-base leading-none">&rarr;</span>
               </Link>
             </motion.div>
 
-            {/* Social icons */}
-            <motion.div
-              className="flex items-center gap-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.95 }}
-            >
-              <a href="https://github.com/phammy237" target="_blank" rel="noopener noreferrer"
-                className="text-white/20 hover:text-white/55 transition-colors duration-200">
-                <GithubIcon />
-              </a>
-              <a href="https://linkedin.com/in/mypham237" target="_blank" rel="noopener noreferrer"
-                className="text-white/20 hover:text-white/55 transition-colors duration-200">
-                <LinkedInIcon />
-              </a>
-              <a href="mailto:phamlehamy2307@gmail.com"
-                className="text-white/20 hover:text-white/55 transition-colors duration-200">
-                <EmailIcon />
-              </a>
-              <a href="https://www.instagram.com/whyy.pmyy_/" target="_blank" rel="noopener noreferrer"
-                className="text-white/20 hover:text-white/55 transition-colors duration-200">
-                <InstagramIcon />
-              </a>
-            </motion.div>
-
-            {/* Scroll to explore */}
-            <motion.div
-              className="flex items-center gap-3 mt-auto pb-2"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.1 }}
-            >
-              <div className="flex flex-col items-center gap-1">
-                <div className="w-px h-7 bg-white/15" />
-                <motion.div
-                  className="w-1 h-1 rounded-full bg-white/30"
-                  animate={{ y: [0, 4, 0] }}
-                  transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
-                />
-              </div>
-              <span className="font-mono text-[10px] text-white/25 tracking-[0.22em] uppercase">
-                Scroll to explore
-              </span>
-            </motion.div>
+            <div className="mt-10">
+              <TicketChips />
+            </div>
           </div>
 
-          {/* Boarding pass column */}
-          <motion.div
-            className="hidden lg:flex w-[400px] xl:w-[460px] flex-shrink-0 self-stretch relative rounded-2xl overflow-hidden"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-          >
-            {/* Atmospheric background */}
-            <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 65% 35%, #1A1030 0%, #0C0A1E 55%, #080718 100%)" }} />
-              <div className="absolute right-0 top-0 w-64 h-64 rounded-full opacity-60" style={{ background: "radial-gradient(circle, #8B5CF625 0%, transparent 70%)" }} />
-              <div className="absolute left-4 bottom-12 w-40 h-40 rounded-full opacity-40" style={{ background: "radial-gradient(circle, #3B82F618 0%, transparent 70%)" }} />
-              {/* Scattered city-light dots */}
-              {[
-                { x: "18%", y: "22%", s: 1.5, o: 0.35 },
-                { x: "72%", y: "15%", s: 1,   o: 0.25 },
-                { x: "85%", y: "38%", s: 2,   o: 0.2  },
-                { x: "60%", y: "72%", s: 1,   o: 0.3  },
-                { x: "28%", y: "80%", s: 1.5, o: 0.2  },
-                { x: "90%", y: "60%", s: 1,   o: 0.15 },
-                { x: "42%", y: "12%", s: 1,   o: 0.18 },
-                { x: "10%", y: "55%", s: 2,   o: 0.12 },
-              ].map((d, i) => (
-                <div
-                  key={i}
-                  className="absolute rounded-full bg-white"
-                  style={{ left: d.x, top: d.y, width: d.s, height: d.s, opacity: d.o }}
-                />
-              ))}
-            </div>
-            <div className="relative z-10 w-full flex">
-              <BoardingPass />
-            </div>
-          </motion.div>
+          <div className="hidden lg:block">
+            <BoardingPass />
+          </div>
         </div>
 
-        {/* Destination cards */}
-        <div className="mt-10">
+        <div className="mt-8 lg:mt-5">
+          <div className="mb-4 flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.24em] text-white/72">
+            <span className="h-3 w-3 rounded-full bg-accent shadow-[0_0_18px_rgba(139,92,246,0.85)]" />
+            Destinations
+          </div>
           <DestinationCards />
         </div>
       </div>

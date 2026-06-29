@@ -43,7 +43,16 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${dmSerif.variable} ${inter.variable} ${jetbrains.variable} ${roboto.variable}`}
+      suppressHydrationWarning
     >
+      <head>
+        {/* Set theme class before first paint to avoid flash */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme')||'dark';document.documentElement.classList.toggle('dark',t==='dark')}catch(e){}})()`,
+          }}
+        />
+      </head>
       <body className="bg-base dark:bg-navy text-surface dark:text-white font-body antialiased min-h-screen">
         <ThemeProvider>
           <CustomCursor />

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { SocialLinks } from "@/components/ui/SocialLinks";
 
 const principles = [
   {
@@ -43,50 +44,108 @@ const principles = [
 ];
 
 
-function Headshot() {
-  const [loaded, setLoaded] = useState(false);
-  const [error, setError] = useState(false);
+const photos = [
+  { src: "/headshot.jpg",    caption: "UF Data Science · Class of 2028" },
+  { src: "/IMG_3794.JPG",   caption: "" },
+  { src: "/IMG_4610.JPG",   caption: "" },
+  { src: "/IMG_7605.JPG",   caption: "" },
+  { src: "/IMG_7729.JPG",   caption: "" },
+  { src: "/IMG_9501.JPG",   caption: "" },
+];
+
+function PhotoSlider() {
+  const [index, setIndex] = useState(0);
+  const [direction, setDirection] = useState(1);
+  const [loadedSet, setLoadedSet] = useState<Set<number>>(new Set());
+  const [errorSet, setErrorSet] = useState<Set<number>>(new Set());
+
+  const visible = photos.filter((_, i) => !errorSet.has(i));
+  const current = visible[index] ?? visible[0];
+  const currentOrigIdx = current ? photos.indexOf(current) : 0;
+
+  function go(delta: number) {
+    setDirection(delta);
+    setIndex((prev) => (prev + delta + visible.length) % visible.length);
+  }
+
+  const variants = {
+    enter: (d: number) => ({ x: d > 0 ? "100%" : "-100%", opacity: 0 }),
+    center: { x: 0, opacity: 1 },
+    exit:  (d: number) => ({ x: d > 0 ? "-100%" : "100%", opacity: 0 }),
+  };
 
   return (
-    <div className="relative w-full aspect-[3/4] max-w-[380px] mx-auto md:mx-0 rounded-2xl overflow-hidden border border-border shadow-xl shadow-accent/5">
-      {!error ? (
-        <Image
-          src="/headshot.JPG"
-          alt="My Pham"
-          fill
-          className={`object-cover transition-opacity duration-500 ${loaded ? "opacity-100" : "opacity-0"}`}
-          onLoad={() => setLoaded(true)}
-          onError={() => setError(true)}
-          priority
-        />
-      ) : null}
-
-      {/* Placeholder shown until photo loads or if no photo */}
-      {(!loaded || error) && (
-        <div
-          className="absolute inset-0 flex flex-col items-center justify-center gap-3"
-          style={{ background: "linear-gradient(135deg, #1E1B4B 0%, #080D24 100%)" }}
-        >
-          <div
-            className="w-24 h-24 rounded-full flex items-center justify-center font-display text-4xl text-white"
-            style={{ background: "linear-gradient(135deg, #8B5CF6, #3B82F6)" }}
+    <div className="w-full max-w-[380px] mx-auto md:mx-0">
+      {/* Slide frame */}
+      <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border border-border shadow-xl shadow-accent/5">
+        <AnimatePresence initial={false} custom={direction} mode="popLayout">
+          <motion.div
+            key={currentOrigIdx}
+            custom={direction}
+            variants={variants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.38, ease: "easeInOut" }}
+            className="absolute inset-0"
           >
-            M
-          </div>
-          <p className="font-mono text-xs text-white/30 text-center px-4">
-            {error ? "Drop headshot.jpg in /public" : "Loading…"}
-          </p>
+            {!errorSet.has(currentOrigIdx) ? (
+              <Image
+                src={current?.src ?? "/headshot.JPG"}
+                alt="My Pham"
+                fill
+                className={`object-cover transition-opacity duration-500 ${loadedSet.has(currentOrigIdx) ? "opacity-100" : "opacity-0"}`}
+                onLoad={() => setLoadedSet((s) => new Set(s).add(currentOrigIdx))}
+                onError={() => setErrorSet((s) => new Set(s).add(currentOrigIdx))}
+                priority={currentOrigIdx === 0}
+              />
+            ) : null}
+
+            {/* Gradient + caption */}
+            <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-navy/80 to-transparent pointer-events-none" />
+            {current?.caption && (
+              <div className="absolute bottom-4 left-4 right-4">
+                <p className="font-display text-white text-lg">My Pham</p>
+                <p className="font-mono text-xs text-white/50">{current.caption}</p>
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Arrows — only show when more than 1 visible photo */}
+        {visible.length > 1 && (
+          <>
+            <button
+              onClick={() => go(-1)}
+              aria-label="Previous photo"
+              className="absolute left-3 top-1/2 -translate-y-1/2 z-10 grid h-8 w-8 place-items-center rounded-full bg-black/40 text-white backdrop-blur-sm transition hover:bg-accent/70"
+            >
+              ‹
+            </button>
+            <button
+              onClick={() => go(1)}
+              aria-label="Next photo"
+              className="absolute right-3 top-1/2 -translate-y-1/2 z-10 grid h-8 w-8 place-items-center rounded-full bg-black/40 text-white backdrop-blur-sm transition hover:bg-accent/70"
+            >
+              ›
+            </button>
+          </>
+        )}
+      </div>
+
+      {/* Dot indicators */}
+      {visible.length > 1 && (
+        <div className="mt-3 flex justify-center gap-1.5">
+          {visible.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => { setDirection(i > index ? 1 : -1); setIndex(i); }}
+              aria-label={`Go to photo ${i + 1}`}
+              className={`h-1.5 rounded-full transition-all duration-300 ${i === index ? "w-5 bg-accent" : "w-1.5 bg-muted/40 dark:bg-white/20"}`}
+            />
+          ))}
         </div>
       )}
-
-      {/* Decorative gradient overlay at bottom */}
-      <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-navy/60 to-transparent pointer-events-none" />
-
-      {/* Name tag */}
-      <div className="absolute bottom-4 left-4 right-4">
-        <p className="font-display text-white text-lg">My Pham</p>
-        <p className="font-mono text-xs text-white/50">UF Data Science · Class of 2028</p>
-      </div>
     </div>
   );
 }
@@ -182,7 +241,10 @@ export function Backstory() {
             viewport={{ once: true }}
             transition={{ type: "spring", stiffness: 80, damping: 20 }}
           >
-            <Headshot />
+            <PhotoSlider />
+            <div className="mt-4">
+              <SocialLinks iconClass="text-muted dark:text-white/45 hover:text-accent transition" />
+            </div>
           </motion.div>
 
           {/* Bio */}
@@ -198,30 +260,21 @@ export function Backstory() {
             </h2>
 
             <p className="font-body text-xl text-muted dark:text-white/60 leading-relaxed">
-              I&apos;m My Pham, a Data Science student at the University of Florida working at the
-              intersection of data, product, and operations.
+              I&apos;m My Pham, a Data Science student at the University of Florida interested in
+              product, data, and operations.
             </p>
             <p className="font-body text-xl text-muted dark:text-white/60 leading-relaxed">
-              I&apos;m interested in turning complex problems into practical systems — from product
-              workflows and decision tools to analytics projects that support better decisions.
-              I&apos;m currently a Product Management Intern at Lattera, an F&amp;B startup, and
-              previously worked in Risk Advisory at Deloitte. My work and research span fairness
-              analytics, decision modeling, sustainability, ESG, and end-of-life battery systems.
+              I like turning messy, ambiguous problems into workflows, tools, and product systems
+              that people can actually use. I&apos;m currently a Product Management Intern at
+              Lattera, an F&amp;B startup, and previously worked in Risk Advisory at Deloitte. My
+              work spans product strategy, analytics, sustainability, ESG, and decision modeling.
             </p>
             <p className="font-body text-xl text-muted dark:text-white/60 leading-relaxed">
               At UF, I&apos;ve served as External Vice President of Data Science &amp; Informatics
               for two years, previously served as Treasurer for the Vietnamese International Student
-              Association, and will be Head of Operations for WingHacks this upcoming year.
-            </p>
-            <p className="font-body text-xl text-muted dark:text-white/60 leading-relaxed">
-              Outside of work, I&apos;m usually planning my next trip, exploring a new city, taking
-              photos, café-hopping for matcha, or making food with whatever ingredients I have
-              around. I like movement, good design, and small details that make a place or product
-              feel memorable.
-            </p>
-            <p className="font-body text-xl text-muted dark:text-white/60 leading-relaxed">
-              I&apos;m currently exploring data analytics, product management, tech consulting, and
-              AI-driven business solutions.
+              Association, and will be Head of Operations for WingHacks. Outside of work, I&apos;m
+              usually planning a trip, exploring a city, taking photos, drinking matcha, or making
+              food.
             </p>
 
             {/* Tags */}
