@@ -1,14 +1,14 @@
 export const experience = [
   {
-    role: "Product Strategy Fellow",
-    company: "Product Space (Client: Lattéra, Gator Creek LLC)",
+    role: "Product Management Intern",
+    company: "Lattéra, Gator Creek LLC",
     period: "Feb 2026 — Present",
-    description: "I'm helping shape how an early-stage beverage brand measures traction, prioritizes launch decisions, and structures its MVP pilot. What I like most about this work is that it sits right at the intersection of product thinking, go-to-market strategy, and operational clarity.",
+    description: "I'm helping build and validate an early-stage beverage product, working across product strategy, experimentation, analytics, and technical operations. What I like most about this role is getting to turn early-stage ideas into real user experiences, systems, and launch decisions.",
     bullets: [
-      "I designed a 3-stage KPI tree across pilot, launch, and operations to help the team decide what should actually be measured early on.",
-      "I defined metric ownership, reporting logic, and a weekly review cadence so product and launch decisions could be made more consistently.",
-      "I researched placement and channel opportunities across Gainesville and Orlando, evaluated 30–60 candidate locations, and prioritized a Top 10 list using a weighted fit rubric.",
-      "I also developed go-to-market and partner enablement materials, including ICPs, positioning, value proposition messaging, and outreach assets.",
+      "I was one of the team leads for 2 campus MVP activations engaging 600+ students, where I helped coordinate execution and designed the user flow for the tasting and full-product experience. Across both activations, we distributed 1,400+ samples and 260+ full-size drinks and collected 182 survey responses, with 61% purchase intent and 82.4% support for on-campus placement.",
+      "I designed a rule-based refund decision engine using Nayax transaction data and weighted matching across 6 signals, defining user and system flows for automatic refunds, manual review, duplicate requests, and higher-risk cases.",
+      "I built the system with structured logging, confidence scores, reason codes, testing, and human overrides, creating a foundation for an ML-based workflow once we have enough real transaction data.",
+      "I also work on MVP measurement and launch strategy, from designing a 3-stage KPI framework to researching 30–60 potential locations across Gainesville and Orlando and narrowing them into priority launch targets.",
     ],
   },
   {
@@ -54,6 +54,45 @@ export const experience = [
       "I organized and reviewed 40 academic sources related to chatbot response quality and evaluation.",
       "I coded and validated around 200 qualitative data points for inter-rater reliability.",
       "The experience strengthened how I think about structured analysis, research quality, and evidence-based conclusions.",
+    ],
+  },
+];
+
+export const leadership = [
+  {
+    role: "External Vice President",
+    company: "UF Data Science & Informatics",
+    period: "Apr 2025 — Present",
+    description: "I lead external partnerships and career-focused initiatives for one of UF's largest data science organizations, working with companies, research labs, startups, and university partners to create more opportunities for students beyond regular club programming.",
+    bullets: [
+      "Built relationships with organizations including AIIRI, Google, Microsoft, Deloitte, startups, and UF Career Connections Center, helping secure funding, launch student-facing projects, and develop career-readiness programming.",
+      "Organized 5+ research and industry tours connecting 350+ members with research labs, startups, and professionals, while helping create pathways that contributed to 8+ hackathon-winning teams.",
+      "Directed external outreach and engagement initiatives that increased internal participation by 300% and student–employer engagement by 600%, contributing to recognition as Student Organization of the Year and a Career Influencer Award.",
+      "Supported larger organization-wide programming, including industry events, career workshops, technical opportunities, and the Data Science Symposium, which brings together roughly 300 students, researchers, and industry participants.",
+    ],
+  },
+  {
+    role: "Operations Committee Head",
+    company: "WingHacks",
+    period: "Apr 2025 — Present",
+    description: "I lead operations planning for WingHacks 2027, focusing on the systems, logistics, and coordination needed to turn a large hackathon from a plan on paper into a smooth participant experience.",
+    bullets: [
+      "Own planning across venue logistics, resource allocation, catering, procurement, setup, storage, transportation, signage, participant flow, and event-day operations.",
+      "Coordinate closely with sponsorship, design, outreach, and other committees to translate each team's needs into operational requirements, timelines, budgets, and execution plans.",
+      "Build purchasing schedules and resource plans around what can be purchased, rented, borrowed, stored, or reused, while accounting for vendor lead times and budget constraints.",
+      "Develop committee delegation structures, setup and cleanup plans, contingency procedures, and event-day operating workflows so responsibilities are clear before the hackathon begins.",
+    ],
+  },
+  {
+    role: "Treasurer",
+    company: "Vietnamese International Student Association",
+    period: "Aug 2024 — May 2026",
+    description: "I managed the financial and operational side of one of UF's Vietnamese student organizations, balancing budgeting, sponsorship development, and event planning for cultural and community programming.",
+    bullets: [
+      "Managed an annual budget of $10,000+, overseeing funding allocation, reimbursements, purchasing, and financial planning across the organization's events and initiatives.",
+      "Secured $5,000+ in sponsorships, supporting programming while working with external partners and internal teams to balance event ambitions with available resources.",
+      "Helped lead planning and execution for large-scale cultural events including Tết Festival with 300+ attendees, coordinating logistics, vendors, supplies, budgeting, and resource allocation.",
+      "Worked across committees to support programming throughout the year, helping ensure events remained financially feasible while maintaining a strong experience for members and attendees.",
     ],
   },
 ];

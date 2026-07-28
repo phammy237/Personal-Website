@@ -20,7 +20,7 @@ export type Project = {
   liveUrl?: string;
   slides?: string;
   video?: string;
-  image?: string;      // drop file in public/projects/<slug>.jpg
+  image?: string;
   gradient: string;
   prize?: boolean;
   competition?: string;
@@ -56,8 +56,8 @@ export const projects: Project[] = [
     prize: true,
     image: "/projects/cartcoach.png",
     video: "https://www.youtube.com/watch?v=udcMLWCatSg",
-    github: "#",
-    devpost: "#",
+    github: "https://github.com/phammy237/cartcoach",
+    devpost: "https://devpost.com/software/cartcoach",
   },
   {
     slug: "kite",
@@ -88,8 +88,8 @@ export const projects: Project[] = [
     prize: true,
     image: "/projects/kite.png",
     video: "https://www.youtube.com/watch?v=WizNYIdEKoo",
-    github: "#",
-    devpost: "#",
+    github: "https://github.com/phammy237/Kite-2026",
+    devpost: "https://devpost.com/software/kite-lj1fv9",
   },
   {
     slug: "wnba-simulator",
@@ -107,7 +107,7 @@ export const projects: Project[] = [
       "The project helped me think more deeply about tradeoffs, uncertainty, and strategic decision support.",
     ],
     tools: ["Python", "Monte Carlo Simulation", "Excel", "Data Modeling"],
-    github: "#",
+    github: "https://github.com/phammy237/ICM-2026",
     stack: [
       { layer: "Modeling", tech: "Python (pandas, NumPy)" },
       { layer: "Simulation", tech: "Monte Carlo (200 trials)" },
@@ -131,7 +131,7 @@ export const projects: Project[] = [
       "The project pushed me to think beyond analysis and toward usability and applied value.",
     ],
     tools: ["Python", "Streamlit", "scikit-learn", "pandas", "R"],
-    github: "#",
+    github: "https://github.com/phammy237/MAD2502-Final-Project-Housing-Dataset",
     stack: [
       { layer: "Data", tech: "Python + pandas (20K+ records)" },
       { layer: "Model", tech: "scikit-learn (least-squares MLR)" },

@@ -5,6 +5,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import {
   experience,
+  leadership,
   education,
   skills,
   earlyCareerPrograms,
@@ -154,6 +155,41 @@ export default function CVPage() {
                     )}
                     <ul className="space-y-1.5 mt-2">
                       {exp.bullets.map((b, bi) => (
+                        <li key={bi} className="flex items-start gap-2">
+                          <span className="text-accent mt-1 flex-shrink-0 text-xs">▸</span>
+                          <span className="font-body text-sm text-muted dark:text-white/50 leading-relaxed">{b}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </motion.div>
+                ))}
+              </div>
+            </Section>
+
+            {/* Leadership */}
+            <Section title="Leadership">
+              <div className="relative">
+                <div className="absolute left-0 top-0 bottom-0 w-px bg-border dark:bg-white/10" />
+                {leadership.map((lead, i) => (
+                  <motion.div
+                    key={i}
+                    className="pl-6 pb-8 relative"
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.08, type: "spring", stiffness: 100 }}
+                  >
+                    <div className="absolute left-0 top-1.5 w-2 h-2 rounded-full -translate-x-[3px] bg-accent" />
+                    <div className="flex items-baseline justify-between gap-4 mb-1 flex-wrap">
+                      <div>
+                        <span className="font-body font-semibold text-surface dark:text-white">{lead.role}</span>
+                        <span className="font-body text-muted dark:text-white/50"> · {lead.company}</span>
+                      </div>
+                      <span className="font-mono text-xs text-muted dark:text-white/40 whitespace-nowrap">{lead.period}</span>
+                    </div>
+                    <p className="font-body text-sm text-muted/80 dark:text-white/35 italic mt-1.5 mb-2 leading-relaxed">{lead.description}</p>
+                    <ul className="space-y-1.5 mt-2">
+                      {lead.bullets.map((b, bi) => (
                         <li key={bi} className="flex items-start gap-2">
                           <span className="text-accent mt-1 flex-shrink-0 text-xs">▸</span>
                           <span className="font-body text-sm text-muted dark:text-white/50 leading-relaxed">{b}</span>
