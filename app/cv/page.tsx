@@ -273,7 +273,7 @@ export default function CVPage() {
             </Section>
 
             {/* HS Experience by category */}
-            {highSchoolExperience.map((group, gi) => (
+            {highSchoolExperience.map((group) => (
               <Section key={group.category} title={group.category}>
                 <div className="relative">
                   <div className="absolute left-0 top-0 bottom-0 w-px bg-border dark:bg-white/10" />

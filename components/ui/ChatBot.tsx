@@ -228,7 +228,7 @@ export function ChatBot() {
                   <div className="flex gap-2 items-start">
                     <BotAvatar />
                     <div className="bg-[#1E1B4B] text-white/85 text-sm font-body px-3.5 py-2.5 rounded-2xl rounded-tl-sm leading-relaxed">
-                      hey! 👋 i'm My's portfolio assistant. how do you want to vibe?
+                      hey! 👋 i&apos;m My&apos;s portfolio assistant. how do you want to vibe?
                     </div>
                   </div>
 
