@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SITE_EMAIL } from "@/lib/site";
 
 export function Footer() {
   return (
@@ -14,10 +15,10 @@ export function Footer() {
         </div>
         <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
           <a
-            href="mailto:phamlehamy2307@gmail.com"
+            href={`mailto:${SITE_EMAIL}`}
             className="font-mono text-sm text-muted dark:text-white/60 hover:text-accent transition-colors duration-200"
           >
-            phamlehamy2307@gmail.com
+            {SITE_EMAIL}
           </a>
           <a
             href="https://linkedin.com/in/mypham237"

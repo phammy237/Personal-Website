@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
-import { SITE_EMAIL } from "@/lib/site";
+import { SITE_EMAIL, CONTACT_FROM_EMAIL } from "@/lib/site";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
 
   try {
     const { error } = await resend.emails.send({
-      from: "My's Portfolio <onboarding@resend.dev>",
+      from: CONTACT_FROM_EMAIL,
       to: SITE_EMAIL,
       replyTo,
       subject: subject || `New message from ${name}`,

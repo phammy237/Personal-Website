@@ -3,6 +3,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { SITE_EMAIL } from "@/lib/site";
 import {
   experience,
   leadership,
@@ -40,8 +41,8 @@ export default function CVPage() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.1 }}
             >
-              <a href="mailto:phamlehamy2307@gmail.com" className="hover:text-accent transition-colors">
-                phamlehamy2307@gmail.com
+              <a href={`mailto:${SITE_EMAIL}`} className="hover:text-accent transition-colors">
+                {SITE_EMAIL}
               </a>
               <span>·</span>
               <a href="tel:3527454868" className="hover:text-accent transition-colors">

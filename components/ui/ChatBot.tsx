@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { SITE_EMAIL } from "@/lib/site";
 
 type Tone = "friend" | "curious" | null;
 interface Msg { role: "user" | "bot"; text: string }
@@ -25,7 +26,7 @@ const friendQs = [
   },
   {
     q: "how do i reach u? 📬",
-    a: "email me!! phamlehamy2307@gmail.com — i'm pretty responsive. or find me on LinkedIn at linkedin.com/in/mypham237. if you're a recruiter who wants to talk product or consulting i will literally reply immediately lmao",
+    a: `email me!! ${SITE_EMAIL} — i'm pretty responsive. or find me on LinkedIn at linkedin.com/in/mypham237. if you're a recruiter who wants to talk product or consulting i will literally reply immediately lmao`,
   },
 ];
 
@@ -48,7 +49,7 @@ const curiousQs = [
   },
   {
     q: "Are you open to opportunities?",
-    a: "Yes — actively looking for summer 2026 internships in product management, consulting, and data/analytics. I'm especially interested in roles where strategy, data, and product decision-making overlap. Feel free to reach out at phamlehamy2307@gmail.com or on LinkedIn.",
+    a: `Yes — actively looking for summer 2026 internships in product management, consulting, and data/analytics. I'm especially interested in roles where strategy, data, and product decision-making overlap. Feel free to reach out at ${SITE_EMAIL} or on LinkedIn.`,
   },
 ];
 

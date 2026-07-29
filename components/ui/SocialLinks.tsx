@@ -1,3 +1,5 @@
+import { SITE_EMAIL } from "@/lib/site";
+
 type IconProps = { className?: string };
 
 function GithubIcon({ className = "" }: IconProps) {
@@ -53,7 +55,7 @@ export const socials = [
   { label: "Facebook",  href: "https://www.facebook.com/pmyy237/",           icon: FacebookIcon  },
   { label: "Instagram", href: "https://www.instagram.com/whyy.pmyy_/",       icon: InstagramIcon },
   { label: "GitHub",    href: "https://github.com/phammy237",                 icon: GithubIcon    },
-  { label: "Gmail",     href: "mailto:phamlehamy2307@gmail.com",              icon: EmailIcon     },
+  { label: "Gmail",     href: `mailto:${SITE_EMAIL}`,                         icon: EmailIcon     },
   { label: "LinkedIn",  href: "https://linkedin.com/in/mypham237",            icon: LinkedInIcon  },
   { label: "Spotify",   href: "https://open.spotify.com/user/phammy237",      icon: SpotifyIcon   },
 ];
