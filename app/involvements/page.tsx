@@ -1,8 +1,11 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { ModalShell } from "@/components/ui/ModalShell";
+import { HeroNavDots } from "@/components/ui/HeroNavDots";
+import { useRotatingIndex } from "@/lib/hooks/useRotatingIndex";
 
 type InvType = "Leadership" | "Professional" | "Mentorship";
 
@@ -131,63 +134,42 @@ const featured = involvements.slice(0, 5);
 
 /* ─── Modal ─────────────────────────────────────────── */
 function InvModal({ inv, onClose }: { inv: Involvement; onClose: () => void }) {
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = "";
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [onClose]);
-
   return (
-    <motion.div
-      className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-0 md:p-6"
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-    >
-      <div className="absolute inset-0 bg-black/85 backdrop-blur-sm" onClick={onClose} />
-      <motion.div
-        className="relative z-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-t-2xl md:rounded-2xl bg-[#0D0F1A] border border-white/10"
-        initial={{ y: 60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 60, opacity: 0 }}
-        transition={{ type: "spring", stiffness: 200, damping: 28 }}
-      >
-        {/* Header */}
-        <div className="relative h-44 flex items-end p-6 overflow-hidden" style={{ background: inv.gradient }}>
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0D0F1A] via-black/20 to-transparent" />
-          <button onClick={onClose} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/70 transition-colors z-10">✕</button>
-          <div className="relative z-10">
-            <span className="font-mono text-xs text-white/50 block mb-1">{inv.type} · {inv.period}</span>
-            <h2 className="font-display text-3xl md:text-4xl text-white leading-tight">{inv.role}</h2>
-            <p className="font-mono text-sm text-white/60 mt-1">{inv.org}</p>
-          </div>
+    <ModalShell onClose={onClose} maxWidth="max-w-2xl">
+      {/* Header */}
+      <div className="relative h-44 flex items-end p-6 overflow-hidden" style={{ background: inv.gradient }}>
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0D0F1A] via-black/20 to-transparent" />
+        <div className="relative z-10">
+          <span className="font-mono text-xs text-white/50 block mb-1">{inv.type} · {inv.period}</span>
+          <h2 className="font-display text-3xl md:text-4xl text-white leading-tight">{inv.role}</h2>
+          <p className="font-mono text-sm text-white/60 mt-1">{inv.org}</p>
         </div>
+      </div>
 
-        {/* Body */}
-        <div className="p-6 space-y-5">
-          <p className="font-body text-white/70 leading-relaxed italic">{inv.description}</p>
+      {/* Body */}
+      <div className="p-6 space-y-5">
+        <p className="font-body text-white/70 leading-relaxed italic">{inv.description}</p>
 
-          <ul className="space-y-3">
-            {inv.bullets.map((b, i) => (
-              <li key={i} className="flex items-start gap-3">
-                <span className="text-accent mt-1.5 flex-shrink-0 text-xs">▸</span>
-                <span className="font-body text-sm text-white/65 leading-relaxed">{b}</span>
-              </li>
+        <ul className="space-y-3">
+          {inv.bullets.map((b, i) => (
+            <li key={i} className="flex items-start gap-3">
+              <span className="text-accent mt-1.5 flex-shrink-0 text-xs">▸</span>
+              <span className="font-body text-sm text-white/65 leading-relaxed">{b}</span>
+            </li>
+          ))}
+        </ul>
+
+        {inv.awards.length > 0 && (
+          <div className="flex flex-wrap gap-2 pt-2 border-t border-white/10">
+            {inv.awards.map((a) => (
+              <span key={a} className="font-mono text-xs text-yellow-300 bg-yellow-500/10 border border-yellow-500/30 px-3 py-1 rounded-full">
+                🏆 {a}
+              </span>
             ))}
-          </ul>
-
-          {inv.awards.length > 0 && (
-            <div className="flex flex-wrap gap-2 pt-2 border-t border-white/10">
-              {inv.awards.map((a) => (
-                <span key={a} className="font-mono text-xs text-yellow-300 bg-yellow-500/10 border border-yellow-500/30 px-3 py-1 rounded-full">
-                  🏆 {a}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-      </motion.div>
-    </motion.div>
+          </div>
+        )}
+      </div>
+    </ModalShell>
   );
 }
 
@@ -258,16 +240,7 @@ function InvCard({ inv, onSelect }: { inv: Involvement; onSelect: (inv: Involvem
 
 /* ─── Rotating Hero ─────────────────────────────────── */
 function InvHero({ onSelect }: { onSelect: (inv: Involvement) => void }) {
-  const [idx, setIdx] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const advance = useCallback(() => setIdx((i) => (i + 1) % featured.length), []);
-
-  useEffect(() => {
-    if (paused) return;
-    const t = setInterval(advance, ROTATE_MS);
-    return () => clearInterval(t);
-  }, [paused, advance]);
-
+  const { idx, setIdx, paused, setPaused, advance, retreat } = useRotatingIndex(featured.length, ROTATE_MS);
   const inv = featured[idx];
 
   return (
@@ -306,23 +279,16 @@ function InvHero({ onSelect }: { onSelect: (inv: Involvement) => void }) {
           </motion.div>
         </AnimatePresence>
 
-        {/* Dots + arrows */}
-        <div className="absolute bottom-4 right-[5vw] flex items-center gap-3">
-          <button onClick={() => { setIdx((i) => (i - 1 + featured.length) % featured.length); setPaused(true); }} className="w-7 h-7 rounded-full bg-black/20 dark:bg-white/10 border border-black/30 dark:border-white/20 flex items-center justify-center text-white/80 hover:bg-black/40 dark:hover:bg-white/20 hover:text-white transition-colors text-xs">‹</button>
-          {featured.map((_, i) => (
-            <button key={i} onClick={() => { setIdx(i); setPaused(true); }}>
-              <div className={`rounded-full transition-all duration-300 ${i === idx ? "w-6 h-1.5 bg-white" : "w-1.5 h-1.5 bg-white/30"}`} />
-            </button>
-          ))}
-          <button onClick={() => { advance(); setPaused(true); }} className="w-7 h-7 rounded-full bg-black/20 dark:bg-white/10 border border-black/30 dark:border-white/20 flex items-center justify-center text-white/80 hover:bg-black/40 dark:hover:bg-white/20 hover:text-white transition-colors text-xs">›</button>
-        </div>
+        <HeroNavDots
+          count={featured.length}
+          idx={idx}
+          paused={paused}
+          durationMs={ROTATE_MS}
+          onPrev={() => { retreat(); setPaused(true); }}
+          onNext={() => { advance(); setPaused(true); }}
+          onGoTo={(i) => { setIdx(i); setPaused(true); }}
+        />
       </div>
-
-      {!paused && (
-        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white/10">
-          <motion.div key={idx} className="h-full bg-accent" initial={{ width: "0%" }} animate={{ width: "100%" }} transition={{ duration: ROTATE_MS / 1000, ease: "linear" }} />
-        </div>
-      )}
     </div>
   );
 }

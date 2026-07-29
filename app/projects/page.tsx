@@ -1,9 +1,12 @@
 "use client";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { ModalShell } from "@/components/ui/ModalShell";
+import { HeroNavDots } from "@/components/ui/HeroNavDots";
+import { useRotatingIndex } from "@/lib/hooks/useRotatingIndex";
 import { allWork } from "@/data/projects";
 import type { Project } from "@/data/projects";
 
@@ -71,125 +74,110 @@ function ProjectModal({ project, initialTab, onClose }: { project: Project; init
     project.liveUrl && { label: "Live Demo", href: project.liveUrl },
   ].filter(Boolean) as { label: string; href: string }[];
 
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    return () => { document.body.style.overflow = ""; window.removeEventListener("keydown", onKey); };
-  }, [onClose]);
-
   return (
-    <motion.div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-0 md:p-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-      <div className="absolute inset-0 bg-black/85 backdrop-blur-sm" onClick={onClose} />
-      <motion.div
-        className="relative z-10 w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-t-2xl md:rounded-2xl bg-[#0D0F1A] border border-white/10"
-        initial={{ y: 60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 60, opacity: 0 }}
-        transition={{ type: "spring", stiffness: 200, damping: 28 }}
-      >
-        {/* Header */}
-        <div className="relative h-52 md:h-60 flex items-end p-6 overflow-hidden" style={{ background: project.gradient }}>
-          {project.image && <Image src={project.image} alt={project.title} fill className="object-contain opacity-30" />}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0D0F1A] via-black/30 to-transparent" />
-          <button onClick={onClose} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/70 transition-colors z-10">✕</button>
-          <div className="relative z-10 w-full">
-            <span className="font-mono text-xs text-white/50 block mb-1">{project.competition ?? project.category} · {project.month}</span>
-            <h2 className="font-display text-4xl md:text-5xl text-white leading-none mb-1">{project.title}</h2>
-            {project.award && (
-              <p className="font-mono text-xs text-yellow-400/70 mt-1.5">🏆 {project.award}</p>
-            )}
-            {links.length > 0 && (
-              <div className="flex gap-2 flex-wrap mt-3">
-                {links.map((l) => (
-                  <a key={l.label} href={l.href} target="_blank" rel="noopener noreferrer" className="font-mono text-xs px-3 py-1.5 bg-white/10 border border-white/20 text-white rounded-full hover:bg-white/20 transition-colors">{l.label} ↗</a>
+    <ModalShell onClose={onClose}>
+      {/* Header */}
+      <div className="relative h-52 md:h-60 flex items-end p-6 overflow-hidden" style={{ background: project.gradient }}>
+        {project.image && <Image src={project.image} alt={project.title} fill className="object-contain opacity-30" />}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0D0F1A] via-black/30 to-transparent" />
+        <div className="relative z-10 w-full">
+          <span className="font-mono text-xs text-white/50 block mb-1">{project.competition ?? project.category} · {project.month}</span>
+          <h2 className="font-display text-4xl md:text-5xl text-white leading-none mb-1">{project.title}</h2>
+          {project.award && (
+            <p className="font-mono text-xs text-yellow-400/70 mt-1.5">🏆 {project.award}</p>
+          )}
+          {links.length > 0 && (
+            <div className="flex gap-2 flex-wrap mt-3">
+              {links.map((l) => (
+                <a key={l.label} href={l.href} target="_blank" rel="noopener noreferrer" className="font-mono text-xs px-3 py-1.5 bg-white/10 border border-white/20 text-white rounded-full hover:bg-white/20 transition-colors">{l.label} ↗</a>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex border-b border-white/10 px-6">
+        {visibleTabs.map(({ key, label }) => (
+          <button key={key} onClick={() => setTab(key)} className={`relative font-mono text-xs px-4 py-3 transition-colors ${tab === key ? "text-white" : "text-white/40 hover:text-white/70"}`}>
+            {label}
+            {tab === key && <motion.div layoutId="modal-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-white" />}
+          </button>
+        ))}
+      </div>
+
+      {/* Tab content */}
+      <div className="p-6">
+        <AnimatePresence mode="wait">
+          {tab === "overview" && (
+            <motion.div key="ov" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+              <p className="font-mono text-[10px] text-white/30 uppercase tracking-widest mb-2">The Problem</p>
+              <p className="font-body text-white/70 leading-relaxed">{project.description}</p>
+              {project.logline && (
+                <p className="font-body text-sm text-white/40 italic mt-3 leading-relaxed">{project.logline}</p>
+              )}
+            </motion.div>
+          )}
+
+          {tab === "role" && (
+            <motion.div key="role" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+              <p className="font-mono text-[10px] text-white/30 uppercase tracking-widest mb-4">What I Did</p>
+              <ul className="space-y-4">
+                {project.bullets.map((b, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <span className="text-accent mt-1.5 flex-shrink-0 text-xs">▸</span>
+                    <span className="font-body text-sm text-white/65 leading-relaxed">{b}</span>
+                  </li>
                 ))}
-              </div>
-            )}
-          </div>
-        </div>
+              </ul>
+            </motion.div>
+          )}
 
-        {/* Tabs */}
-        <div className="flex border-b border-white/10 px-6">
-          {visibleTabs.map(({ key, label }) => (
-            <button key={key} onClick={() => setTab(key)} className={`relative font-mono text-xs px-4 py-3 transition-colors ${tab === key ? "text-white" : "text-white/40 hover:text-white/70"}`}>
-              {label}
-              {tab === key && <motion.div layoutId="modal-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-white" />}
-            </button>
-          ))}
-        </div>
-
-        {/* Tab content */}
-        <div className="p-6">
-          <AnimatePresence mode="wait">
-            {tab === "overview" && (
-              <motion.div key="ov" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-                <p className="font-mono text-[10px] text-white/30 uppercase tracking-widest mb-2">The Problem</p>
-                <p className="font-body text-white/70 leading-relaxed">{project.description}</p>
-                {project.logline && (
-                  <p className="font-body text-sm text-white/40 italic mt-3 leading-relaxed">{project.logline}</p>
-                )}
-              </motion.div>
-            )}
-
-            {tab === "role" && (
-              <motion.div key="role" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-                <p className="font-mono text-[10px] text-white/30 uppercase tracking-widest mb-4">What I Did</p>
-                <ul className="space-y-4">
-                  {project.bullets.map((b, i) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <span className="text-accent mt-1.5 flex-shrink-0 text-xs">▸</span>
-                      <span className="font-body text-sm text-white/65 leading-relaxed">{b}</span>
-                    </li>
+          {tab === "stack" && (
+            <motion.div key="stack" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+              <p className="font-mono text-[10px] text-white/30 uppercase tracking-widest mb-4">Tech Stack</p>
+              {project.stack ? (
+                <div className="border border-white/10 rounded-xl overflow-hidden">
+                  {project.stack.map((row, i) => (
+                    <div key={i} className={`flex items-start gap-4 px-4 py-3 ${i !== 0 ? "border-t border-white/10" : ""}`}>
+                      <span className="font-mono text-[11px] text-white/35 w-28 flex-shrink-0 pt-0.5 uppercase tracking-wide">{row.layer}</span>
+                      <span className="font-body text-sm text-white/75 leading-snug">{row.tech}</span>
+                    </div>
                   ))}
-                </ul>
-              </motion.div>
-            )}
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {project.tools.map((t) => (
+                    <span key={t} className="font-mono text-xs text-white/70 border border-white/15 bg-white/5 px-3 py-1.5 rounded-full">{t}</span>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          )}
 
-            {tab === "stack" && (
-              <motion.div key="stack" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-                <p className="font-mono text-[10px] text-white/30 uppercase tracking-widest mb-4">Tech Stack</p>
-                {project.stack ? (
-                  <div className="border border-white/10 rounded-xl overflow-hidden">
-                    {project.stack.map((row, i) => (
-                      <div key={i} className={`flex items-start gap-4 px-4 py-3 ${i !== 0 ? "border-t border-white/10" : ""}`}>
-                        <span className="font-mono text-[11px] text-white/35 w-28 flex-shrink-0 pt-0.5 uppercase tracking-wide">{row.layer}</span>
-                        <span className="font-body text-sm text-white/75 leading-snug">{row.tech}</span>
-                      </div>
-                    ))}
+          {tab === "media" && (
+            <motion.div key="md" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="space-y-8">
+              {project.video && (
+                <div>
+                  <p className="font-mono text-xs text-white/40 uppercase tracking-widest mb-3">Demo Video</p>
+                  <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black">
+                    <iframe src={project.video} title={`${project.title} demo`} className="absolute inset-0 w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
                   </div>
-                ) : (
-                  <div className="flex flex-wrap gap-2">
-                    {project.tools.map((t) => (
-                      <span key={t} className="font-mono text-xs text-white/70 border border-white/15 bg-white/5 px-3 py-1.5 rounded-full">{t}</span>
-                    ))}
+                </div>
+              )}
+              {project.slides && (
+                <div>
+                  <p className="font-mono text-xs text-white/40 uppercase tracking-widest mb-3">Slides</p>
+                  <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-black">
+                    <iframe src={project.slides} className="absolute inset-0 w-full h-full" title={`${project.title} slides`} allowFullScreen />
                   </div>
-                )}
-              </motion.div>
-            )}
-
-            {tab === "media" && (
-              <motion.div key="md" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="space-y-8">
-                {project.video && (
-                  <div>
-                    <p className="font-mono text-xs text-white/40 uppercase tracking-widest mb-3">Demo Video</p>
-                    <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black">
-                      <iframe src={project.video} title={`${project.title} demo`} className="absolute inset-0 w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
-                    </div>
-                  </div>
-                )}
-                {project.slides && (
-                  <div>
-                    <p className="font-mono text-xs text-white/40 uppercase tracking-widest mb-3">Slides</p>
-                    <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-black">
-                      <iframe src={project.slides} className="absolute inset-0 w-full h-full" title={`${project.title} slides`} allowFullScreen />
-                    </div>
-                  </div>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </motion.div>
-    </motion.div>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </ModalShell>
   );
 }
 
@@ -302,15 +290,7 @@ function WorkRow({ cat, items, onSelect }: { cat: string; items: Project[]; onSe
 
 /* ─── Hero ──────────────────────────────────────────── */
 function WorkHero({ onSelect }: { onSelect: (p: Project, t: Tab) => void }) {
-  const [idx, setIdx] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const advance = useCallback(() => setIdx((i) => (i + 1) % featuredWork.length), []);
-
-  useEffect(() => {
-    if (paused || featuredWork.length === 0) return;
-    const t = setInterval(advance, ROTATE_MS);
-    return () => clearInterval(t);
-  }, [paused, advance]);
+  const { idx, setIdx, paused, setPaused, advance, retreat } = useRotatingIndex(featuredWork.length, ROTATE_MS);
 
   if (featuredWork.length === 0) return null;
   const project = featuredWork[idx];
@@ -350,22 +330,16 @@ function WorkHero({ onSelect }: { onSelect: (p: Project, t: Tab) => void }) {
           </motion.div>
         </AnimatePresence>
 
-        <div className="absolute bottom-4 right-[5vw] flex items-center gap-3">
-          <button onClick={() => { setIdx((i) => (i - 1 + featuredWork.length) % featuredWork.length); setPaused(true); }} className="w-7 h-7 rounded-full bg-black/20 dark:bg-white/10 border border-black/30 dark:border-white/20 flex items-center justify-center text-white/80 hover:bg-black/40 dark:hover:bg-white/20 hover:text-white transition-colors text-xs">‹</button>
-          {featuredWork.map((_, i) => (
-            <button key={i} onClick={() => { setIdx(i); setPaused(true); }}>
-              <div className={`rounded-full transition-all duration-300 ${i === idx ? "w-6 h-1.5 bg-white" : "w-1.5 h-1.5 bg-white/30"}`} />
-            </button>
-          ))}
-          <button onClick={() => { advance(); setPaused(true); }} className="w-7 h-7 rounded-full bg-black/20 dark:bg-white/10 border border-black/30 dark:border-white/20 flex items-center justify-center text-white/80 hover:bg-black/40 dark:hover:bg-white/20 hover:text-white transition-colors text-xs">›</button>
-        </div>
+        <HeroNavDots
+          count={featuredWork.length}
+          idx={idx}
+          paused={paused}
+          durationMs={ROTATE_MS}
+          onPrev={() => { retreat(); setPaused(true); }}
+          onNext={() => { advance(); setPaused(true); }}
+          onGoTo={(i) => { setIdx(i); setPaused(true); }}
+        />
       </div>
-
-      {!paused && featuredWork.length > 1 && (
-        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white/10">
-          <motion.div key={idx} className="h-full bg-accent" initial={{ width: "0%" }} animate={{ width: "100%" }} transition={{ duration: ROTATE_MS / 1000, ease: "linear" }} />
-        </div>
-      )}
     </div>
   );
 }

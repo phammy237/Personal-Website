@@ -1,11 +1,16 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { ModalShell } from "@/components/ui/ModalShell";
+import { HeroNavDots } from "@/components/ui/HeroNavDots";
+import { useRotatingIndex } from "@/lib/hooks/useRotatingIndex";
 import { caseStudies } from "@/data/projects";
 import type { CaseStudy } from "@/data/projects";
+
+const HERO_NAV_BUTTON_CLASS = "w-7 h-7 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white/60 hover:bg-white/20 hover:text-white transition-colors text-xs";
 
 const ROTATE_MS = 6000;
 const CATEGORIES = ["All", "Hackathon", "Case Competition", "Math & Modeling", "Data Science", "Finance"] as const;
@@ -31,58 +36,43 @@ const featured = caseStudies.filter((cs) => cs.award !== "Participant");
 
 /* ─── Modal ─────────────────────────────────────────── */
 function CaseModal({ cs, onClose }: { cs: CaseStudy; onClose: () => void }) {
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    return () => { document.body.style.overflow = ""; window.removeEventListener("keydown", onKey); };
-  }, [onClose]);
-
   return (
-    <motion.div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-0 md:p-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-      <div className="absolute inset-0 bg-black/85 backdrop-blur-sm" onClick={onClose} />
-      <motion.div
-        className="relative z-10 w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-t-2xl md:rounded-2xl bg-[#0D0F1A] border border-white/10"
-        initial={{ y: 60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 60, opacity: 0 }}
-        transition={{ type: "spring", stiffness: 200, damping: 28 }}
-      >
-        <div className="relative h-48 md:h-60 flex items-end p-6 overflow-hidden" style={{ background: cs.gradient }}>
-          {cs.image && <Image src={cs.image} alt={cs.title} fill className="object-cover opacity-30" />}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0D0F1A] via-black/30 to-transparent" />
-          <button onClick={onClose} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/70 transition-colors z-10">✕</button>
-          <div className="relative z-10">
-            <p className="font-mono text-xs text-white/50 mb-1">{cs.competition} · {cs.year}</p>
-            <h2 className="font-display text-4xl md:text-5xl text-white leading-none mb-3">{cs.title}</h2>
-            <span className={`font-mono text-xs px-3 py-1 rounded-full border ${AWARD_BADGE[cs.award] ?? AWARD_BADGE["Participant"]}`}>
-              {AWARD_ICON[cs.award]} {cs.award}
-            </span>
-          </div>
+    <ModalShell onClose={onClose}>
+      <div className="relative h-48 md:h-60 flex items-end p-6 overflow-hidden" style={{ background: cs.gradient }}>
+        {cs.image && <Image src={cs.image} alt={cs.title} fill className="object-cover opacity-30" />}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0D0F1A] via-black/30 to-transparent" />
+        <div className="relative z-10">
+          <p className="font-mono text-xs text-white/50 mb-1">{cs.competition} · {cs.year}</p>
+          <h2 className="font-display text-4xl md:text-5xl text-white leading-none mb-3">{cs.title}</h2>
+          <span className={`font-mono text-xs px-3 py-1 rounded-full border ${AWARD_BADGE[cs.award] ?? AWARD_BADGE["Participant"]}`}>
+            {AWARD_ICON[cs.award]} {cs.award}
+          </span>
         </div>
-        <div className="p-6 space-y-5">
-          <div className="flex items-center gap-3">
-            <span className="font-mono text-xs text-white/40 border border-white/10 px-2 py-0.5 rounded">{cs.category}</span>
-            <span className="font-mono text-xs text-white/30">{cs.year}</span>
-          </div>
-          <p className="font-body text-white/70 leading-relaxed">{cs.description}</p>
-          <div className="flex flex-wrap gap-1.5">
-            {cs.tags.map((t) => <span key={t} className="font-mono text-xs text-white/50 border border-white/10 px-2 py-0.5 rounded">{t}</span>)}
-          </div>
-          {cs.slides ? (
-            <div>
-              <p className="font-mono text-xs text-white/40 uppercase tracking-widest mb-3">Slides</p>
-              <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-black">
-                <iframe src={cs.slides} className="absolute inset-0 w-full h-full" title={`${cs.title} slides`} allowFullScreen />
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-4 py-3">
-              <span className="w-2 h-2 rounded-full bg-accent animate-pulse flex-shrink-0" />
-              <p className="font-mono text-xs text-white/40">Slide deck uploading soon</p>
-            </div>
-          )}
+      </div>
+      <div className="p-6 space-y-5">
+        <div className="flex items-center gap-3">
+          <span className="font-mono text-xs text-white/40 border border-white/10 px-2 py-0.5 rounded">{cs.category}</span>
+          <span className="font-mono text-xs text-white/30">{cs.year}</span>
         </div>
-      </motion.div>
-    </motion.div>
+        <p className="font-body text-white/70 leading-relaxed">{cs.description}</p>
+        <div className="flex flex-wrap gap-1.5">
+          {cs.tags.map((t) => <span key={t} className="font-mono text-xs text-white/50 border border-white/10 px-2 py-0.5 rounded">{t}</span>)}
+        </div>
+        {cs.slides ? (
+          <div>
+            <p className="font-mono text-xs text-white/40 uppercase tracking-widest mb-3">Slides</p>
+            <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-black">
+              <iframe src={cs.slides} className="absolute inset-0 w-full h-full" title={`${cs.title} slides`} allowFullScreen />
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-4 py-3">
+            <span className="w-2 h-2 rounded-full bg-accent animate-pulse flex-shrink-0" />
+            <p className="font-mono text-xs text-white/40">Slide deck uploading soon</p>
+          </div>
+        )}
+      </div>
+    </ModalShell>
   );
 }
 
@@ -158,16 +148,7 @@ function CompCard({ cs, onSelect, index }: { cs: CaseStudy; onSelect: (cs: CaseS
 
 /* ─── Rotating Hero ─────────────────────────────────── */
 function CompHero({ onSelect }: { onSelect: (cs: CaseStudy) => void }) {
-  const [idx, setIdx] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const advance = useCallback(() => setIdx((i) => (i + 1) % featured.length), []);
-
-  useEffect(() => {
-    if (paused) return;
-    const t = setInterval(advance, ROTATE_MS);
-    return () => clearInterval(t);
-  }, [paused, advance]);
-
+  const { idx, setIdx, paused, setPaused, advance, retreat } = useRotatingIndex(featured.length, ROTATE_MS);
   const cs = featured[idx];
 
   return (
@@ -198,22 +179,17 @@ function CompHero({ onSelect }: { onSelect: (cs: CaseStudy) => void }) {
           </motion.div>
         </AnimatePresence>
 
-        <div className="absolute bottom-4 right-[5vw] flex items-center gap-3">
-          <button onClick={() => { setIdx((i) => (i - 1 + featured.length) % featured.length); setPaused(true); }} className="w-7 h-7 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white/60 hover:bg-white/20 hover:text-white transition-colors text-xs">‹</button>
-          {featured.map((_, i) => (
-            <button key={i} onClick={() => { setIdx(i); setPaused(true); }}>
-              <div className={`rounded-full transition-all duration-300 ${i === idx ? "w-6 h-1.5 bg-white" : "w-1.5 h-1.5 bg-white/30"}`} />
-            </button>
-          ))}
-          <button onClick={() => { advance(); setPaused(true); }} className="w-7 h-7 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white/60 hover:bg-white/20 hover:text-white transition-colors text-xs">›</button>
-        </div>
+        <HeroNavDots
+          count={featured.length}
+          idx={idx}
+          paused={paused}
+          durationMs={ROTATE_MS}
+          navButtonClass={HERO_NAV_BUTTON_CLASS}
+          onPrev={() => { retreat(); setPaused(true); }}
+          onNext={() => { advance(); setPaused(true); }}
+          onGoTo={(i) => { setIdx(i); setPaused(true); }}
+        />
       </div>
-
-      {!paused && (
-        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white/10">
-          <motion.div key={idx} className="h-full bg-accent" initial={{ width: "0%" }} animate={{ width: "100%" }} transition={{ duration: ROTATE_MS / 1000, ease: "linear" }} />
-        </div>
-      )}
     </div>
   );
 }
