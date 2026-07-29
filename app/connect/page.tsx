@@ -3,6 +3,9 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { SITE_EMAIL } from "@/lib/site";
+
+const fieldClass = "font-mono text-sm bg-base dark:bg-white/5 border border-border dark:border-white/10 rounded-xl px-4 py-3 text-surface dark:text-white placeholder:text-muted/60 dark:placeholder:text-white/20 focus:outline-none focus:border-accent/50 transition-colors";
 
 const options = [
   {
@@ -72,7 +75,6 @@ const options = [
 ];
 
 export default function ConnectPage() {
-  const email = "phamlehamy2307@gmail.com";
   const [selected, setSelected] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
@@ -172,7 +174,7 @@ export default function ConnectPage() {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="flex-1 font-mono text-sm bg-base dark:bg-white/5 border border-border dark:border-white/10 rounded-xl px-4 py-3 text-surface dark:text-white placeholder:text-muted/60 dark:placeholder:text-white/20 focus:outline-none focus:border-accent/50 transition-colors"
+                  className={`flex-1 ${fieldClass}`}
                 />
                 <input
                   type="text"
@@ -180,7 +182,7 @@ export default function ConnectPage() {
                   required
                   value={contact}
                   onChange={(e) => setContact(e.target.value)}
-                  className="flex-1 font-mono text-sm bg-base dark:bg-white/5 border border-border dark:border-white/10 rounded-xl px-4 py-3 text-surface dark:text-white placeholder:text-muted/60 dark:placeholder:text-white/20 focus:outline-none focus:border-accent/50 transition-colors"
+                  className={`flex-1 ${fieldClass}`}
                 />
               </div>
               <textarea
@@ -189,7 +191,7 @@ export default function ConnectPage() {
                 required
                 onChange={(e) => setMessage(e.target.value)}
                 rows={4}
-                className="font-mono text-sm bg-base dark:bg-white/5 border border-border dark:border-white/10 rounded-xl px-4 py-3 text-surface dark:text-white placeholder:text-muted/60 dark:placeholder:text-white/20 focus:outline-none focus:border-accent/50 transition-colors resize-none"
+                className={`${fieldClass} resize-none`}
               />
               <div className="flex items-center gap-4">
                 <button
@@ -216,7 +218,7 @@ export default function ConnectPage() {
         >
           <p className="font-body text-muted dark:text-white/40">Or just reach out directly:</p>
           <div className="flex flex-wrap gap-4">
-            <a href={`mailto:${email}`} className="font-mono text-sm text-accent hover:underline">{email}</a>
+            <a href={`mailto:${SITE_EMAIL}`} className="font-mono text-sm text-accent hover:underline">{SITE_EMAIL}</a>
             <span className="text-border dark:text-white/10">·</span>
             <a href="https://linkedin.com/in/mypham237" target="_blank" rel="noopener noreferrer" className="font-mono text-sm text-accent hover:underline">LinkedIn ↗</a>
             <span className="text-border dark:text-white/10">·</span>
