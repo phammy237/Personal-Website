@@ -75,19 +75,36 @@ export default function ConnectPage() {
   const email = "phamlehamy2307@gmail.com";
   const [selected, setSelected] = useState<string | null>(null);
   const [name, setName] = useState("");
+  const [contact, setContact] = useState("");
   const [message, setMessage] = useState("");
-  const [sent, setSent] = useState(false);
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
   const selectedOpt = options.find((o) => o.title === selected);
 
-  function handleSend(e: React.FormEvent) {
+  async function handleSend(e: React.FormEvent) {
     e.preventDefault();
-    if (!selectedOpt) return;
-    const subject = encodeURIComponent(selectedOpt.subject);
-    const body = encodeURIComponent(`Hi My,\n\nI'm ${name || "reaching out"}.\n\n${message}\n\nLooking forward to connecting!`);
-    window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
-    setSent(true);
-    setTimeout(() => setSent(false), 3000);
+    if (!selectedOpt || status === "sending") return;
+    setStatus("sending");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          contact,
+          subject: selectedOpt.subject,
+          message: `${selectedOpt.title}\n\n${message}`,
+        }),
+      });
+      if (!res.ok) throw new Error();
+      setStatus("sent");
+      setName("");
+      setContact("");
+      setMessage("");
+      setTimeout(() => setStatus("idle"), 4000);
+    } catch {
+      setStatus("error");
+    }
   }
 
   return (
@@ -113,7 +130,7 @@ export default function ConnectPage() {
               key={opt.title}
               onClick={() => {
                 setSelected(opt.title === selected ? null : opt.title);
-                setSent(false);
+                setStatus("idle");
               }}
               className={`group block text-left rounded-2xl border p-6 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 cursor-pointer ${
                 selected === opt.title
@@ -152,14 +169,24 @@ export default function ConnectPage() {
                 <input
                   type="text"
                   placeholder="Your name"
+                  required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  className="flex-1 font-mono text-sm bg-base dark:bg-white/5 border border-border dark:border-white/10 rounded-xl px-4 py-3 text-surface dark:text-white placeholder:text-muted/60 dark:placeholder:text-white/20 focus:outline-none focus:border-accent/50 transition-colors"
+                />
+                <input
+                  type="text"
+                  placeholder="Your email or phone number"
+                  required
+                  value={contact}
+                  onChange={(e) => setContact(e.target.value)}
                   className="flex-1 font-mono text-sm bg-base dark:bg-white/5 border border-border dark:border-white/10 rounded-xl px-4 py-3 text-surface dark:text-white placeholder:text-muted/60 dark:placeholder:text-white/20 focus:outline-none focus:border-accent/50 transition-colors"
                 />
               </div>
               <textarea
                 placeholder={`Tell me a bit about what you have in mind...`}
                 value={message}
+                required
                 onChange={(e) => setMessage(e.target.value)}
                 rows={4}
                 className="font-mono text-sm bg-base dark:bg-white/5 border border-border dark:border-white/10 rounded-xl px-4 py-3 text-surface dark:text-white placeholder:text-muted/60 dark:placeholder:text-white/20 focus:outline-none focus:border-accent/50 transition-colors resize-none"
@@ -167,12 +194,13 @@ export default function ConnectPage() {
               <div className="flex items-center gap-4">
                 <button
                   type="submit"
-                  className="font-mono text-sm px-6 py-3 bg-accent text-white hover:bg-accent/90 transition-colors duration-200 rounded-xl"
+                  disabled={status === "sending"}
+                  className="font-mono text-sm px-6 py-3 bg-accent text-white hover:bg-accent/90 disabled:opacity-60 transition-colors duration-200 rounded-xl"
                 >
-                  {sent ? "Opening email… ✓" : "Send to My →"}
+                  {status === "sending" ? "Sending…" : status === "sent" ? "Sent ✓" : "Send to My →"}
                 </button>
                 <p className="font-mono text-xs text-muted dark:text-white/30">
-                  Opens your email client with a pre-filled message.
+                  {status === "error" ? "Something went wrong — try again or email me directly." : "Sends straight to my inbox."}
                 </p>
               </div>
             </form>
