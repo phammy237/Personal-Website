@@ -45,13 +45,27 @@ export function RoutePath({
       preserveAspectRatio="none"
       aria-hidden="true"
     >
-      <path d={d} fill="none" stroke="#C7BEF0" strokeWidth={2} strokeDasharray="1 7" strokeLinecap="round" />
+      <path d={d} fill="none" strokeWidth={2} strokeDasharray="1 7" strokeLinecap="round" className="stroke-[#C7BEF0] dark:stroke-[#39335C]" />
+      {/* glow underlay, dark mode only */}
+      <motion.path
+        d={d}
+        fill="none"
+        stroke="#8B5CF6"
+        strokeWidth={7}
+        strokeLinecap="round"
+        className="hidden opacity-60 dark:block dark:[filter:blur(4px)]"
+        initial={{ pathLength: 0 }}
+        animate={{ pathLength: progress }}
+        transition={{ duration: 1.1, ease: "easeInOut" }}
+      />
+      {/* bright core line */}
       <motion.path
         d={d}
         fill="none"
         stroke="#8B5CF6"
         strokeWidth={2}
         strokeLinecap="round"
+        className="dark:[filter:drop-shadow(0_0_3px_rgba(196,181,253,0.9))]"
         initial={{ pathLength: 0 }}
         animate={{ pathLength: progress }}
         transition={{ duration: 1.1, ease: "easeInOut" }}

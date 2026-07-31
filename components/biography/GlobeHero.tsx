@@ -86,6 +86,10 @@ export function GlobeHero({
 
   return (
     <div className={`relative select-none ${className}`} style={{ width: size, height: size }}>
+      <div
+        className="pointer-events-none absolute inset-0 opacity-0 blur-3xl dark:opacity-100"
+        style={{ background: "radial-gradient(circle, rgba(139,92,246,0.28), transparent 65%)" }}
+      />
       <svg
         width={size}
         height={size}
@@ -98,7 +102,7 @@ export function GlobeHero({
         onPointerUp={endDrag}
         onPointerLeave={endDrag}
       >
-        <circle cx={size / 2} cy={size / 2} r={(baseScale * scale)} fill="#F3F1FF" />
+        <circle cx={size / 2} cy={size / 2} r={(baseScale * scale)} className="fill-[#F3F1FF] dark:fill-[#0D0B1F]" />
         {countries?.features.map((f) => {
           const id = String((f as { id?: string | number }).id ?? "");
           const isHighlighted = highlightSet.has(id);
@@ -107,9 +111,12 @@ export function GlobeHero({
             <path
               key={id}
               d={d}
-              fill={isHighlighted ? "#8B5CF6" : "#DCD6F7"}
-              stroke={isHighlighted ? "#6D28D9" : "#C7BEF0"}
               strokeWidth={isHighlighted ? 1.2 : 0.6}
+              className={
+                isHighlighted
+                  ? "fill-accent stroke-[#6D28D9] dark:fill-accent dark:stroke-[#A78BFA] dark:[filter:drop-shadow(0_0_6px_rgba(139,92,246,0.65))]"
+                  : "fill-[#DCD6F7] stroke-[#C7BEF0] dark:fill-[#211E3A] dark:stroke-[#39335C]"
+              }
             />
           );
         })}
@@ -118,37 +125,37 @@ export function GlobeHero({
           cy={size / 2}
           r={baseScale * scale}
           fill="none"
-          stroke="#B9AEF0"
           strokeWidth={1}
           opacity={0.5}
+          className="stroke-[#B9AEF0] dark:stroke-white/10"
         />
       </svg>
 
       {interactive && (
-        <div className="absolute bottom-3 right-3 flex flex-col overflow-hidden rounded-full border border-accent/25 bg-white/90 shadow-sm backdrop-blur">
+        <div className="absolute bottom-3 right-3 flex flex-col overflow-hidden rounded-full border border-accent/25 bg-white/90 shadow-sm backdrop-blur dark:border-white/10 dark:bg-[#12101F]/90">
           <button
             aria-label="Zoom in"
             onClick={() => setScale((s) => Math.min(2, s + 0.15))}
-            className="flex h-8 w-8 items-center justify-center text-surface/70 hover:bg-accent-light hover:text-accent transition-colors"
+            className="flex h-8 w-8 items-center justify-center text-surface/70 hover:bg-accent-light hover:text-accent transition-colors dark:text-white/60 dark:hover:bg-accent/20 dark:hover:text-white"
           >
             +
           </button>
-          <div className="h-px bg-border" />
+          <div className="h-px bg-border dark:bg-white/10" />
           <button
             aria-label="Zoom out"
             onClick={() => setScale((s) => Math.max(0.6, s - 0.15))}
-            className="flex h-8 w-8 items-center justify-center text-surface/70 hover:bg-accent-light hover:text-accent transition-colors"
+            className="flex h-8 w-8 items-center justify-center text-surface/70 hover:bg-accent-light hover:text-accent transition-colors dark:text-white/60 dark:hover:bg-accent/20 dark:hover:text-white"
           >
             −
           </button>
-          <div className="h-px bg-border" />
+          <div className="h-px bg-border dark:bg-white/10" />
           <button
             aria-label="Reset view"
             onClick={() => {
               setScale(1);
               setRotation(initialTarget ? rotationFor(initialTarget) : [-105, -15, 0]);
             }}
-            className="flex h-8 w-8 items-center justify-center text-surface/70 hover:bg-accent-light hover:text-accent transition-colors"
+            className="flex h-8 w-8 items-center justify-center text-surface/70 hover:bg-accent-light hover:text-accent transition-colors dark:text-white/60 dark:hover:bg-accent/20 dark:hover:text-white"
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 12a9 9 0 1 1-3-6.7" />

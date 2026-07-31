@@ -30,10 +30,10 @@ export default function BiographyPage() {
             >
               <div className="order-2 lg:order-1">
                 <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">{heroCopy.eyebrow}</p>
-                <h1 className="mt-4 whitespace-pre-line font-display text-5xl leading-[0.95] text-surface md:text-6xl">
+                <h1 className="mt-4 whitespace-pre-line font-display text-5xl leading-[0.95] text-surface dark:text-white md:text-6xl">
                   {heroCopy.heading}
                 </h1>
-                <p className="mt-5 max-w-md font-body text-base leading-relaxed text-muted">
+                <p className="mt-5 max-w-md font-body text-base leading-relaxed text-muted dark:text-white/60">
                   {heroCopy.subheading}
                 </p>
                 <button
@@ -43,7 +43,7 @@ export default function BiographyPage() {
                   {heroCopy.cta}
                   <span aria-hidden="true">→</span>
                 </button>
-                <div className="mt-4 flex items-center gap-2 font-mono text-xs text-muted/70">
+                <div className="mt-4 flex items-center gap-2 font-mono text-xs text-muted/70 dark:text-white/35">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M8 9l-4 3 4 3M16 9l4 3-4 3M13 5l-2 14" />
                   </svg>
@@ -74,7 +74,7 @@ export default function BiographyPage() {
             >
               <button
                 onClick={story.back}
-                className="mb-5 inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-wider text-muted transition-colors hover:text-accent"
+                className="mb-5 inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-wider text-muted transition-colors hover:text-accent dark:text-white/40 dark:hover:text-accent"
               >
                 ← Back to globe
               </button>
@@ -93,7 +93,7 @@ export default function BiographyPage() {
             >
               <button
                 onClick={story.back}
-                className="mb-5 inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-wider text-muted transition-colors hover:text-accent"
+                className="mb-5 inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-wider text-muted transition-colors hover:text-accent dark:text-white/40 dark:hover:text-accent"
               >
                 ← Back to {story.chapter.regionLabel}
               </button>

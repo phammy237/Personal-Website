@@ -9,9 +9,11 @@ export type StorySection = {
 export type StoryPin = {
   id: string;
   number: number;
-  /** position on the chapter map, percentage 0-100 */
+  /** fallback position on the chapter map, percentage 0-100 (used when no real geo data is available) */
   x: number;
   y: number;
+  /** real-world coordinate; when present, ChapterMap projects this instead of x/y */
+  geo?: GeoPoint;
   title: string;
   blurb: string;
   thumbnail: string;
@@ -41,6 +43,8 @@ export type Chapter = {
   exploreCta: string;
   mapLabel: string;
   mapEyebrow: string;
+  /** static GeoJSON asset (e.g. a real river line) rendered behind the pins, projected with the same geo transform as pin coordinates */
+  mapBackdropData?: string;
   pins: StoryPin[];
   photoMarkers?: PhotoMarker[];
   checkpoint: {
@@ -60,12 +64,13 @@ const placeholderImages = [
   "/IMG_9501.JPG",
 ];
 
-function placeholderPin(number: number, x: number, y: number, chapterLabel: string): StoryPin {
+function placeholderPin(number: number, x: number, y: number, chapterLabel: string, geo?: GeoPoint): StoryPin {
   return {
     id: `${chapterLabel.toLowerCase()}-pin-${number}`,
     number,
     x,
     y,
+    geo,
     title: "Placeholder Title",
     blurb: "One-line preview of this chapter goes here.",
     thumbnail: placeholderImages[number % placeholderImages.length],
@@ -92,12 +97,13 @@ export const chapters: Chapter[] = [
     exploreCta: "Explore Hanoi",
     mapLabel: "Hanoi",
     mapEyebrow: "Hanoi Map",
+    mapBackdropData: "/data/hanoi-river.json",
     pins: [
-      placeholderPin(1, 18, 62, "Hanoi"),
-      placeholderPin(2, 44, 46, "Hanoi"),
-      placeholderPin(3, 70, 28, "Hanoi"),
-      placeholderPin(4, 30, 22, "Hanoi"),
-      placeholderPin(5, 58, 74, "Hanoi"),
+      placeholderPin(1, 18, 62, "Hanoi", { lat: 21.0285, lon: 105.8542 }), // Hoan Kiem Lake
+      placeholderPin(2, 44, 46, "Hanoi", { lat: 21.0355, lon: 105.8495 }), // Old Quarter
+      placeholderPin(3, 70, 28, "Hanoi", { lat: 21.048, lon: 105.839 }),   // West Lake
+      placeholderPin(4, 30, 22, "Hanoi", { lat: 21.0413, lon: 105.858 }),  // Long Bien Bridge
+      placeholderPin(5, 58, 74, "Hanoi", { lat: 21.027, lon: 105.8355 }),  // Temple of Literature
     ],
     checkpoint: {
       heading: "You're at the end of this chapter.",
