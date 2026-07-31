@@ -1,77 +1,111 @@
 "use client";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { GlobeHero } from "@/components/biography/GlobeHero";
+import { RegionOverview } from "@/components/biography/RegionOverview";
+import { ChapterMap } from "@/components/biography/ChapterMap";
+import { useStoryState } from "@/lib/hooks/useStoryState";
+import { useWorldTopology } from "@/lib/hooks/useWorldTopology";
+import { heroCopy } from "@/data/biography";
 
 export default function BiographyPage() {
+  const story = useStoryState();
+  const countries = useWorldTopology();
+
   return (
-    <main className="min-h-screen" style={{ background: "linear-gradient(180deg, #080D24 0%, #0A0C1E 100%)" }}>
+    <main className="min-h-screen bg-[#F8F9FF] dark:bg-navy">
       <Navbar />
 
-      <div className="px-[5vw] pt-32 pb-32 max-w-[800px] mx-auto">
-        <motion.p
-          className="font-mono text-xs text-white/30 tracking-widest uppercase mb-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-        >
-          Story
-        </motion.p>
-        <motion.h1
-          className="font-display text-6xl md:text-8xl text-white leading-none mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          Biography
-        </motion.h1>
+      <div className="mx-auto max-w-[1400px] px-[5vw] pb-24 pt-28">
+        <AnimatePresence mode="wait">
+          {story.stage === "globe" && (
+            <motion.section
+              key="globe"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              className="grid min-h-[70vh] items-center gap-10 lg:grid-cols-[0.85fr_1fr]"
+            >
+              <div className="order-2 lg:order-1">
+                <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">{heroCopy.eyebrow}</p>
+                <h1 className="mt-4 whitespace-pre-line font-display text-5xl leading-[0.95] text-surface md:text-6xl">
+                  {heroCopy.heading}
+                </h1>
+                <p className="mt-5 max-w-md font-body text-base leading-relaxed text-muted">
+                  {heroCopy.subheading}
+                </p>
+                <button
+                  onClick={story.beginJourney}
+                  className="mt-7 inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-3 font-mono text-xs uppercase tracking-wider text-white transition-colors hover:bg-accent/90"
+                >
+                  {heroCopy.cta}
+                  <span aria-hidden="true">→</span>
+                </button>
+                <div className="mt-4 flex items-center gap-2 font-mono text-xs text-muted/70">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M8 9l-4 3 4 3M16 9l4 3-4 3M13 5l-2 14" />
+                  </svg>
+                  {heroCopy.dragHint}
+                </div>
+              </div>
 
-        <motion.div
-          className="flex flex-col gap-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-        >
-          {/* Placeholder content */}
-          <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
-            <div className="flex items-center gap-3 mb-6">
-              <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-              <p className="font-mono text-xs text-white/40">In progress — check back soon</p>
-            </div>
-            <p className="font-body text-2xl text-white/60 leading-relaxed italic">
-              &ldquo;A kid from Hanoi who grew up curious about everything, ended up in Florida, and somehow turned that into a career in data and product.&rdquo;
-            </p>
-          </div>
+              <div className="order-1 flex justify-center lg:order-2">
+                <GlobeHero
+                  countries={countries}
+                  highlightCountryIds={["704"]}
+                  initialTarget={{ lat: 21, lon: 105.85 }}
+                  size={520}
+                  ariaLabel="Interactive globe highlighting Vietnam"
+                />
+              </div>
+            </motion.section>
+          )}
 
-          {/* Timeline placeholder */}
-          <div className="relative">
-            <div className="absolute left-4 top-0 bottom-0 w-px bg-white/10" />
-            {[
-              { year: "2005", place: "Hanoi, Vietnam", note: "Born" },
-              { year: "2017", place: "Cầu Giấy Secondary School", note: "Where it all started" },
-              { year: "2021", place: "Nguyễn Huệ High School for the Gifted", note: "Things got serious" },
-              { year: "2023", place: "Rivermont Collegiate, Iowa", note: "First time in the US" },
-              { year: "2024", place: "University of Florida", note: "Now" },
-            ].map((item, i) => (
-              <motion.div
-                key={item.year}
-                className="pl-10 pb-8 relative"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.35 + i * 0.08 }}
+          {story.stage === "region" && (
+            <motion.section
+              key="region"
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.45 }}
+              className="py-6"
+            >
+              <button
+                onClick={story.back}
+                className="mb-5 inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-wider text-muted transition-colors hover:text-accent"
               >
-                <div className="absolute left-3.5 top-1.5 w-2 h-2 rounded-full bg-accent -translate-x-1/2" />
-                <span className="font-mono text-xs text-accent block mb-1">{item.year}</span>
-                <p className="font-body text-white/80 font-medium">{item.place}</p>
-                <p className="font-mono text-xs text-white/30 mt-0.5">{item.note}</p>
-              </motion.div>
-            ))}
-          </div>
+                ← Back to globe
+              </button>
+              <RegionOverview chapter={story.chapter} countries={countries} onExplore={story.enterMap} />
+            </motion.section>
+          )}
 
-          <div className="border border-white/10 rounded-xl px-6 py-5 text-center">
-            <p className="font-mono text-sm text-white/30">Full biography coming soon.</p>
-            <p className="font-mono text-xs text-white/20 mt-1">Stories from childhood, Hanoi, and the journey to UF.</p>
-          </div>
-        </motion.div>
+          {story.stage === "map" && (
+            <motion.section
+              key="map"
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.45 }}
+              className="py-6"
+            >
+              <button
+                onClick={story.back}
+                className="mb-5 inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-wider text-muted transition-colors hover:text-accent"
+              >
+                ← Back to {story.chapter.regionLabel}
+              </button>
+              <ChapterMap
+                chapter={story.chapter}
+                completedPinIds={story.completedPinIds}
+                activePinId={story.activePinId}
+                onSelectPin={story.selectPin}
+              />
+            </motion.section>
+          )}
+        </AnimatePresence>
       </div>
 
       <Footer />

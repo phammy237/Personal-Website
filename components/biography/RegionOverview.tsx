@@ -1,0 +1,91 @@
+"use client";
+import { useMemo } from "react";
+import { motion } from "framer-motion";
+import { geoMercator, geoPath } from "d3-geo";
+import type { FeatureCollection, Geometry } from "geojson";
+import type { Chapter } from "@/data/biography";
+import { findCountry } from "@/lib/hooks/useWorldTopology";
+
+export function RegionOverview({
+  chapter,
+  countries,
+  onExplore,
+}: {
+  chapter: Chapter;
+  countries: FeatureCollection<Geometry> | null;
+  onExplore: () => void;
+}) {
+  const width = 640;
+  const height = 560;
+
+  const countryFeature = useMemo(() => findCountry(countries, chapter.countryId), [countries, chapter.countryId]);
+
+  const { path, markerPoint } = useMemo(() => {
+    if (!countryFeature) return { path: null, markerPoint: null };
+    const projection = geoMercator().fitExtent(
+      [
+        [48, 48],
+        [width - 48, height - 48],
+      ],
+      countryFeature as never
+    );
+    const gen = geoPath(projection);
+    const point = projection([chapter.globeTarget.lon, chapter.globeTarget.lat]);
+    return { path: gen(countryFeature as never), markerPoint: point };
+  }, [countryFeature, chapter.globeTarget]);
+
+  return (
+    <div className="relative w-full overflow-hidden rounded-3xl border border-border bg-[#F8F7FF]" style={{ minHeight: height }}>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`Map of ${chapter.regionLabel}`}>
+          {path && (
+            <motion.path
+              d={path}
+              fill="#DCD6F7"
+              stroke="#8B5CF6"
+              strokeWidth={1.4}
+              initial={{ opacity: 0, scale: 0.94 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              style={{ transformOrigin: "center" }}
+            />
+          )}
+          {markerPoint && (
+            <g transform={`translate(${markerPoint[0]}, ${markerPoint[1]})`}>
+              <motion.circle
+                r={16}
+                fill="#8B5CF6"
+                opacity={0.25}
+                animate={{ scale: [1, 1.6, 1], opacity: [0.3, 0, 0.3] }}
+                transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+              />
+              <circle r={6} fill="#8B5CF6" stroke="white" strokeWidth={2} />
+            </g>
+          )}
+        </svg>
+      </div>
+
+      <p className="absolute right-6 top-8 font-mono text-xs uppercase tracking-[0.35em] text-accent md:right-10 md:top-10">
+        {chapter.regionLabel}
+      </p>
+
+      <motion.div
+        className="absolute left-4 top-6 w-[calc(100%-2rem)] max-w-[300px] rounded-2xl border border-border bg-white/95 p-6 shadow-lg backdrop-blur md:left-8 md:top-8"
+        initial={{ opacity: 0, x: -16 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.15, duration: 0.5 }}
+      >
+        <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted">{chapter.eyebrow}</p>
+        <h2 className="mt-2 font-display text-2xl text-surface">{chapter.title}</h2>
+        <p className="mt-3 font-body text-sm leading-relaxed text-muted">{chapter.intro}</p>
+        <button
+          onClick={onExplore}
+          className="mt-5 inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2.5 font-mono text-xs uppercase tracking-wider text-white transition-colors hover:bg-accent/90"
+        >
+          {chapter.exploreCta}
+          <span aria-hidden="true">→</span>
+        </button>
+      </motion.div>
+    </div>
+  );
+}
