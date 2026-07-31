@@ -108,6 +108,7 @@ export const projects: Project[] = [
     ],
     tools: ["Python", "Monte Carlo Simulation", "Excel", "Data Modeling"],
     github: "https://github.com/phammy237/ICM-2026",
+    slides: "/slides/wnba-simulator.pdf",
     stack: [
       { layer: "Modeling", tech: "Python (pandas, NumPy)" },
       { layer: "Simulation", tech: "Monte Carlo (200 trials)" },

@@ -20,6 +20,8 @@ const ticketChips = [
   { eyebrow: "Arrival", title: "Research",         meta: "MP 2026" },
 ];
 
+const barcodePattern = [2, 1, 1, 3, 1, 2, 1, 1, 3, 2, 1, 1, 2, 1, 3, 1, 1, 2, 1, 3, 2, 1, 1, 1, 2, 3, 1, 1, 2, 1];
+
 const destinations = [
   {
     num: "01",
@@ -87,7 +89,7 @@ function BoardingPass() {
       {/* Header */}
       <div className="relative flex items-center justify-between border-b border-white/10 px-5 py-3">
         <div className="flex items-center gap-2.5">
-          <span className="grid h-4 w-4 place-items-center rounded-full border border-white/20 text-[10px] text-white/35">G</span>
+          <span className="grid h-4 w-4 place-items-center rounded-full border border-white/20 text-[10px] text-white/35">M</span>
           <span className="font-mono text-[11px] uppercase tracking-[0.28em] text-white/55">Boarding Pass</span>
         </div>
         <span className="font-mono text-[11px] uppercase tracking-[0.15em] text-white/35">MP-2026</span>
@@ -102,10 +104,15 @@ function BoardingPass() {
             <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-white/45">Hanoi</p>
           </div>
           <div className="pb-6 text-accent">
-            <div className="flex items-center justify-center gap-2">
-              <span className="h-px flex-1 border-t border-dashed border-accent/70" />
-              <PlaneIcon />
-              <span className="h-px flex-1 border-t border-dashed border-accent/70" />
+            <div className="relative flex h-6 items-center">
+              <span className="h-px w-full border-t border-dashed border-accent/70" />
+              <motion.div
+                className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2"
+                animate={{ left: ["0%", "100%"] }}
+                transition={{ duration: 2.6, repeat: Infinity, ease: "linear" }}
+              >
+                <PlaneIcon />
+              </motion.div>
             </div>
           </div>
           <div className="text-right">
@@ -133,8 +140,8 @@ function BoardingPass() {
           <div className="border-l border-white/10 pl-4">
             <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/35">Status</p>
             <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.18em] text-accent">
-              <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-accent" />
-              In Progress
+              <span className="mr-1.5 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
+              <span className="animate-pulse">In Progress</span>
             </p>
           </div>
           <div className="border-l border-white/10 pl-4">
@@ -145,7 +152,7 @@ function BoardingPass() {
       </div>
 
       {/* Passenger info + barcode */}
-      <div className="relative grid grid-cols-[1fr_auto] gap-4 px-5 py-4">
+      <div className="relative grid grid-cols-[1fr_auto] items-center gap-8 px-5 py-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
             <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/35">Passenger</p>
@@ -157,17 +164,20 @@ function BoardingPass() {
           </div>
           <div>
             <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/35">Role</p>
-            <p className="mt-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-white/75">Builder · Problem Solver</p>
+            <p className="mt-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-white/75">Problem Solver</p>
           </div>
           <div>
             <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/35">Term</p>
             <p className="mt-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-white/75">2026</p>
           </div>
         </div>
-        <div className="hidden h-12 w-16 items-end gap-[2px] opacity-40 sm:flex">
-          {Array.from({ length: 18 }).map((_, i) => (
-            <span key={i} className="flex-1 bg-white" style={{ height: `${20 + ((i * 19) % 28)}px` }} />
-          ))}
+        <div className="hidden flex-col items-center justify-center gap-2 sm:flex">
+          <div className="flex h-16 items-stretch gap-[2px]">
+            {barcodePattern.map((w, i) => (
+              <span key={i} className="bg-white" style={{ width: `${w * 1.6}px` }} />
+            ))}
+          </div>
+          <span className="font-mono text-[8px] uppercase tracking-[0.18em] text-white/70">mypham.space</span>
         </div>
       </div>
 
@@ -195,13 +205,13 @@ function TicketChips() {
       {ticketChips.map((ticket) => (
         <div
           key={ticket.title}
-          className="relative min-h-[76px] rounded-lg border border-accent/35 bg-[#0b1020]/70 px-4 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.25)] backdrop-blur"
+          className="relative flex min-h-[76px] flex-col rounded-lg border border-accent/35 bg-[#0b1020]/70 px-4 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.25)] backdrop-blur"
         >
           <div className="absolute inset-x-2 top-1 border-t border-dashed border-white/15" />
           <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/45">{ticket.eyebrow}</p>
           <p className="mt-2 font-mono text-[12px] uppercase tracking-[0.08em] text-accent">{ticket.title}</p>
-          <div className="mt-3 flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.16em] text-white/45">
-            <span>{ticket.meta}</span>
+          <div className="mt-auto flex items-center justify-between pt-3 font-mono text-[9px] uppercase tracking-[0.16em] text-white/45">
+            <span className="whitespace-nowrap">{ticket.meta}</span>
             <span>+</span>
           </div>
         </div>

@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTheme } from "@/components/layout/ThemeProvider";
 
@@ -49,12 +50,14 @@ export function Navbar() {
   }, [mobileOpen]);
 
   const isDark = (isHome && !scrolled) || pathname === "/case-studies";
+  const solidBg = scrolled && isHome;
+  const lightText = isDark && !solidBg;
 
   return (
     <>
       <motion.header
-        className={`fixed top-0 left-0 right-0 z-50 px-[5vw] py-4 flex items-center justify-between transition-all duration-300 ${
-          scrolled && isHome
+        className={`fixed top-0 left-0 right-0 z-50 py-4 transition-all duration-300 ${
+          solidBg
             ? "bg-white/90 dark:bg-navy/90 backdrop-blur-sm border-b border-border dark:border-white/10 shadow-sm"
             : isDark
             ? "bg-transparent"
@@ -63,13 +66,17 @@ export function Navbar() {
         animate={{ y: visible ? 0 : -80 }}
         transition={{ type: "spring", stiffness: 200, damping: 30 }}
       >
+      <Link href="/" className="absolute left-4 top-1/2 hidden -translate-y-1/2 md:block">
+        <Image src="/logo.png" alt="My Pham" width={56} height={56} className="h-14 w-14 shrink-0 object-contain" />
+      </Link>
+      <div className="mx-auto flex max-w-[1680px] items-center justify-between px-4 sm:px-6 lg:px-20 xl:px-24">
         <div className="flex items-center gap-3">
           <button
             onClick={() => setMobileOpen((o) => !o)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
             className={`w-7 h-7 flex items-center justify-center rounded-full transition-colors duration-200 md:hidden ${
-              isDark && !scrolled ? "text-white/70 hover:text-white" : "text-muted hover:text-surface"
+              lightText ? "text-white/70 hover:text-white" : "text-muted hover:text-surface"
             }`}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -80,18 +87,17 @@ export function Navbar() {
               )}
             </svg>
           </button>
-          <Link href="/" className={`font-mono text-sm font-medium tracking-wider transition-colors duration-300 ${isDark && !scrolled ? "text-white" : "text-surface dark:text-white"}`}>
+          <Link href="/" className={`font-mono text-sm font-medium tracking-wider transition-colors duration-300 ${lightText ? "text-white" : "text-surface dark:text-white"}`}>
             MY PHAM
           </Link>
         </div>
         <nav className="flex items-center gap-6">
           {navLinks.map(([label, href]) => {
             const isActive = pathname === href || (href !== "/" && href !== "/#about" && pathname.startsWith(href));
-            const dark = isDark && !scrolled;
             return (
               <Link key={label} href={href}
                 className={`font-mono text-xs tracking-wider uppercase transition-colors duration-200 hidden md:block ${
-                  isActive ? "text-accent" : dark ? "text-white/70 hover:text-white" : "text-surface/80 dark:text-white/50 hover:text-surface dark:hover:text-white"
+                  isActive ? "text-accent" : lightText ? "text-white/70 hover:text-white" : "text-surface/80 dark:text-white/50 hover:text-surface dark:hover:text-white"
                 }`}
               >
                 {label}
@@ -102,7 +108,7 @@ export function Navbar() {
             onClick={toggle}
             aria-label="Toggle theme"
             className={`w-7 h-7 flex items-center justify-center rounded-full transition-colors duration-200 ${
-              isDark && !scrolled ? "text-white/50 hover:text-white" : "text-muted hover:text-surface"
+              lightText ? "text-white/50 hover:text-white" : "text-muted hover:text-surface"
             }`}
           >
             {theme === "dark" ? (
@@ -118,7 +124,7 @@ export function Navbar() {
           </button>
           <Link href="/connect"
             className={`font-mono text-xs border px-3 py-1.5 transition-colors duration-200 ${
-              isDark && !scrolled
+              lightText
                 ? "border-white/30 text-white hover:bg-white hover:text-navy"
                 : "border-accent/40 text-accent hover:bg-accent hover:text-white"
             }`}
@@ -126,6 +132,7 @@ export function Navbar() {
             Connect
           </Link>
         </nav>
+      </div>
       </motion.header>
 
       <AnimatePresence>
