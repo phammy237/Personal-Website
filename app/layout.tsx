@@ -32,7 +32,7 @@ const roboto = Roboto({
 });
 
 export const metadata: Metadata = {
-  title: "My Pham — Data Scientist & Product Strategist",
+  title: "My Pham",
   description: "Data Science student at UF · Product Strategist · Builder. Formerly Deloitte Risk Advisory.",
 };
 

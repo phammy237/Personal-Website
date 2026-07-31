@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTheme } from "@/components/layout/ThemeProvider";
 
@@ -66,8 +65,20 @@ export function Navbar() {
         animate={{ y: visible ? 0 : -80 }}
         transition={{ type: "spring", stiffness: 200, damping: 30 }}
       >
-      <Link href="/" className="absolute left-4 top-1/2 hidden -translate-y-1/2 md:block">
-        <Image src="/logo.png" alt="My Pham" width={56} height={56} className="h-14 w-14 shrink-0 object-contain" />
+      <Link href="/" className="absolute left-4 top-1/2 hidden -translate-y-1/2 md:block" aria-label="My Pham home">
+        <span
+          className={`block h-14 w-14 bg-current transition-colors duration-300 ${lightText ? "text-white" : "text-surface dark:text-white"}`}
+          style={{
+            WebkitMaskImage: "url(/logo.png)",
+            maskImage: "url(/logo.png)",
+            WebkitMaskSize: "contain",
+            maskSize: "contain",
+            WebkitMaskRepeat: "no-repeat",
+            maskRepeat: "no-repeat",
+            WebkitMaskPosition: "center",
+            maskPosition: "center",
+          }}
+        />
       </Link>
       <div className="mx-auto flex max-w-[1680px] items-center justify-between px-4 sm:px-6 lg:px-20 xl:px-24">
         <div className="flex items-center gap-3">
