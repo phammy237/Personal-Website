@@ -10,6 +10,7 @@ export function MapPin({
   status,
   label,
   onClick,
+  reducedMotion = false,
 }: {
   number: number;
   x: number;
@@ -17,6 +18,7 @@ export function MapPin({
   status: PinStatus;
   label: string;
   onClick: () => void;
+  reducedMotion?: boolean;
 }) {
   const isActive = status === "active";
   const isCompleted = status === "completed";
@@ -27,7 +29,7 @@ export function MapPin({
       onClick={onClick}
       aria-label={label}
       aria-current={isActive ? "true" : undefined}
-      className={`group absolute flex items-center justify-center rounded-full font-mono text-xs font-medium outline-none transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-[#F8F7FF] dark:focus-visible:ring-offset-[#0D0B1F] ${
+      className={`group absolute z-20 flex items-center justify-center rounded-full font-mono text-xs font-medium outline-none transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-[#F8F7FF] dark:focus-visible:ring-offset-[#0D0B1F] ${
         isActive
           ? "h-9 w-9 bg-accent text-white shadow-[0_0_0_6px_rgba(139,92,246,0.18)] dark:shadow-[0_0_22px_6px_rgba(139,92,246,0.65)]"
           : isCompleted
@@ -38,7 +40,7 @@ export function MapPin({
       whileHover={{ scale: 1.12 }}
       whileTap={{ scale: 0.94 }}
     >
-      {isActive && (
+      {isActive && !reducedMotion && (
         <motion.span
           className="absolute inset-0 rounded-full bg-accent"
           animate={{ scale: [1, 1.55, 1], opacity: [0.35, 0, 0.35] }}

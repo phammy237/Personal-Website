@@ -67,7 +67,7 @@ export function Navbar() {
       >
       <Link href="/" className="absolute left-4 top-1/2 hidden -translate-y-1/2 md:block" aria-label="My Pham home">
         <span
-          className={`block h-14 w-14 bg-current transition-colors duration-300 ${lightText ? "text-white" : "text-surface dark:text-white"}`}
+          className={`block h-10 w-10 bg-current transition-colors duration-300 ${lightText ? "text-white" : "text-surface dark:text-white"}`}
           style={{
             WebkitMaskImage: "url(/logo.png)",
             maskImage: "url(/logo.png)",

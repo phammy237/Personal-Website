@@ -5,6 +5,7 @@ import { Footer } from "@/components/layout/Footer";
 import { GlobeHero } from "@/components/biography/GlobeHero";
 import { RegionOverview } from "@/components/biography/RegionOverview";
 import { ChapterMap } from "@/components/biography/ChapterMap";
+import { HanoiJourneySection } from "@/components/biography/HanoiJourneySection";
 import { useStoryState } from "@/lib/hooks/useStoryState";
 import { useWorldTopology } from "@/lib/hooks/useWorldTopology";
 import { heroCopy } from "@/data/biography";
@@ -97,12 +98,16 @@ export default function BiographyPage() {
               >
                 ← Back to {story.chapter.regionLabel}
               </button>
-              <ChapterMap
-                chapter={story.chapter}
-                completedPinIds={story.completedPinIds}
-                activePinId={story.activePinId}
-                onSelectPin={story.selectPin}
-              />
+              {story.chapter.id === "vietnam" ? (
+                <HanoiJourneySection />
+              ) : (
+                <ChapterMap
+                  chapter={story.chapter}
+                  completedPinIds={story.completedPinIds}
+                  activePinId={story.activePinId}
+                  onSelectPin={story.selectPin}
+                />
+              )}
             </motion.section>
           )}
         </AnimatePresence>

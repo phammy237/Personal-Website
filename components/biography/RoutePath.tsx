@@ -27,16 +27,20 @@ export function RoutePath({
   width,
   height,
   progress = 1,
+  reducedMotion = false,
   className = "",
 }: {
   points: Point[];
   width: number;
   height: number;
   progress?: number;
+  reducedMotion?: boolean;
   className?: string;
 }) {
   const d = smoothPath(points, width, height);
   if (!d) return null;
+
+  const transition = reducedMotion ? { duration: 0 } : { duration: 1.1, ease: "easeInOut" as const };
 
   return (
     <svg
@@ -56,7 +60,7 @@ export function RoutePath({
         className="hidden opacity-60 dark:block dark:[filter:blur(4px)]"
         initial={{ pathLength: 0 }}
         animate={{ pathLength: progress }}
-        transition={{ duration: 1.1, ease: "easeInOut" }}
+        transition={transition}
       />
       {/* bright core line */}
       <motion.path
@@ -68,7 +72,7 @@ export function RoutePath({
         className="dark:[filter:drop-shadow(0_0_3px_rgba(196,181,253,0.9))]"
         initial={{ pathLength: 0 }}
         animate={{ pathLength: progress }}
-        transition={{ duration: 1.1, ease: "easeInOut" }}
+        transition={transition}
       />
     </svg>
   );
