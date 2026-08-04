@@ -37,7 +37,10 @@ export function PinPreviewCard({
             <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent font-mono text-sm font-medium text-white">
               {String(pin.number).padStart(2, "0")}
             </span>
-            <h3 className="font-display text-lg leading-tight text-surface dark:text-white">{pin.preview.title}</h3>
+            <div>
+              <h3 className="font-display text-lg leading-tight text-surface dark:text-white">{pin.preview.title}</h3>
+              <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-accent">Hanoi · Ages {pin.ageRange}</p>
+            </div>
           </div>
           <p className="mt-2 font-body text-sm text-muted dark:text-white/60">{pin.preview.description}</p>
 

@@ -18,7 +18,7 @@ export default function BiographyPage() {
     <main className="min-h-screen bg-[#F8F9FF] dark:bg-navy">
       <Navbar />
 
-      <div className="mx-auto max-w-[1400px] px-[5vw] pb-24 pt-28">
+      <div className="px-[5vw] pb-24 pt-28">
         <AnimatePresence mode="wait">
           {story.stage === "globe" && (
             <motion.section
@@ -27,7 +27,7 @@ export default function BiographyPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.4 }}
-              className="grid min-h-[70vh] items-center gap-10 lg:grid-cols-[0.85fr_1fr]"
+              className="mx-auto grid min-h-[70vh] max-w-[1400px] items-center gap-10 lg:grid-cols-[0.85fr_1fr]"
             >
               <div className="order-2 lg:order-1">
                 <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">{heroCopy.eyebrow}</p>
@@ -71,7 +71,7 @@ export default function BiographyPage() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.98 }}
               transition={{ duration: 0.45 }}
-              className="py-6"
+              className="mx-auto max-w-[1400px] py-6"
             >
               <button
                 onClick={story.back}
@@ -79,7 +79,7 @@ export default function BiographyPage() {
               >
                 ← Back to globe
               </button>
-              <RegionOverview chapter={story.chapter} countries={countries} onExplore={story.enterMap} />
+              <RegionOverview chapter={story.chapter} countries={countries} onExplore={story.enterMap} onSkip={story.back} />
             </motion.section>
           )}
 
@@ -90,7 +90,7 @@ export default function BiographyPage() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.98 }}
               transition={{ duration: 0.45 }}
-              className="py-6"
+              className="mx-auto max-w-[1800px] py-6"
             >
               <button
                 onClick={story.back}

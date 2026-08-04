@@ -39,8 +39,16 @@ export type Chapter = {
   globeTarget: GeoPoint;
   eyebrow: string;
   title: string;
+  /** short one-line subheading under the title */
+  tagline?: string;
   intro: string;
+  /** short transitional line between the intro paragraph and the CTAs */
+  transitionLine?: string;
   exploreCta: string;
+  /** secondary, low-emphasis action to skip past this chapter's detail */
+  skipCta?: string;
+  /** small instruction line under the CTAs */
+  instruction?: string;
   mapLabel: string;
   mapEyebrow: string;
   /** static GeoJSON asset (e.g. a real river line) rendered behind the pins, projected with the same geo transform as pin coordinates */
@@ -91,10 +99,14 @@ export const chapters: Chapter[] = [
     countryId: "704",
     regionLabel: "Vietnam",
     globeTarget: { lat: 21.0285, lon: 105.8542 },
-    eyebrow: "Chapter 01",
-    title: "Where It All Started",
-    intro: "I was born and raised in Hanoi, where learning, creativity, and curiosity were part of everyday life.",
-    exploreCta: "Explore Hanoi",
+    eyebrow: "Chapter 01 · Roots",
+    title: "Hanoi",
+    tagline: "The city where my relationship with learning, creativity, and ambition first began.",
+    intro: "I was born and raised in Hanoi, where much of my childhood was shaped by school commutes, number games with my mother, art classes, music, close friendships, and the constant encouragement to try something new.",
+    transitionLine: "Follow the journey through five places that shaped me.",
+    exploreCta: "Start with Pin 01",
+    skipCta: "Skip to the next chapter",
+    instruction: "Click the numbered pins to explore.",
     mapLabel: "Hanoi",
     mapEyebrow: "Hanoi Map",
     mapBackdropData: "/data/hanoi-river.json",

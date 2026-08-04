@@ -10,10 +10,12 @@ export function RegionOverview({
   chapter,
   countries,
   onExplore,
+  onSkip,
 }: {
   chapter: Chapter;
   countries: FeatureCollection<Geometry> | null;
   onExplore: () => void;
+  onSkip?: () => void;
 }) {
   const width = 640;
   const height = 560;
@@ -73,21 +75,42 @@ export function RegionOverview({
       </p>
 
       <motion.div
-        className="absolute left-4 top-6 w-[calc(100%-2rem)] max-w-[300px] rounded-2xl border border-border bg-white/95 p-6 shadow-lg backdrop-blur dark:border-white/10 dark:bg-[#12101F]/90 md:left-8 md:top-8"
+        className="absolute left-4 top-6 w-[calc(100%-2rem)] max-w-[360px] rounded-2xl border border-border bg-white/95 p-6 shadow-lg backdrop-blur dark:border-white/10 dark:bg-[#12101F]/90 md:left-8 md:top-8"
         initial={{ opacity: 0, x: -16 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.15, duration: 0.5 }}
       >
         <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted dark:text-white/40">{chapter.eyebrow}</p>
         <h2 className="mt-2 font-display text-2xl text-surface dark:text-white">{chapter.title}</h2>
+        {chapter.tagline && (
+          <p className="mt-2 font-body text-sm italic leading-relaxed text-surface/80 dark:text-white/70">{chapter.tagline}</p>
+        )}
         <p className="mt-3 font-body text-sm leading-relaxed text-muted dark:text-white/60">{chapter.intro}</p>
-        <button
-          onClick={onExplore}
-          className="mt-5 inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2.5 font-mono text-xs uppercase tracking-wider text-white transition-colors hover:bg-accent/90"
-        >
-          {chapter.exploreCta}
-          <span aria-hidden="true">→</span>
-        </button>
+        {chapter.transitionLine && (
+          <p className="mt-3 font-mono text-xs uppercase tracking-wider text-accent">{chapter.transitionLine}</p>
+        )}
+
+        <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2">
+          <button
+            onClick={onExplore}
+            className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2.5 font-mono text-xs uppercase tracking-wider text-white transition-colors hover:bg-accent/90"
+          >
+            {chapter.exploreCta}
+            <span aria-hidden="true">→</span>
+          </button>
+          {chapter.skipCta && onSkip && (
+            <button
+              onClick={onSkip}
+              className="font-mono text-xs uppercase tracking-wider text-muted underline-offset-4 transition-colors hover:text-accent hover:underline dark:text-white/40"
+            >
+              {chapter.skipCta}
+            </button>
+          )}
+        </div>
+
+        {chapter.instruction && (
+          <p className="mt-4 font-mono text-[11px] text-muted/70 dark:text-white/35">{chapter.instruction}</p>
+        )}
       </motion.div>
     </div>
   );

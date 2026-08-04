@@ -1,16 +1,33 @@
 export type GeoPoint = { lat: number; lon: number };
 
+export type HanoiJourneySubsection = {
+  title: string;
+  description: string;
+};
+
 export type HanoiJourneyPin = {
   id: string;
+  /** short label used on the map itself */
   number: number;
+  /** short map label, e.g. "Home" */
   title: string;
+  /** short map subtitle, e.g. "Where curiosity began" */
   subtitle: string;
+  /** age range during this chapter, e.g. "6–8" */
+  ageRange: string;
   coordinates: GeoPoint;
   image: string;
   preview: {
+    /** full official name, shown in the preview card */
     title: string;
     description: string;
   };
+  /** full backstory paragraphs, for the future expanded photo-story panel */
+  backstory: string[];
+  /** grouped sub-stories, currently only used by the last chapter */
+  subsections?: HanoiJourneySubsection[];
+  /** photo shot list for when real photos are ready to drop in */
+  photoIdeas: string[];
 };
 
 export const hanoiJourneyCopy = {
@@ -21,48 +38,148 @@ export const hanoiJourneyCopy = {
 
 export const hanoiJourneyPins: HanoiJourneyPin[] = [
   {
-    id: "hanoi-roots",
+    id: "home-early-childhood",
     number: 1,
-    title: "Hanoi",
-    subtitle: "family roots / where curiosity began",
+    title: "Home",
+    subtitle: "Where curiosity began",
+    ageRange: "0–6",
     coordinates: { lat: 21.0107, lon: 105.8182 },
     image: "/headshot.jpg",
-    preview: { title: "Hanoi", description: "Family roots / where curiosity began." },
+    preview: {
+      title: "Home & Early Childhood",
+      description: "Before school, learning began at home through mathematics, music, art, and the freedom to explore.",
+    },
+    backstory: [
+      "My earliest memories of learning are closely tied to my mother. She had competed in mathematics at the national level, and numbers became part of our daily routine long before I understood that they were supposed to be difficult.",
+      "On the way to and from school, we counted prime numbers and played number games together. By the time I was around five, she was already teaching me how to solve simple equations using x and y.",
+      "My parents also encouraged me to try almost everything. I took lessons in piano, violin, ballet, golf, tennis, and art, often moving between activities before I was old enough to fully understand why I had been enrolled in them.",
+      "This was also where the story of my name began. I was originally named Như Anh, but at a piano competition when I was five, I looked up to a girl named Hà My and decided to name myself after her. I apparently accepted the new name immediately and refused to respond when anyone called me Như Anh.",
+      "Even as a child, I seemed determined to decide who I was.",
+    ],
+    photoIdeas: [
+      "Childhood photo with your mother",
+      "Piano competition or piano lesson",
+      "Early math notebook",
+      "Family photo",
+      "Art or ballet photo",
+      "A handwritten “Hà My”",
+    ],
   },
   {
     id: "nam-thanh-cong",
     number: 2,
-    title: "Nam Thành Công Primary School",
-    subtitle: "my first classroom",
+    title: "Nam Thành Công",
+    subtitle: "My first classroom",
+    ageRange: "6–8",
     coordinates: { lat: 21.0168, lon: 105.8112 },
     image: "/IMG_3794.JPG",
-    preview: { title: "Nam Thành Công Primary School", description: "My first classroom." },
+    preview: {
+      title: "Nam Thành Công Primary School",
+      description: "The first formal chapter of a school journey that would eventually take me far beyond Hanoi.",
+    },
+    backstory: [
+      "I spent the first two years of primary school at Nam Thành Công.",
+      "It was the beginning of my formal education, but at that age, school was still mostly a world of routines, uniforms, classmates, and small discoveries. I was learning how to become a student while still carrying all the curiosity and activities my parents had introduced at home.",
+      "Although this chapter was relatively short, it became the starting point of a much longer journey. After two years, I transferred to Ngôi Sao Hà Nội, where school became more competitive and my academic world began expanding.",
+    ],
+    photoIdeas: ["School entrance", "Uniform photo", "Class picture", "Early handwriting or schoolwork", "Childhood friends"],
   },
   {
     id: "ngoi-sao-ha-noi",
     number: 3,
-    title: "Ngôi Sao Hà Nội Primary School",
-    subtitle: "learning to reach higher",
+    title: "Ngôi Sao Hà Nội",
+    subtitle: "Learning to reach higher",
+    ageRange: "8–10",
     coordinates: { lat: 21.0098, lon: 105.8003 },
     image: "/IMG_4610.JPG",
-    preview: { title: "Ngôi Sao Hà Nội Primary School", description: "Learning to reach higher." },
+    preview: {
+      title: "Ngôi Sao Hà Nội Primary School",
+      description: "Three years of scholarships, selective classes, and my first academic experiences outside Vietnam.",
+    },
+    backstory: [
+      "After transferring to Ngôi Sao Hà Nội, I entered a more demanding academic environment.",
+      "I received scholarships during all three years I attended and was consistently placed in A0, the school’s selective mathematics and English class. Those years strengthened the part of me that loved challenge, competition, and the satisfaction of understanding something difficult.",
+      "I also traveled to Singapore and Malaysia for mathematics competitions. These were some of my first experiences seeing education take me beyond my own city and country.",
+      "At the same time, I attended an American elementary program in Vietnam and began learning English more seriously. Language gradually became another form of access—not only to school material, but to a larger world I had not yet entered.",
+    ],
+    photoIdeas: [
+      "Scholarship certificates",
+      "A0 class photo",
+      "Math competition photos",
+      "Singapore and Malaysia",
+      "Medals or awards",
+      "American school or English-learning photos",
+    ],
   },
   {
     id: "cau-giay-secondary",
     number: 4,
-    title: "Cầu Giấy Secondary School",
-    subtitle: "a bigger canvas",
+    title: "Cầu Giấy",
+    subtitle: "A bigger canvas",
+    ageRange: "10–14",
     coordinates: { lat: 21.03, lon: 105.798 },
     image: "/IMG_7605.JPG",
-    preview: { title: "Cầu Giấy Secondary School", description: "A bigger canvas." },
+    preview: {
+      title: "Cầu Giấy Secondary School",
+      description: "Where art, music, languages, friendship, and learning began blending together.",
+    },
+    backstory: [
+      "At Cầu Giấy Secondary School, my interests became much more creative.",
+      "I had always enjoyed drawing, but I began experimenting with a wider range of materials and techniques. Pencil and crayons turned into watercolor, acrylic, oil painting, pointillism, fashion design, and large A0 works.",
+      "Each new medium gave me another way to express an idea. Art became less of an extracurricular activity and more of a language of its own.",
+      "I also developed a stronger interest in learning new languages and joined the school band as a vocalist. Singing gave me another kind of confidence, while the friendships I formed made this stage of school feel less centered on achievement and more connected to people.",
+      "Cầu Giấy was where I began understanding that being analytical and being creative were never opposites. I did not have to fit into only one category.",
+    ],
+    photoIdeas: [
+      "Pencil and crayon pieces",
+      "Watercolor",
+      "Oil and acrylic work",
+      "Pointillism",
+      "A0 artwork",
+      "Fashion sketches",
+      "Band performance",
+      "Friend photos",
+    ],
   },
   {
     id: "nguyen-hue-gifted",
     number: 5,
-    title: "Nguyễn Huệ School for the Gifted",
-    subtitle: "beyond the classroom",
+    title: "Nguyễn Huệ",
+    subtitle: "Beyond the classroom",
+    ageRange: "14–17",
     coordinates: { lat: 20.9637, lon: 105.7658 },
     image: "/IMG_7729.JPG",
-    preview: { title: "Nguyễn Huệ School for the Gifted", description: "Beyond the classroom." },
+    preview: {
+      title: "Nguyễn Huệ School for the Gifted",
+      description: "Where school expanded into projects, leadership, service, entrepreneurship, and friendships across Hanoi.",
+    },
+    backstory: [
+      "At Nguyễn Huệ School for the Gifted, my world expanded far beyond the classroom.",
+      "I entered a more academically demanding environment, but much of my growth came from the projects and communities I joined throughout Hanoi. I became involved in student organizations, humanitarian initiatives, fundraising events, concerts, entrepreneurship, marketing, and large-scale school programs.",
+      "Through C-Shirt, I explored sustainability and entrepreneurship by researching how coffee waste could be transformed into fabric, collaborating with designers and manufacturers, creating a brand, recruiting volunteers, and planning marketing and costs.",
+      "Through projects such as Ngăn Bàn, H.E.A.R.T., Trash Again, Đồng Chí, CHẠM22, and High School Help Kit, I learned how to train teams, work with sponsors, organize events, raise funds, and support communities beyond my own school.",
+      "I also interned in marketing, worked as an English tutor, served as a student ambassador, and met people from schools throughout the city.",
+      "This was the chapter where I stopped simply participating in opportunities and began helping create them.",
+      "It was also during these years that I kept applying to boarding schools abroad. I had received scholarship offers since ninth grade, but my parents were not yet ready to send me away. They worried that I was too young to take care of myself.",
+      "For several years, the answer was not yet.",
+      "Eventually, it became yes.",
+    ],
+    subsections: [
+      { title: "Building", description: "C-Shirt, Bosch, marketing, entrepreneurship" },
+      { title: "Leading", description: "Ngăn Bàn, Inspiration Day, large teams and events" },
+      { title: "Serving", description: "H.E.A.R.T., Trash Again, Đồng Chí, CHẠM22, tutoring" },
+      { title: "Connecting", description: "Friends, students across Hanoi, citywide projects and events" },
+    ],
+    photoIdeas: [
+      "Nguyễn Huệ campus",
+      "C-Shirt work",
+      "Project teams",
+      "Basketball tournament",
+      "Volunteer activities",
+      "Concerts",
+      "Bosch",
+      "Friend groups",
+      "Boarding-school application or acceptance material",
+    ],
   },
 ];

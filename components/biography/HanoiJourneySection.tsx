@@ -1,7 +1,7 @@
 "use client";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { geoMercator, geoPath } from "d3-geo";
-import { useReducedMotion } from "framer-motion";
+import { AnimatePresence, useReducedMotion } from "framer-motion";
 import type { FeatureCollection, Point } from "geojson";
 import { hanoiJourneyCopy } from "@/data/hanoiJourney";
 import { useJourneyState } from "@/lib/hooks/useJourneyState";
@@ -11,16 +11,18 @@ import { PinPreviewCard } from "@/components/biography/PinPreviewCard";
 import { MobilePreviewSheet } from "@/components/biography/MobilePreviewSheet";
 import { JourneyProgress } from "@/components/biography/JourneyProgress";
 import { JourneyLegend } from "@/components/biography/JourneyLegend";
+import { ChapterStoryModal } from "@/components/biography/ChapterStoryModal";
 
-const MARGIN = 90;
+const MARGIN = 120;
 
 export function HanoiJourneySection({ onLearnMore }: { onLearnMore?: (pinId: string) => void }) {
   const journey = useJourneyState();
   const riverData = useGeoJson("/data/hanoi-river.json");
   const lakeData = useGeoJson("/data/west-lake.json");
+  const roadsData = useGeoJson("/data/hanoi-roads.json");
   const prefersReducedMotion = useReducedMotion();
 
-  const { projectedPins, riverPathD, lakePathD } = useMemo(() => {
+  const { projectedPins, riverPathD, lakePathD, roadsPathD } = useMemo(() => {
     const pinFeatureCollection: FeatureCollection<Point> = {
       type: "FeatureCollection",
       features: journey.pins.map((p) => ({
@@ -48,15 +50,26 @@ export function HanoiJourneySection({ onLearnMore }: { onLearnMore?: (pinId: str
       };
     });
 
+    const roadsPathD = roadsData
+      ? roadsData.features
+          .map((f) => pathGen(f as never))
+          .filter((d): d is string => !!d)
+          .join(" ")
+      : undefined;
+
     return {
       projectedPins,
       riverPathD: riverData ? (pathGen(riverData.features[0] as never) ?? undefined) : undefined,
       lakePathD: lakeData ? (pathGen(lakeData.features[0] as never) ?? undefined) : undefined,
+      roadsPathD: roadsPathD || undefined,
     };
-  }, [journey.pins, riverData, lakeData]);
+  }, [journey.pins, riverData, lakeData, roadsData]);
+
+  const [storyOpen, setStoryOpen] = useState(false);
 
   const handleLearnMore = () => {
     journey.markActiveCompleted();
+    setStoryOpen(true);
     onLearnMore?.(journey.activePin.id);
   };
 
@@ -93,6 +106,7 @@ export function HanoiJourneySection({ onLearnMore }: { onLearnMore?: (pinId: str
           onSelectPin={journey.selectById}
           riverPathD={riverPathD}
           lakePathD={lakePathD}
+          roadsPathD={roadsPathD}
           reducedMotion={!!prefersReducedMotion}
         />
 
@@ -138,6 +152,21 @@ export function HanoiJourneySection({ onLearnMore }: { onLearnMore?: (pinId: str
         canPrev={journey.canPrev}
         canNext={journey.canNext}
       />
+
+      <AnimatePresence>
+        {storyOpen && (
+          <ChapterStoryModal
+            pin={journey.activePin}
+            index={journey.activeIndex}
+            total={journey.total}
+            onClose={() => setStoryOpen(false)}
+            onPrev={journey.prev}
+            onNext={journey.next}
+            canPrev={journey.canPrev}
+            canNext={journey.canNext}
+          />
+        )}
+      </AnimatePresence>
     </section>
   );
 }
