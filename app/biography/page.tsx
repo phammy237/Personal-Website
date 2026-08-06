@@ -15,7 +15,7 @@ export default function BiographyPage() {
   const countries = useWorldTopology();
 
   return (
-    <main className="min-h-screen bg-[#F8F9FF] dark:bg-navy">
+    <main className="min-h-screen bg-[#F7F3FA] dark:bg-navy">
       <Navbar />
 
       <div className="px-[5vw] pb-24 pt-28">

@@ -27,7 +27,7 @@ export default function SignatureIntro() {
       {visible && (
         <motion.div
           className="fixed inset-0 z-[200] flex items-center justify-center cursor-pointer"
-          style={{ background: "#02081a" }}
+          style={{ background: "#18233F" }}
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8, ease: "easeInOut" }}

@@ -58,7 +58,7 @@ function BotAvatar() {
   return (
     <div
       className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-display"
-      style={{ background: "linear-gradient(135deg, #8B5CF6, #3B82F6)" }}
+      style={{ background: "linear-gradient(135deg, #5B3A8E, #9B8BB5)" }}
     >
       M
     </div>
@@ -78,7 +78,7 @@ function Bubble({ msg }: { msg: Msg }) {
       <div
         className={`max-w-[80%] font-body text-sm leading-relaxed px-3.5 py-2.5 rounded-2xl ${
           isBot
-            ? "bg-[#1E1B4B] text-white/85 rounded-tl-sm"
+            ? "bg-[#18233F] text-white/85 rounded-tl-sm"
             : "bg-accent text-white rounded-tr-sm"
         }`}
       >
@@ -163,7 +163,7 @@ export function ChatBot() {
         <motion.button
           onClick={() => setOpen((o) => !o)}
           className="w-14 h-14 rounded-full flex items-center justify-center text-white shadow-xl shadow-accent/30"
-          style={{ background: "linear-gradient(135deg, #8B5CF6, #3B82F6)" }}
+          style={{ background: "linear-gradient(135deg, #5B3A8E, #9B8BB5)" }}
           whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.95 }}
         >
@@ -191,7 +191,7 @@ export function ChatBot() {
         {open && (
           <motion.div
             className="fixed bottom-24 right-6 z-50 w-[340px] max-h-[520px] rounded-2xl overflow-hidden shadow-2xl shadow-black/50 border border-white/10 flex flex-col"
-            style={{ background: "#0D0F1A" }}
+            style={{ background: "#18233F" }}
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
@@ -200,7 +200,7 @@ export function ChatBot() {
             {/* Header */}
             <div
               className="flex items-center gap-3 px-4 py-3 border-b border-white/10"
-              style={{ background: "linear-gradient(135deg, #1E1B4B, #0D1030)" }}
+              style={{ background: "linear-gradient(135deg, #18233F, #18233F)" }}
             >
               <BotAvatar />
               <div className="flex-1">
@@ -228,7 +228,7 @@ export function ChatBot() {
                 >
                   <div className="flex gap-2 items-start">
                     <BotAvatar />
-                    <div className="bg-[#1E1B4B] text-white/85 text-sm font-body px-3.5 py-2.5 rounded-2xl rounded-tl-sm leading-relaxed">
+                    <div className="bg-[#18233F] text-white/85 text-sm font-body px-3.5 py-2.5 rounded-2xl rounded-tl-sm leading-relaxed">
                       hey! 👋 i&apos;m My&apos;s portfolio assistant. how do you want to vibe?
                     </div>
                   </div>

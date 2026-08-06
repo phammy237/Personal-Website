@@ -28,21 +28,28 @@ const destinations = [
     title: "Work Library",
     desc: "Projects in data, product, and operations. Case studies, code, and impact.",
     href: "/projects",
-    image: "/projects/wandr.png",
+    image: "/projects/cartcoach.png",
   },
   {
     num: "02",
     title: "Biography",
     desc: "My story, values, and the journey that shapes my work.",
     href: "/biography",
-    image: "/headshot.jpg",
+    image: "/biography-globe-preview.png",
   },
   {
     num: "03",
     title: "Involvements",
     desc: "Leadership, communities, initiatives, and causes I care about.",
     href: "/involvements",
-    image: "/projects/kite.png",
+    image: "/involvements/dsi.jpg",
+  },
+  {
+    num: "04",
+    title: "CV",
+    desc: "Education, experience, leadership, and skills — the full record.",
+    href: "/cv",
+    image: "/cv-preview.png",
   },
 ];
 
@@ -79,12 +86,12 @@ function SideRail() {
 function BoardingPass() {
   return (
     <motion.div
-      className="relative overflow-hidden rounded-[18px] border border-accent/35 bg-[#101020]/85 shadow-[0_20px_70px_rgba(0,0,0,0.45)] backdrop-blur-md"
+      className="relative overflow-hidden rounded-[18px] border border-accent/35 bg-[#18233F]/85 shadow-[0_20px_70px_rgba(0,0,0,0.45)] backdrop-blur-md"
       initial={{ opacity: 0, x: 34 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.38, duration: 0.65, ease: "easeOut" }}
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_10%,rgba(139,92,246,0.18),transparent_32%),linear-gradient(135deg,rgba(255,255,255,0.06),transparent_42%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_10%,rgba(91, 58, 142,0.18),transparent_32%),linear-gradient(135deg,rgba(255,255,255,0.06),transparent_42%)]" />
 
       {/* Header */}
       <div className="relative flex items-center justify-between border-b border-white/10 px-5 py-3">
@@ -205,7 +212,7 @@ function TicketChips() {
       {ticketChips.map((ticket) => (
         <div
           key={ticket.title}
-          className="relative flex min-h-[76px] flex-col rounded-lg border border-accent/35 bg-[#0b1020]/70 px-4 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.25)] backdrop-blur"
+          className="relative flex min-h-[76px] flex-col rounded-lg border border-accent/35 bg-[#18233F]/70 px-4 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.25)] backdrop-blur"
         >
           <div className="absolute inset-x-2 top-1 border-t border-dashed border-white/15" />
           <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/45">{ticket.eyebrow}</p>
@@ -223,7 +230,7 @@ function TicketChips() {
 function DestinationCards() {
   return (
     <motion.div
-      className="grid gap-4 md:grid-cols-3"
+      className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.88, duration: 0.55 }}
@@ -238,7 +245,7 @@ function DestinationCards() {
             className="absolute inset-0 scale-105 bg-cover bg-center opacity-55 transition duration-500 group-hover:scale-100 group-hover:opacity-70"
             style={{ backgroundImage: `url(${destination.image})` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#060914] via-[#060914]/80 to-[#060914]/25" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#18233F] via-[#18233F]/80 to-[#18233F]/25" />
           <div className="relative flex h-full flex-col justify-between p-6">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/55">
               Gate <span className="block pt-1 font-display text-3xl tracking-normal text-white">{destination.num}</span>
@@ -261,13 +268,13 @@ function DestinationCards() {
 
 export function Hero() {
   return (
-    <section id="hero" className="relative min-h-screen overflow-hidden bg-[#030813] text-white">
+    <section id="hero" className="relative min-h-screen overflow-hidden bg-[#18233F] text-white">
       <SideRail />
 
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-[url('/headshot.jpg')] bg-cover bg-[center_28%] opacity-30" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_45%_42%,rgba(139,92,246,0.2),transparent_28%),linear-gradient(90deg,#030813_0%,rgba(3,8,19,0.9)_36%,rgba(3,8,19,0.72)_58%,#030813_100%)]" />
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#030813] via-[#030813]/88 to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_45%_42%,rgba(91, 58, 142,0.2),transparent_28%),linear-gradient(90deg,#18233F_0%,rgba(3,8,19,0.9)_36%,rgba(3,8,19,0.72)_58%,#18233F_100%)]" />
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#18233F] via-[#18233F]/88 to-transparent" />
         <div className="absolute left-[12%] top-[50%] hidden h-px w-[44%] bg-gradient-to-r from-transparent via-white/20 to-transparent lg:block" />
         <div className="absolute left-[16%] top-[48%] hidden h-24 w-[64%] bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.14),transparent_60%)] blur-xl lg:block" />
       </div>
@@ -281,7 +288,7 @@ export function Hero() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.18 }}
             >
-              <span className="h-3 w-3 rounded-full bg-accent shadow-[0_0_18px_rgba(139,92,246,0.95)]" />
+              <span className="h-3 w-3 rounded-full bg-accent shadow-[0_0_18px_rgba(91, 58, 142,0.95)]" />
               Flight MP-2026
             </motion.div>
 
@@ -320,7 +327,7 @@ export function Hero() {
             >
               <Link
                 href="#about"
-                className="group inline-flex w-fit items-center border border-accent/55 bg-[#0c0c1f]/70 text-accent transition hover:border-accent hover:bg-accent hover:text-white"
+                className="group inline-flex w-fit items-center border border-accent/55 bg-[#18233F]/70 text-accent transition hover:border-accent hover:bg-accent hover:text-white"
               >
                 <span className="px-4 py-2.5 font-mono text-[11px] uppercase tracking-[0.22em]">Explore My Journey</span>
                 <span className="border-l border-current/35 px-4 py-2.5 text-base leading-none">&rarr;</span>
@@ -339,7 +346,7 @@ export function Hero() {
 
         <div className="mt-8 lg:mt-5">
           <div className="mb-4 flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.24em] text-white/72">
-            <span className="h-3 w-3 rounded-full bg-accent shadow-[0_0_18px_rgba(139,92,246,0.85)]" />
+            <span className="h-3 w-3 rounded-full bg-accent shadow-[0_0_18px_rgba(91, 58, 142,0.85)]" />
             Destinations
           </div>
           <DestinationCards />

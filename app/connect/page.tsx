@@ -53,8 +53,8 @@ const options = [
     title: "Talk Product / Strategy",
     desc: "Working on something interesting? Want a fresh perspective? Let's think through it together.",
     subject: "Product / Strategy Chat with My",
-    color: "#8B5CF6",
-    gradient: "linear-gradient(135deg, #8B5CF620, #8B5CF605)",
+    color: "#5B3A8E",
+    gradient: "linear-gradient(135deg, #5B3A8E20, #5B3A8E05)",
   },
   {
     emoji: "🌐",
@@ -110,7 +110,7 @@ export default function ConnectPage() {
   }
 
   return (
-    <main className="min-h-screen bg-base dark:bg-[#0A0C1E]">
+    <main className="min-h-screen bg-base dark:bg-[#18233F]">
       <Navbar />
 
       <div className="px-[5vw] pt-28 pb-24 max-w-[1200px] mx-auto">

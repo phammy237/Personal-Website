@@ -27,6 +27,8 @@ export function HanoiMap({
   lakePathD,
   roadsPathD,
   reducedMotion,
+  progressOverride,
+  settled = false,
 }: {
   pins: ProjectedPin[];
   activePinId: string;
@@ -36,9 +38,13 @@ export function HanoiMap({
   lakePathD?: string;
   roadsPathD?: string;
   reducedMotion: boolean;
+  /** force the route to a specific completion fraction (0-1), e.g. fully lit at the end of the chapter */
+  progressOverride?: number;
+  /** true once the journey is complete: pulls the map back slightly and settles the route */
+  settled?: boolean;
 }) {
   const activeIndex = pins.findIndex((p) => p.id === activePinId);
-  const progress = pins.length > 1 ? activeIndex / (pins.length - 1) : 1;
+  const progress = progressOverride ?? (pins.length > 1 ? activeIndex / (pins.length - 1) : 1);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
@@ -57,15 +63,17 @@ export function HanoiMap({
     const el = containerRef.current;
     if (!el) return;
     const onWheel = (e: WheelEvent) => {
+      if (settled) return;
       e.preventDefault();
       setClampedScale(scale - e.deltaY * 0.0015);
     };
     el.addEventListener("wheel", onWheel, { passive: false });
     return () => el.removeEventListener("wheel", onWheel);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scale]);
+  }, [scale, settled]);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (settled) return;
     (e.target as Element).setPointerCapture(e.pointerId);
     dragStart.current = { x: e.clientX, y: e.clientY, pan };
     setDragging(true);
@@ -85,14 +93,13 @@ export function HanoiMap({
     setDragging(false);
   };
 
-  const zoomButtonClass =
-    "flex h-8 w-8 items-center justify-center text-surface/70 hover:bg-accent-light hover:text-accent transition-colors dark:text-white/60 dark:hover:bg-accent/20 dark:hover:text-white";
+  const zoomButtonClass = `flex h-8 w-8 items-center justify-center text-surface/70 hover:bg-accent-light hover:text-accent transition-colors dark:text-white/60 dark:hover:bg-accent/20 dark:hover:text-white ${settled ? "pointer-events-none" : "pointer-events-auto"}`;
 
   return (
     <div
       ref={containerRef}
-      className={`relative w-full touch-none select-none overflow-hidden rounded-2xl border border-border bg-[#F8F7FF] dark:border-white/10 dark:bg-[#0D0B1F] ${
-        dragging ? "cursor-grabbing" : "cursor-grab"
+      className={`relative w-full touch-none select-none overflow-hidden rounded-2xl border border-border bg-[#F7F3FA] dark:border-white/10 dark:bg-[#18233F] ${
+        settled ? "cursor-default" : dragging ? "cursor-grabbing" : "cursor-grab"
       }`}
       style={{ aspectRatio: `${HANOI_MAP_WIDTH} / ${HANOI_MAP_HEIGHT}` }}
       onPointerDown={handlePointerDown}
@@ -106,14 +113,14 @@ export function HanoiMap({
       >
         <div
           className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full opacity-0 blur-3xl dark:opacity-100"
-          style={{ background: "radial-gradient(circle, rgba(139,92,246,0.2), transparent 70%)" }}
+          style={{ background: "radial-gradient(circle, rgba(91, 58, 142,0.2), transparent 70%)" }}
         />
 
         {/* faint dot-grid texture so the surface reads as a map even away from the water */}
         <svg className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
           <defs>
             <pattern id="hanoi-map-grid" width="26" height="26" patternUnits="userSpaceOnUse">
-              <circle cx="1.5" cy="1.5" r="1.5" className="fill-[#DCD6F7] dark:fill-white/[0.07]" />
+              <circle cx="1.5" cy="1.5" r="1.5" className="fill-[#E4DDED] dark:fill-white/[0.07]" />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#hanoi-map-grid)" />
@@ -127,7 +134,7 @@ export function HanoiMap({
           aria-hidden="true"
         >
           {roadsPathD && (
-            <path d={roadsPathD} fill="none" strokeWidth={1} strokeLinecap="round" className="stroke-[#DCD6F7] dark:stroke-white/[0.08]" />
+            <path d={roadsPathD} fill="none" strokeWidth={1} strokeLinecap="round" className="stroke-[#E4DDED] dark:stroke-white/[0.08]" />
           )}
           {lakePathD && (
             <path d={lakePathD} className="fill-[#C7DBF7] stroke-[#8FB3E5] dark:fill-[#1B2E4F] dark:stroke-[#3D5E92]" strokeWidth={1.2} />
@@ -173,12 +180,16 @@ export function HanoiMap({
         })}
       </div>
 
-      <div className="pointer-events-none absolute bottom-4 right-4 z-30 flex flex-col overflow-hidden rounded-full border border-accent/25 bg-white/90 shadow-sm backdrop-blur dark:border-white/10 dark:bg-[#12101F]/90">
+      <div
+        className={`pointer-events-none absolute bottom-4 right-4 z-30 flex flex-col overflow-hidden rounded-full border border-accent/25 bg-white/90 shadow-sm backdrop-blur transition-opacity duration-300 dark:border-white/10 dark:bg-[#22264B]/90 ${
+          settled ? "opacity-0" : "opacity-100"
+        }`}
+      >
         <button
           type="button"
           aria-label="Zoom in"
           onClick={() => setClampedScale(scale + 0.4)}
-          className={`${zoomButtonClass} pointer-events-auto`}
+          className={zoomButtonClass}
         >
           +
         </button>
@@ -187,7 +198,7 @@ export function HanoiMap({
           type="button"
           aria-label="Zoom out"
           onClick={() => setClampedScale(scale - 0.4)}
-          className={`${zoomButtonClass} pointer-events-auto`}
+          className={zoomButtonClass}
         >
           −
         </button>
@@ -199,7 +210,7 @@ export function HanoiMap({
             setScale(1);
             setPan({ x: 0, y: 0 });
           }}
-          className={`${zoomButtonClass} pointer-events-auto`}
+          className={zoomButtonClass}
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 12a9 9 0 1 1-3-6.7" />

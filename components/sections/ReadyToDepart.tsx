@@ -13,7 +13,7 @@ export function ReadyToDepart() {
         style={{
           width: 500,
           height: 500,
-          background: "radial-gradient(circle, #8B5CF618 0%, transparent 70%)",
+          background: "radial-gradient(circle, #5B3A8E18 0%, transparent 70%)",
           right: "-5%",
           top: "50%",
           transform: "translateY(-50%)",

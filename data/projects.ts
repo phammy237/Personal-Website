@@ -30,6 +30,34 @@ export type Project = {
 
 export const projects: Project[] = [
   {
+    slug: "campus-compass",
+    title: "Campus Compass",
+    category: "Engineering",
+    year: "2026",
+    month: "July 2026",
+    logline: "Full-stack campus navigation platform built on a custom C++ graph engine",
+    description: "Campus Compass turns a graded C++ algorithms assignment into an interactive web app for campus navigation, combining a custom graph engine with real routing data and live map visualization.",
+    bullets: [
+      "I implemented a weighted graph engine in C++ (adjacency list, Dijkstra's shortest path, BFS connectivity check, Kruskal's MST with union-find) to model campus navigation, student schedules, and road closures, validated by 57 Catch2 unit test assertions.",
+      "I designed and built a schedule-optimization feature using backtracking search over combinatorial course-section assignments, minimizing total walking time via cached Dijkstra runs while pruning time-conflicting schedules.",
+      "I built a REST API in C++ (cpp-httplib) exposing 15+ endpoints and a vanilla JS/Leaflet frontend, turning a console-only assignment into an interactive web app with live map visualization and real walking-route rendering via the OSRM routing API.",
+      "I sourced and geocoded 260+ real building locations from the OpenStreetMap Overpass API, then engineered a synthetic k-nearest-neighbor graph, weighted by real-world geographic distance, to support realistic pathfinding at scale.",
+      "I extended a graded academic assignment with a full-stack feature layer while keeping the original algorithm implementation and test suite completely intact, deliberately isolating new synthetic data and code paths from the graded core to avoid regressions.",
+    ],
+    tools: ["C++17", "CMake", "Catch2", "cpp-httplib", "JavaScript", "HTML/CSS", "Leaflet.js", "Python", "REST API", "OpenStreetMap Overpass API", "OSRM"],
+    image: "/projects/campus-compass.png",
+    stack: [
+      { layer: "Backend / Core", tech: "C++17, CMake, Catch2 (unit testing)" },
+      { layer: "API layer", tech: "cpp-httplib, REST API design, JSON" },
+      { layer: "Frontend", tech: "JavaScript (ES6+), HTML5, CSS3, Leaflet.js" },
+      { layer: "Algorithms", tech: "Dijkstra's algorithm, BFS, Kruskal's MST + union-find, backtracking/combinatorial search" },
+      { layer: "Data engineering", tech: "Python (data pipeline scripts), CSV processing, geocoding" },
+      { layer: "External APIs", tech: "OpenStreetMap Overpass API, OSRM routing API, CartoDB basemap tiles" },
+      { layer: "Tools", tech: "Git, Windows/MinGW toolchain" },
+    ],
+    gradient: "linear-gradient(135deg, #0EA5E9 0%, #10B981 100%)",
+  },
+  {
     slug: "cartcoach",
     title: "CartCoach",
     category: "Product/UX",

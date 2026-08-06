@@ -9,6 +9,9 @@ import { useRotatingIndex } from "@/lib/hooks/useRotatingIndex";
 
 type InvType = "Leadership" | "Professional" | "Mentorship";
 
+type InvRole = { title: string; period: string };
+type InvLink = { label: string; url: string };
+
 type Involvement = {
   role: string;
   org: string;
@@ -20,17 +23,34 @@ type Involvement = {
   bullets: string[];
   awards: string[];
   image?: string;  // drop in public/involvements/<slug>.jpg
+  gallery?: string[];  // additional photos, shown as a slideshow in the Media tab
+  roleHistory?: InvRole[];  // prior roles held at this org, oldest first
+  links?: InvLink[];  // website, socials, etc.
 };
 
 const involvements: Involvement[] = [
   {
     role: "External Vice President",
     org: "UF Data Science & Informatics Club",
-    period: "Apr 2025 — Present",
+    period: "May 2025 — Present",
     type: "Leadership",
-    color: "#8B5CF6",
-    gradient: "linear-gradient(135deg, #8B5CF6 0%, #4F46E5 100%)",
+    color: "#5B3A8E",
+    gradient: "linear-gradient(135deg, #5B3A8E 0%, #4F46E5 100%)",
     description: "Led the largest data science organization at UF — 350+ members, 8+ winning hackathon teams.",
+    image: "/involvements/dsi.jpg",
+    gallery: [
+      "/involvements/dsi-2.jpg",
+      "/involvements/dsi-3.jpg",
+      "/involvements/dsi-4.jpg",
+    ],
+    roleHistory: [
+      { title: "Event Coordinator", period: "Aug 2024 — May 2025" },
+      { title: "External Vice President", period: "May 2025 — Present" },
+    ],
+    links: [
+      { label: "Website", url: "https://www.ufdsi.com/" },
+      { label: "Instagram", url: "https://www.instagram.com/uf_dsi/" },
+    ],
     bullets: [
       "Drove outreach with AIIRI, Google, Microsoft, Deloitte, and startups; negotiated funding and launched student projects.",
       "Hosted 5+ research and industry tours, connecting 350+ members with labs, startups, and industry professionals, leading to 8+ winning hackathon teams.",
@@ -39,6 +59,22 @@ const involvements: Involvement[] = [
       "Initiated partnership with UF Career Connections Center to host career-readiness workshops.",
     ],
     awards: ["Student Org of the Year", "Career Influencer Award"],
+  },
+  {
+    role: "Operations Committee Head",
+    org: "WingHacks",
+    period: "Apr 2025 — Present",
+    type: "Leadership",
+    color: "#0D9488",
+    gradient: "linear-gradient(135deg, #0D9488 0%, #0EA5E9 100%)",
+    description: "Leading operations planning for WingHacks 2027 — the systems, logistics, and coordination behind a large-scale hackathon.",
+    bullets: [
+      "Own planning across venue logistics, resource allocation, catering, procurement, setup, storage, transportation, signage, participant flow, and event-day operations.",
+      "Coordinate closely with sponsorship, design, outreach, and other committees to translate each team's needs into operational requirements, timelines, budgets, and execution plans.",
+      "Build purchasing schedules and resource plans around what can be purchased, rented, borrowed, stored, or reused, while accounting for vendor lead times and budget constraints.",
+      "Develop committee delegation structures, setup and cleanup plans, contingency procedures, and event-day operating workflows so responsibilities are clear before the hackathon begins.",
+    ],
+    awards: [],
   },
   {
     role: "Vice President",
@@ -70,8 +106,8 @@ const involvements: Involvement[] = [
   },
   {
     role: "Treasurer",
-    org: "Vietnam International Student Association",
-    period: "Aug 2024 — Present",
+    org: "Vietnamese International Student Association",
+    period: "Aug 2024 — May 2026",
     type: "Leadership",
     color: "#EF4444",
     gradient: "linear-gradient(135deg, #EF4444 0%, #DC2626 100%)",
@@ -94,6 +130,20 @@ const involvements: Involvement[] = [
     bullets: [
       "Providing career guidance and mentorship to underclassmen.",
       "Supporting students with internship applications, interview prep, and networking.",
+    ],
+    awards: [],
+  },
+  {
+    role: "Mentor",
+    org: "GatorAI",
+    period: "2025 — Present",
+    type: "Mentorship",
+    color: "#D97706",
+    gradient: "linear-gradient(135deg, #D97706 0%, #F59E0B 100%)",
+    description: "Mentoring students in AI/ML skill-building at UF.",
+    bullets: [
+      "Providing mentorship on AI/ML concepts and projects.",
+      "Supporting students building technical and career readiness in AI.",
     ],
     awards: [],
   },
@@ -132,13 +182,72 @@ const ROTATE_MS = 6000;
 
 const featured = involvements.slice(0, 5);
 
+/* ─── Media slideshow ───────────────────────────────── */
+function MediaSlideshow({ images }: { images: string[] }) {
+  const [idx, setIdx] = useState(0);
+  const multi = images.length > 1;
+  const prev = () => setIdx((i) => (i - 1 + images.length) % images.length);
+  const next = () => setIdx((i) => (i + 1) % images.length);
+
+  return (
+    <div className="space-y-3">
+      <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-black/20">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img key={images[idx]} src={images[idx]} alt="" className="h-full w-full object-cover" />
+        {multi && (
+          <>
+            <button
+              type="button"
+              aria-label="Previous photo"
+              onClick={prev}
+              className="absolute left-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white/80 backdrop-blur transition-colors hover:bg-black/60 hover:text-white"
+            >
+              ‹
+            </button>
+            <button
+              type="button"
+              aria-label="Next photo"
+              onClick={next}
+              className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white/80 backdrop-blur transition-colors hover:bg-black/60 hover:text-white"
+            >
+              ›
+            </button>
+            <span className="absolute bottom-2 right-2 rounded-full bg-black/50 px-2 py-0.5 font-mono text-[10px] text-white/80">
+              {idx + 1} / {images.length}
+            </span>
+          </>
+        )}
+      </div>
+      {multi && (
+        <div className="flex justify-center gap-1.5">
+          {images.map((src, i) => (
+            <button
+              key={src}
+              type="button"
+              aria-label={`Go to photo ${i + 1}`}
+              onClick={() => setIdx(i)}
+              className={`h-1.5 rounded-full transition-all ${i === idx ? "w-5 bg-accent" : "w-1.5 bg-white/20 hover:bg-white/35"}`}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ─── Modal ─────────────────────────────────────────── */
 function InvModal({ inv, onClose }: { inv: Involvement; onClose: () => void }) {
+  const hasMedia = !!inv.gallery && inv.gallery.length > 0;
+  const [tab, setTab] = useState<"overview" | "media">("overview");
+
   return (
     <ModalShell onClose={onClose} maxWidth="max-w-2xl">
       {/* Header */}
       <div className="relative h-44 flex items-end p-6 overflow-hidden" style={{ background: inv.gradient }}>
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0D0F1A] via-black/20 to-transparent" />
+        {inv.image && (
+          <div className="absolute inset-0 bg-cover bg-center opacity-60" style={{ backgroundImage: `url(${inv.image})` }} />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#18233F] via-black/20 to-transparent" />
         <div className="relative z-10">
           <span className="font-mono text-xs text-white/50 block mb-1">{inv.type} · {inv.period}</span>
           <h2 className="font-display text-3xl md:text-4xl text-white leading-tight">{inv.role}</h2>
@@ -146,29 +255,82 @@ function InvModal({ inv, onClose }: { inv: Involvement; onClose: () => void }) {
         </div>
       </div>
 
-      {/* Body */}
-      <div className="p-6 space-y-5">
-        <p className="font-body text-white/70 leading-relaxed italic">{inv.description}</p>
-
-        <ul className="space-y-3">
-          {inv.bullets.map((b, i) => (
-            <li key={i} className="flex items-start gap-3">
-              <span className="text-accent mt-1.5 flex-shrink-0 text-xs">▸</span>
-              <span className="font-body text-sm text-white/65 leading-relaxed">{b}</span>
-            </li>
+      {hasMedia && (
+        <div className="flex gap-1 border-b border-white/10 px-6 pt-3">
+          {(["overview", "media"] as const).map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setTab(t)}
+              className={`px-3 py-2 font-mono text-xs uppercase tracking-wider transition-colors ${
+                tab === t ? "border-b-2 border-accent text-accent" : "text-white/40 hover:text-white/70"
+              }`}
+            >
+              {t}
+            </button>
           ))}
-        </ul>
+        </div>
+      )}
 
-        {inv.awards.length > 0 && (
-          <div className="flex flex-wrap gap-2 pt-2 border-t border-white/10">
-            {inv.awards.map((a) => (
-              <span key={a} className="font-mono text-xs text-yellow-300 bg-yellow-500/10 border border-yellow-500/30 px-3 py-1 rounded-full">
-                🏆 {a}
-              </span>
+      {/* Body */}
+      {(!hasMedia || tab === "overview") ? (
+        <div className="p-6 space-y-5">
+          <p className="font-body text-white/70 leading-relaxed italic">{inv.description}</p>
+
+          <ul className="space-y-3">
+            {inv.bullets.map((b, i) => (
+              <li key={i} className="flex items-start gap-3">
+                <span className="text-accent mt-1.5 flex-shrink-0 text-xs">▸</span>
+                <span className="font-body text-sm text-white/65 leading-relaxed">{b}</span>
+              </li>
             ))}
-          </div>
-        )}
-      </div>
+          </ul>
+
+          {inv.roleHistory && inv.roleHistory.length > 0 && (
+            <div className="border-t border-white/10 pt-4">
+              <p className="mb-3 font-mono text-xs uppercase tracking-wider text-white/40">Role History</p>
+              <div className="space-y-2">
+                {inv.roleHistory.map((r) => (
+                  <div key={r.title} className="flex items-baseline justify-between gap-4">
+                    <span className="font-body text-sm text-white/80">{r.title}</span>
+                    <span className="whitespace-nowrap font-mono text-xs text-white/40">{r.period}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {inv.awards.length > 0 && (
+            <div className="flex flex-wrap gap-2 pt-2 border-t border-white/10">
+              {inv.awards.map((a) => (
+                <span key={a} className="font-mono text-xs text-yellow-300 bg-yellow-500/10 border border-yellow-500/30 px-3 py-1 rounded-full">
+                  🏆 {a}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {inv.links && inv.links.length > 0 && (
+            <div className="flex flex-wrap gap-4 border-t border-white/10 pt-4">
+              {inv.links.map((l) => (
+                <a
+                  key={l.url}
+                  href={l.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-mono text-xs text-accent underline-offset-4 hover:underline"
+                >
+                  {l.label} ↗
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="p-6">
+          <MediaSlideshow images={inv.gallery!} />
+        </div>
+      )}
     </ModalShell>
   );
 }
@@ -190,6 +352,9 @@ function InvCard({ inv, onSelect }: { inv: Involvement; onSelect: (inv: Involvem
         onClick={() => onSelect(inv)}
       >
         <div className="absolute inset-0" style={{ background: inv.gradient }} />
+        {inv.image && (
+          <div className="absolute inset-0 bg-cover bg-center opacity-70" style={{ backgroundImage: `url(${inv.image})` }} />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
         {/* Type badge */}
@@ -220,7 +385,7 @@ function InvCard({ inv, onSelect }: { inv: Involvement; onSelect: (inv: Involvem
       <AnimatePresence>
         {hovered && (
           <motion.div
-            className="absolute left-0 right-0 top-full z-30 bg-white dark:bg-[#161828] border border-gray-200 dark:border-white/10 rounded-b-xl px-3 py-2.5 shadow-xl"
+            className="absolute left-0 right-0 top-full z-30 bg-white dark:bg-[#18233F] border border-gray-200 dark:border-white/10 rounded-b-xl px-3 py-2.5 shadow-xl"
             initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.15 }}
           >
@@ -252,6 +417,9 @@ function InvHero({ onSelect }: { onSelect: (inv: Involvement) => void }) {
       <AnimatePresence mode="sync">
         <motion.div key={inv.org} className="absolute inset-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.8 }}>
           <div className="absolute inset-0" style={{ background: inv.gradient }} />
+          {inv.image && (
+            <div className="absolute inset-0 bg-cover bg-center opacity-70" style={{ backgroundImage: `url(${inv.image})` }} />
+          )}
           <div className="absolute inset-0" style={{ background: "linear-gradient(to top, var(--page-bg) 0%, transparent 60%)" }} />
           <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent" />
         </motion.div>

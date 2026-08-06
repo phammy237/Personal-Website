@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import { geoOrthographic, geoPath } from "d3-geo";
 import { useReducedMotion } from "framer-motion";
 import type { FeatureCollection, Geometry } from "geojson";
@@ -43,7 +43,11 @@ export function GlobeHero({
     const tick = (now: number) => {
       const dt = now - last;
       last = now;
-      setRotation((r) => [r[0] - dt * 0.006, r[1], r[2]]);
+      // low-priority: a purely decorative animation must never starve real interactions
+      // (e.g. nav-link transitions) competing for React's scheduler
+      startTransition(() => {
+        setRotation((r) => [r[0] - dt * 0.006, r[1], r[2]]);
+      });
       rafRef.current = requestAnimationFrame(tick);
     };
     rafRef.current = requestAnimationFrame(tick);
@@ -88,7 +92,7 @@ export function GlobeHero({
     <div className={`relative select-none ${className}`} style={{ width: size, height: size }}>
       <div
         className="pointer-events-none absolute inset-0 opacity-0 blur-3xl dark:opacity-100"
-        style={{ background: "radial-gradient(circle, rgba(139,92,246,0.28), transparent 65%)" }}
+        style={{ background: "radial-gradient(circle, rgba(91, 58, 142,0.28), transparent 65%)" }}
       />
       <svg
         width={size}
@@ -102,20 +106,20 @@ export function GlobeHero({
         onPointerUp={endDrag}
         onPointerLeave={endDrag}
       >
-        <circle cx={size / 2} cy={size / 2} r={(baseScale * scale)} className="fill-[#F3F1FF] dark:fill-[#0D0B1F]" />
-        {countries?.features.map((f) => {
+        <circle cx={size / 2} cy={size / 2} r={(baseScale * scale)} className="fill-[#F1EAF7] dark:fill-[#18233F]" />
+        {countries?.features.map((f, i) => {
           const id = String((f as { id?: string | number }).id ?? "");
           const isHighlighted = highlightSet.has(id);
           const d = pathGen(f) ?? undefined;
           return (
             <path
-              key={id}
+              key={`${id}-${i}`}
               d={d}
               strokeWidth={isHighlighted ? 1.2 : 0.6}
               className={
                 isHighlighted
-                  ? "fill-accent stroke-[#6D28D9] dark:fill-accent dark:stroke-[#A78BFA] dark:[filter:drop-shadow(0_0_6px_rgba(139,92,246,0.65))]"
-                  : "fill-[#DCD6F7] stroke-[#C7BEF0] dark:fill-[#211E3A] dark:stroke-[#39335C]"
+                  ? "fill-accent stroke-[#4A2F74] dark:fill-accent dark:stroke-[#9B8BB5] dark:[filter:drop-shadow(0_0_6px_rgba(91, 58, 142,0.65))]"
+                  : "fill-[#E4DDED] stroke-[#C9BAD9] dark:fill-[#2B2347] dark:stroke-[#3D3560]"
               }
             />
           );
@@ -127,12 +131,12 @@ export function GlobeHero({
           fill="none"
           strokeWidth={1}
           opacity={0.5}
-          className="stroke-[#B9AEF0] dark:stroke-white/10"
+          className="stroke-[#C9BAD9] dark:stroke-white/10"
         />
       </svg>
 
       {interactive && (
-        <div className="absolute bottom-3 right-3 flex flex-col overflow-hidden rounded-full border border-accent/25 bg-white/90 shadow-sm backdrop-blur dark:border-white/10 dark:bg-[#12101F]/90">
+        <div className="absolute bottom-3 right-3 flex flex-col overflow-hidden rounded-full border border-accent/25 bg-white/90 shadow-sm backdrop-blur dark:border-white/10 dark:bg-[#22264B]/90">
           <button
             aria-label="Zoom in"
             onClick={() => setScale((s) => Math.min(2, s + 0.15))}

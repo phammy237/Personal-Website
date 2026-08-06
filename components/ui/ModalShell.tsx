@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 export function ModalShell({
   onClose,
   maxWidth = "max-w-3xl",
-  panelClassName = "bg-[#0D0F1A] border border-white/10",
+  panelClassName = "bg-[#18233F] border border-white/10",
   closeButtonClassName = "bg-black/50 text-white/70 hover:text-white hover:bg-black/70",
   children,
 }: {

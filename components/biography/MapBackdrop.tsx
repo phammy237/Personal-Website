@@ -29,7 +29,7 @@ export function MapBackdrop({
           strokeWidth={14}
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="stroke-[#D7D0F5] dark:stroke-[#1B2340]"
+          className="stroke-[#E4DDED] dark:stroke-[#1B2340]"
         />
         <path
           d={riverPathD}
@@ -72,7 +72,7 @@ export function MapBackdrop({
         fill="none"
         strokeWidth={22}
         strokeLinecap="round"
-        className="stroke-[#D7D0F5] dark:stroke-[#1B2340]"
+        className="stroke-[#E4DDED] dark:stroke-[#1B2340]"
       />
       <path
         d={river}
@@ -89,7 +89,7 @@ export function MapBackdrop({
           width={b.w}
           height={b.h}
           rx={4}
-          className="fill-[#E6E1FA] dark:fill-white/[0.03] dark:stroke-white/[0.06]"
+          className="fill-[#E4DDED] dark:fill-white/[0.03] dark:stroke-white/[0.06]"
           stroke="none"
         />
       ))}

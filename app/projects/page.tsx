@@ -79,7 +79,7 @@ function ProjectModal({ project, initialTab, onClose }: { project: Project; init
       {/* Header */}
       <div className="relative h-52 md:h-60 flex items-end p-6 overflow-hidden" style={{ background: project.gradient }}>
         {project.image && <Image src={project.image} alt={project.title} fill className="object-contain opacity-30" />}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0D0F1A] via-black/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#18233F] via-black/30 to-transparent" />
         <div className="relative z-10 w-full">
           <span className="font-mono text-xs text-white/50 block mb-1">{project.competition ?? project.category} · {project.month}</span>
           <h2 className="font-display text-4xl md:text-5xl text-white leading-none mb-1">{project.title}</h2>
@@ -216,7 +216,7 @@ function WorkCard({ project, onSelect }: { project: Project; onSelect: (p: Proje
           >
             {isComp && !hasMedia
               ? <span className="text-white text-xs">🏅</span>
-              : <svg width="11" height="11" viewBox="0 0 12 12" fill={hovered && hasMedia ? "#080D24" : "white"}><polygon points="2,0 12,6 2,12" /></svg>
+              : <svg width="11" height="11" viewBox="0 0 12 12" fill={hovered && hasMedia ? "#18233F" : "white"}><polygon points="2,0 12,6 2,12" /></svg>
             }
           </motion.div>
         </div>
@@ -258,7 +258,7 @@ function WorkCard({ project, onSelect }: { project: Project; onSelect: (p: Proje
       {/* Hover strip */}
       <AnimatePresence>
         {hovered && (
-          <motion.div className="absolute left-0 right-0 top-full z-30 bg-white dark:bg-[#161828] border border-gray-200 dark:border-white/10 rounded-b-xl px-3 py-2.5 shadow-xl" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.15 }}>
+          <motion.div className="absolute left-0 right-0 top-full z-30 bg-white dark:bg-[#18233F] border border-gray-200 dark:border-white/10 rounded-b-xl px-3 py-2.5 shadow-xl" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.15 }}>
             <p className="font-body text-xs text-surface/60 dark:text-white/60 leading-relaxed line-clamp-2">{project.logline}</p>
           </motion.div>
         )}

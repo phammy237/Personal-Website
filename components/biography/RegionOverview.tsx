@@ -37,10 +37,10 @@ export function RegionOverview({
   }, [countryFeature, chapter.globeTarget]);
 
   return (
-    <div className="relative w-full overflow-hidden rounded-3xl border border-border bg-[#F8F7FF] dark:border-white/10 dark:bg-[#0D0B1F]" style={{ minHeight: height }}>
+    <div className="relative w-full overflow-hidden rounded-3xl border border-border bg-[#F7F3FA] dark:border-white/10 dark:bg-[#18233F]" style={{ minHeight: height }}>
       <div
         className="pointer-events-none absolute -left-16 -bottom-16 h-72 w-72 rounded-full opacity-0 blur-3xl dark:opacity-100"
-        style={{ background: "radial-gradient(circle, rgba(139,92,246,0.2), transparent 70%)" }}
+        style={{ background: "radial-gradient(circle, rgba(91, 58, 142,0.2), transparent 70%)" }}
       />
       <div className="absolute inset-0 flex items-center justify-center">
         <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`Map of ${chapter.regionLabel}`}>
@@ -48,7 +48,7 @@ export function RegionOverview({
             <motion.path
               d={path}
               strokeWidth={1.4}
-              className="fill-[#DCD6F7] stroke-accent dark:fill-[#211E3A] dark:stroke-[#A78BFA]"
+              className="fill-[#E4DDED] stroke-accent dark:fill-[#2B2347] dark:stroke-[#9B8BB5]"
               initial={{ opacity: 0, scale: 0.94 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
@@ -59,12 +59,12 @@ export function RegionOverview({
             <g transform={`translate(${markerPoint[0]}, ${markerPoint[1]})`}>
               <motion.circle
                 r={16}
-                fill="#8B5CF6"
+                fill="#5B3A8E"
                 opacity={0.25}
                 animate={{ scale: [1, 1.6, 1], opacity: [0.3, 0, 0.3] }}
                 transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
               />
-              <circle r={6} fill="#8B5CF6" strokeWidth={2} className="stroke-white dark:stroke-[#0D0B1F] dark:[filter:drop-shadow(0_0_5px_rgba(139,92,246,0.8))]" />
+              <circle r={6} fill="#5B3A8E" strokeWidth={2} className="stroke-white dark:stroke-[#18233F] dark:[filter:drop-shadow(0_0_5px_rgba(91, 58, 142,0.8))]" />
             </g>
           )}
         </svg>
@@ -75,7 +75,7 @@ export function RegionOverview({
       </p>
 
       <motion.div
-        className="absolute left-4 top-6 w-[calc(100%-2rem)] max-w-[360px] rounded-2xl border border-border bg-white/95 p-6 shadow-lg backdrop-blur dark:border-white/10 dark:bg-[#12101F]/90 md:left-8 md:top-8"
+        className="absolute left-4 top-6 w-[calc(100%-2rem)] max-w-[360px] rounded-2xl border border-border bg-white/95 p-6 shadow-lg backdrop-blur dark:border-white/10 dark:bg-[#22264B]/90 md:left-8 md:top-8"
         initial={{ opacity: 0, x: -16 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.15, duration: 0.5 }}

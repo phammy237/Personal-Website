@@ -40,7 +40,7 @@ function CaseModal({ cs, onClose }: { cs: CaseStudy; onClose: () => void }) {
     <ModalShell onClose={onClose}>
       <div className="relative h-48 md:h-60 flex items-end p-6 overflow-hidden" style={{ background: cs.gradient }}>
         {cs.image && <Image src={cs.image} alt={cs.title} fill className="object-cover opacity-30" />}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0D0F1A] via-black/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#18233F] via-black/30 to-transparent" />
         <div className="relative z-10">
           <p className="font-mono text-xs text-white/50 mb-1">{cs.competition} · {cs.year}</p>
           <h2 className="font-display text-4xl md:text-5xl text-white leading-none mb-3">{cs.title}</h2>
@@ -88,11 +88,11 @@ function CompCard({ cs, onSelect, index }: { cs: CaseStudy; onSelect: (cs: CaseS
       className="group cursor-pointer"
       onClick={() => onSelect(cs)}
     >
-      <div className="relative rounded-2xl overflow-hidden border border-white/10 hover:border-white/25 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 bg-[#111827]">
+      <div className="relative rounded-2xl overflow-hidden border border-white/10 hover:border-white/25 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 bg-[#18233F]">
         {/* Gradient header */}
         <div className="relative h-24 overflow-hidden" style={{ background: cs.gradient }}>
           {cs.image && <Image src={cs.image} alt={cs.title} fill className="object-cover opacity-40" />}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#111827]/80" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#18233F]/80" />
 
           {/* Award badge */}
           <div className="absolute top-3 left-3">
@@ -157,8 +157,8 @@ function CompHero({ onSelect }: { onSelect: (cs: CaseStudy) => void }) {
         <motion.div key={cs.slug} className="absolute inset-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.8 }}>
           <div className="absolute inset-0" style={{ background: cs.gradient }} />
           {cs.image && <Image src={cs.image} alt={cs.title} fill className="object-cover opacity-35" priority />}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#080D24] via-[#080D24]/40 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#080D24]/70 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#18233F] via-[#18233F]/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#18233F]/70 via-transparent to-transparent" />
         </motion.div>
       </AnimatePresence>
 
@@ -204,7 +204,7 @@ export default function CompetitionsPage() {
     : caseStudies.filter((cs) => cs.category === activeCategory);
 
   return (
-    <main className="min-h-screen" style={{ background: "linear-gradient(180deg, #080D24 0%, #0A0C1E 100%)" }}>
+    <main className="min-h-screen" style={{ background: "linear-gradient(180deg, #18233F 0%, #12192E 100%)" }}>
       <Navbar />
 
       <div className="pt-16">

@@ -25,7 +25,7 @@ export function ChapterStoryModal({
     <ModalShell
       onClose={onClose}
       maxWidth="max-w-2xl"
-      panelClassName="bg-white border border-border dark:bg-[#0D0B1F] dark:border-white/10"
+      panelClassName="bg-white border border-border dark:bg-[#18233F] dark:border-white/10"
       closeButtonClassName="bg-black/5 text-surface/70 hover:bg-black/10 hover:text-surface dark:bg-white/10 dark:text-white/70 dark:hover:bg-white/20 dark:hover:text-white"
     >
       <div className="relative aspect-[16/9] w-full overflow-hidden">
@@ -92,6 +92,15 @@ export function ChapterStoryModal({
                 <p className="font-mono text-xs uppercase tracking-wider text-accent">{s.title}</p>
                 <p className="mt-1 font-body text-xs leading-relaxed text-muted dark:text-white/50">{s.description}</p>
               </div>
+            ))}
+          </div>
+        )}
+
+        {pin.gallery && pin.gallery.length > 0 && (
+          <div className="mt-6 grid grid-cols-2 gap-2 border-t border-border pt-6 dark:border-white/10 sm:grid-cols-4">
+            {pin.gallery.map((src) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img key={src} src={src} alt="" className="aspect-video w-full rounded-lg object-cover" />
             ))}
           </div>
         )}

@@ -11,16 +11,24 @@ const config: Config = {
         roboto: ["var(--font-roboto)", "sans-serif"],
       },
       colors: {
-        accent: "#8B5CF6",
-        "accent-blue": "#3B82F6",
-        "accent-light": "#EDE9FE",
-        base: "#FFFFFF",
-        surface: "#1E1B4B",
-        card: "#FFFFFF",
-        border: "#E2E8F0",
-        navy: "#0C0A1E",
-        "navy-mid": "#0F0B26",
-        muted: "#64748B",
+        // Deep violet — main brand color: intense, creative, ambitious
+        accent: "#5B3A8E",
+        "accent-light": "#E4DDED",
+        // Muted gold — warm, elegant, quietly confident (secondary accent)
+        "accent-gold": "#C5A46D",
+        // Dusty mauve — romantic and emotionally expressive
+        "accent-mauve": "#B982A8",
+        // Smoky lavender — dreamy and artistic without being childish
+        "accent-lavender": "#9B8BB5",
+        // Pearl white — soft, polished, clean
+        base: "#F7F3FA",
+        card: "#F7F3FA",
+        // Midnight navy — intelligent, private, slightly intimidating
+        surface: "#18233F",
+        navy: "#18233F",
+        "navy-mid": "#22264B",
+        border: "#E6E0EE",
+        muted: "#676186",
       },
     },
   },

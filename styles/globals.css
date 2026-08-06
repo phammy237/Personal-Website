@@ -3,23 +3,23 @@
 @tailwind utilities;
 
 :root {
-  --accent: #8B5CF6;
-  --accent-blue: #3B82F6;
-  --page-bg: #F8F9FF;
+  --accent: #5B3A8E;
+  --accent-gold: #C5A46D;
+  --page-bg: #F7F3FA;
 }
 
 .dark {
-  --page-bg: #080D24;
+  --page-bg: #18233F;
 }
 
 html {
   scroll-behavior: smooth;
-  background-color: #F8F9FF;
-  color: #1E1B4B;
+  background-color: #F7F3FA;
+  color: #18233F;
 }
 
 body {
-  background-color: #F8F9FF;
+  background-color: #F7F3FA;
 }
 
 /* Hide default cursor on desktop */

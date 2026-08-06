@@ -28,6 +28,24 @@ export type HanoiJourneyPin = {
   subsections?: HanoiJourneySubsection[];
   /** photo shot list for when real photos are ready to drop in */
   photoIdeas: string[];
+  /** real photos, shown as a gallery in the expanded story modal once available */
+  gallery?: string[];
+};
+
+export const hanoiCheckpointCopy = {
+  heading: "You've reached the end of Hanoi.",
+  paragraph: "This city gave me my roots, my curiosity, and the confidence to imagine a life beyond it.",
+  continueCta: "Continue to the next chapter",
+  stayCta: "Stay and explore Hanoi",
+  skipCta: "Skip directly to the United States",
+};
+
+export const notYetInterludeCopy = {
+  heading: "For Years, the Answer Was “Not Yet.”",
+  paragraph:
+    "I began applying to boarding schools in ninth grade and received scholarship offers each year. My parents believed in me, but they were afraid I was too young to live across the world alone.",
+  resolution: "Eventually, “not yet” became “now.”",
+  cta: "Cross the ocean",
 };
 
 export const hanoiJourneyCopy = {
@@ -180,6 +198,16 @@ export const hanoiJourneyPins: HanoiJourneyPin[] = [
       "Bosch",
       "Friend groups",
       "Boarding-school application or acceptance material",
+    ],
+    gallery: [
+      "/biography/nguyen-hue/nguyen-hue-1.jpg",
+      "/biography/nguyen-hue/nguyen-hue-2.jpg",
+      "/biography/nguyen-hue/nguyen-hue-3.jpg",
+      "/biography/nguyen-hue/nguyen-hue-4.jpg",
+      "/biography/nguyen-hue/nguyen-hue-5.jpg",
+      "/biography/nguyen-hue/nguyen-hue-6.jpg",
+      "/biography/nguyen-hue/nguyen-hue-7.jpg",
+      "/biography/nguyen-hue/nguyen-hue-8.jpg",
     ],
   },
 ];

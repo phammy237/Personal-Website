@@ -1,6 +1,6 @@
 export function JourneyLegend({ className = "" }: { className?: string }) {
   return (
-    <div className={`inline-flex items-center gap-4 rounded-full border border-border bg-white/90 px-4 py-2 shadow-sm backdrop-blur dark:border-white/10 dark:bg-[#12101F]/90 ${className}`}>
+    <div className={`inline-flex items-center gap-4 rounded-full border border-border bg-white/90 px-4 py-2 shadow-sm backdrop-blur dark:border-white/10 dark:bg-[#22264B]/90 ${className}`}>
       <span className="flex items-center gap-1.5 font-mono text-[11px] text-surface dark:text-white">
         <span className="h-2.5 w-2.5 rounded-full bg-accent" />
         Active

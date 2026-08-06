@@ -21,7 +21,7 @@ export default function CVPage() {
   const [era, setEra] = useState<Era>("university");
 
   return (
-    <main className="min-h-screen bg-base dark:bg-[#0A0C1E]">
+    <main className="min-h-screen bg-base dark:bg-[#18233F]">
       <Navbar />
 
       <div className="px-[5vw] pt-28 pb-24 max-w-[900px] mx-auto">
@@ -254,7 +254,7 @@ export default function CVPage() {
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.08, type: "spring", stiffness: 100 }}
                   >
-                    <div className="absolute left-0 top-1.5 w-2 h-2 rounded-full -translate-x-[3px] bg-accent-blue" />
+                    <div className="absolute left-0 top-1.5 w-2 h-2 rounded-full -translate-x-[3px] bg-accent-gold" />
                     <div className="flex items-baseline justify-between gap-4 mb-1 flex-wrap">
                       <div>
                         <p className="font-body font-semibold text-surface dark:text-white">{edu.school}</p>
