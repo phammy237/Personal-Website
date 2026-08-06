@@ -214,6 +214,7 @@ export const projects: Project[] = [
     month: "Sep 2025",
     logline: "Collaborative Platform for Healthcare Professionals. LinkedIn for healthcare.",
     description: "Vyspar was a strong example of cross-functional product building. I worked on backend systems, data integration, and analytics for a platform designed to help healthcare professionals connect and engage more effectively.",
+    liveUrl: "https://www.vyspar.org/",
     bullets: [
       "I led backend development for 10+ RESTful APIs and helped migrate 50K+ records.",
       "I integrated 3 external healthcare data sources to support a more complete platform experience.",
