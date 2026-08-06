@@ -86,7 +86,7 @@ export const leadership = [
   {
     role: "Treasurer",
     company: "Vietnamese International Student Association",
-    period: "Aug 2024 — May 2026",
+    period: "May 2025 — Present",
     description: "I managed the financial and operational side of one of UF's Vietnamese student organizations, balancing budgeting, sponsorship development, and event planning for cultural and community programming.",
     bullets: [
       "Managed an annual budget of $10,000+, overseeing funding allocation, reimbursements, purchasing, and financial planning across the organization's events and initiatives.",

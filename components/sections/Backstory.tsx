@@ -12,6 +12,7 @@ const principles = [
     short: "Start with the problem, not the feature",
     detail:
       "Before thinking about solutions, I ask what the actual problem is — who has it, how often, and why it matters. The feature comes after.",
+    practice: "I map pain points, user needs, and operational constraints before proposing solutions.",
   },
   {
     label: "User Behavior",
@@ -19,6 +20,7 @@ const principles = [
     short: "Understand friction and decision points",
     detail:
       "I map how people actually move through a system, where they get stuck, and what drives their choices. Behavior reveals what requirements documents miss.",
+    practice: "I trace user flows step by step to find where friction and drop-off actually happen.",
   },
   {
     label: "Tradeoffs",
@@ -26,6 +28,7 @@ const principles = [
     short: "Balance user needs, business goals, and constraints",
     detail:
       "Good decisions require holding multiple competing pressures at once. I try to make those tensions explicit rather than pretending they don't exist.",
+    practice: "I lay out the competing constraints explicitly before recommending a direction.",
   },
   {
     label: "Clarity First",
@@ -33,6 +36,7 @@ const principles = [
     short: "Clarity, prioritization, and execution",
     detail:
       "Most problems are solvable if you're ruthlessly clear about what matters and what doesn't. Vagueness is usually where projects go wrong.",
+    practice: "I define what's in scope, what's out, and what success looks like before starting.",
   },
   {
     label: "Signal → Action",
@@ -40,6 +44,7 @@ const principles = [
     short: "Turn messy information into actionable direction",
     detail:
       "I enjoy synthesizing noisy, incomplete information into a clear next step. That translation — from data to decision — is where I think I add the most value.",
+    practice: "I turn scattered data points into one clear, actionable recommendation.",
   },
 ];
 
@@ -151,7 +156,8 @@ function PhotoSlider() {
 }
 
 function HowIThink() {
-  const [active, setActive] = useState<number | null>(null);
+  const [active, setActive] = useState(0);
+  const current = principles[active];
 
   return (
     <motion.div
@@ -165,54 +171,68 @@ function HowIThink() {
         How I Think
       </p>
       <p className="font-body text-sm text-muted dark:text-white/40 mb-8">
-        Click any principle to expand it.
+        The principles that shape how I approach products and problems.
       </p>
 
-      <div className="flex flex-wrap gap-3">
-        {principles.map((p, i) => (
-          <div key={i} className="w-full sm:w-auto">
-            <motion.button
-              onClick={() => setActive(active === i ? null : i)}
-              className={`group relative flex items-center gap-2.5 px-4 py-2.5 rounded-full border transition-all duration-200 text-left ${
+      <div className="grid gap-4 md:grid-cols-[300px_1fr] md:items-start">
+        {/* Principle list */}
+        <div className="flex flex-col gap-2">
+          {principles.map((p, i) => (
+            <button
+              key={p.label}
+              onClick={() => setActive(i)}
+              className={`flex items-center justify-between gap-3 rounded-xl border px-4 py-3.5 text-left transition-colors duration-200 ${
                 active === i
-                  ? "border-accent bg-accent/10 text-accent"
-                  : "border-border dark:border-white/10 text-muted dark:text-white/50 hover:border-accent/50 hover:text-accent/70"
+                  ? "border-accent bg-accent/10"
+                  : "border-border dark:border-white/10 hover:border-accent/40"
               }`}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
             >
-              <span className={`text-sm transition-colors duration-200 ${active === i ? "text-accent" : "text-surface/30 dark:text-white/30"}`}>
-                {p.icon}
-              </span>
-              <span className="font-mono text-xs tracking-wide whitespace-nowrap">{p.label}</span>
-              <span className={`ml-1 text-xs transition-transform duration-200 ${active === i ? "rotate-180 text-accent" : "text-surface/20 dark:text-white/20"}`}>
-                ▾
-              </span>
-            </motion.button>
-
-            <AnimatePresence>
-              {active === i && (
-                <motion.div
-                  key="detail"
-                  initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                  animate={{ opacity: 1, height: "auto", marginTop: 8 }}
-                  exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                  transition={{ duration: 0.22, ease: "easeInOut" }}
-                  className="overflow-hidden"
+              <span className="flex items-center gap-3">
+                <span
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md font-mono text-xs ${
+                    active === i ? "bg-accent/20 text-accent" : "bg-black/5 text-muted dark:bg-white/10 dark:text-white/40"
+                  }`}
                 >
-                  <div className="border border-accent/20 bg-accent/5 rounded-2xl px-5 py-4 max-w-sm">
-                    <p className="font-body text-sm text-surface/80 dark:text-white/70 leading-relaxed mb-1">
-                      {p.short}
-                    </p>
-                    <p className="font-body text-xs text-muted dark:text-white/40 leading-relaxed">
-                      {p.detail}
-                    </p>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        ))}
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className={`font-body text-sm font-medium ${active === i ? "text-accent" : "text-surface dark:text-white/80"}`}>
+                  {p.label}
+                </span>
+              </span>
+              <span className={`text-sm ${active === i ? "text-accent" : "text-muted dark:text-white/30"}`}>
+                {active === i ? "→" : p.icon}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {/* Detail panel */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={active}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25 }}
+            className="rounded-2xl border border-border p-6 dark:border-white/10 md:p-8"
+          >
+            <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-accent/10 text-lg text-accent">
+              {current.icon}
+            </span>
+            <h3 className="mb-3 font-display text-xl text-surface dark:text-white md:text-2xl">{current.short}</h3>
+            <p className="font-body text-sm leading-relaxed text-muted dark:text-white/60">{current.detail}</p>
+
+            <div className="my-5 border-t border-dashed border-border dark:border-white/15" />
+
+            <div className="flex items-start gap-3 rounded-xl border border-accent/10 bg-accent/5 px-4 py-3.5">
+              <span className="mt-0.5 text-accent">✦</span>
+              <p className="font-body text-xs leading-relaxed text-muted dark:text-white/50">
+                <span className="font-medium text-surface dark:text-white/70">In practice: </span>
+                {current.practice}
+              </p>
+            </div>
+          </motion.div>
+        </AnimatePresence>
       </div>
     </motion.div>
   );

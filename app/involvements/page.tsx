@@ -107,11 +107,15 @@ const involvements: Involvement[] = [
   {
     role: "Treasurer",
     org: "Vietnamese International Student Association",
-    period: "Aug 2024 — May 2026",
+    period: "May 2025 — Present",
     type: "Leadership",
     color: "#EF4444",
     gradient: "linear-gradient(135deg, #EF4444 0%, #DC2626 100%)",
     description: "Managing finances and cultural programming for VISA.",
+    roleHistory: [
+      { title: "Social Chair", period: "Aug 2024 — May 2025" },
+      { title: "Treasurer", period: "May 2025 — Present" },
+    ],
     bullets: [
       "Manage $10,000+ annual budget and secure $5,000+ in sponsorships.",
       "Lead planning and execution of large-scale Tết Festivals (300+ attendees).",
@@ -237,8 +241,10 @@ function MediaSlideshow({ images }: { images: string[] }) {
 
 /* ─── Modal ─────────────────────────────────────────── */
 function InvModal({ inv, onClose }: { inv: Involvement; onClose: () => void }) {
+  const hasRoles = !!inv.roleHistory && inv.roleHistory.length > 0;
   const hasMedia = !!inv.gallery && inv.gallery.length > 0;
-  const [tab, setTab] = useState<"overview" | "media">("overview");
+  const tabs = ["overview", ...(hasRoles ? ["roles"] : []), ...(hasMedia ? ["media"] : [])] as const;
+  const [tab, setTab] = useState<(typeof tabs)[number]>("overview");
 
   return (
     <ModalShell onClose={onClose} maxWidth="max-w-2xl">
@@ -255,9 +261,9 @@ function InvModal({ inv, onClose }: { inv: Involvement; onClose: () => void }) {
         </div>
       </div>
 
-      {hasMedia && (
+      {tabs.length > 1 && (
         <div className="flex gap-1 border-b border-white/10 px-6 pt-3">
-          {(["overview", "media"] as const).map((t) => (
+          {tabs.map((t) => (
             <button
               key={t}
               type="button"
@@ -273,7 +279,7 @@ function InvModal({ inv, onClose }: { inv: Involvement; onClose: () => void }) {
       )}
 
       {/* Body */}
-      {(!hasMedia || tab === "overview") ? (
+      {tab === "overview" && (
         <div className="p-6 space-y-5">
           <p className="font-body text-white/70 leading-relaxed italic">{inv.description}</p>
 
@@ -285,20 +291,6 @@ function InvModal({ inv, onClose }: { inv: Involvement; onClose: () => void }) {
               </li>
             ))}
           </ul>
-
-          {inv.roleHistory && inv.roleHistory.length > 0 && (
-            <div className="border-t border-white/10 pt-4">
-              <p className="mb-3 font-mono text-xs uppercase tracking-wider text-white/40">Role History</p>
-              <div className="space-y-2">
-                {inv.roleHistory.map((r) => (
-                  <div key={r.title} className="flex items-baseline justify-between gap-4">
-                    <span className="font-body text-sm text-white/80">{r.title}</span>
-                    <span className="whitespace-nowrap font-mono text-xs text-white/40">{r.period}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
           {inv.awards.length > 0 && (
             <div className="flex flex-wrap gap-2 pt-2 border-t border-white/10">
@@ -326,7 +318,22 @@ function InvModal({ inv, onClose }: { inv: Involvement; onClose: () => void }) {
             </div>
           )}
         </div>
-      ) : (
+      )}
+
+      {tab === "roles" && hasRoles && (
+        <div className="p-6">
+          <div className="space-y-1">
+            {inv.roleHistory!.map((r) => (
+              <div key={r.title} className="flex items-baseline justify-between gap-4 border-b border-white/5 py-3 last:border-b-0">
+                <span className="font-body text-sm text-white/80">{r.title}</span>
+                <span className="whitespace-nowrap font-mono text-xs text-white/40">{r.period}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {tab === "media" && hasMedia && (
         <div className="p-6">
           <MediaSlideshow images={inv.gallery!} />
         </div>

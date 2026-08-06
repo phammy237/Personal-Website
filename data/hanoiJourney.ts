@@ -62,7 +62,7 @@ export const hanoiJourneyPins: HanoiJourneyPin[] = [
     subtitle: "Where curiosity began",
     ageRange: "0–6",
     coordinates: { lat: 21.0107, lon: 105.8182 },
-    image: "/headshot.jpg",
+    image: "/biography/home/home-1.jpg",
     preview: {
       title: "Home & Early Childhood",
       description: "Before school, learning began at home through mathematics, music, art, and the freedom to explore.",
@@ -81,6 +81,11 @@ export const hanoiJourneyPins: HanoiJourneyPin[] = [
       "Family photo",
       "Art or ballet photo",
       "A handwritten “Hà My”",
+    ],
+    gallery: [
+      "/biography/home/home-1.jpg",
+      "/biography/home/home-2.jpg",
+      "/biography/home/home-3.jpg",
     ],
   },
   {
@@ -166,7 +171,7 @@ export const hanoiJourneyPins: HanoiJourneyPin[] = [
     subtitle: "Beyond the classroom",
     ageRange: "14–17",
     coordinates: { lat: 20.9637, lon: 105.7658 },
-    image: "/IMG_7729.JPG",
+    image: "/biography/nguyen-hue/nguyen-hue-3.jpg",
     preview: {
       title: "Nguyễn Huệ School for the Gifted",
       description: "Where school expanded into projects, leadership, service, entrepreneurship, and friendships across Hanoi.",
@@ -208,6 +213,16 @@ export const hanoiJourneyPins: HanoiJourneyPin[] = [
       "/biography/nguyen-hue/nguyen-hue-6.jpg",
       "/biography/nguyen-hue/nguyen-hue-7.jpg",
       "/biography/nguyen-hue/nguyen-hue-8.jpg",
+      "/biography/nguyen-hue/nguyen-hue-9.jpg",
+      "/biography/nguyen-hue/nguyen-hue-10.jpg",
+      "/biography/nguyen-hue/nguyen-hue-11.jpg",
+      "/biography/nguyen-hue/nguyen-hue-12.jpg",
+      "/biography/nguyen-hue/nguyen-hue-13.jpg",
+      "/biography/nguyen-hue/nguyen-hue-14.jpg",
+      "/biography/nguyen-hue/nguyen-hue-15.jpg",
+      "/biography/nguyen-hue/nguyen-hue-16.jpg",
+      "/biography/nguyen-hue/nguyen-hue-17.jpg",
+      "/biography/nguyen-hue/nguyen-hue-18.jpg",
     ],
   },
 ];
