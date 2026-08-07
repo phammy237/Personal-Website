@@ -1,27 +1,56 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 
 export function ModalShell({
   onClose,
   maxWidth = "max-w-3xl",
-  panelClassName = "bg-[#18233F] border border-white/10",
+  panelClassName = "bg-navy border border-white/10",
   closeButtonClassName = "bg-black/50 text-white/70 hover:text-white hover:bg-black/70",
+  labelledBy,
   children,
 }: {
   onClose: () => void;
   maxWidth?: string;
   panelClassName?: string;
   closeButtonClassName?: string;
+  /** id of the element (usually the title) that labels this dialog for assistive tech */
+  labelledBy?: string;
   children: React.ReactNode;
 }) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<Element | null>(null);
+
   useEffect(() => {
+    triggerRef.current = document.activeElement;
     document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    panelRef.current?.focus();
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+        return;
+      }
+      if (e.key !== "Tab" || !panelRef.current) return;
+      const focusable = panelRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
     window.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = "";
       window.removeEventListener("keydown", onKey);
+      (triggerRef.current as HTMLElement | null)?.focus?.();
     };
   }, [onClose]);
 
@@ -32,7 +61,12 @@ export function ModalShell({
     >
       <div className="absolute inset-0 bg-black/85 backdrop-blur-sm" onClick={onClose} />
       <motion.div
-        className={`relative z-10 w-full ${maxWidth} max-h-[90vh] overflow-y-auto rounded-t-2xl md:rounded-2xl ${panelClassName}`}
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={labelledBy}
+        tabIndex={-1}
+        className={`relative z-10 w-full ${maxWidth} max-h-[90vh] overflow-y-auto rounded-t-2xl md:rounded-2xl outline-none ${panelClassName}`}
         initial={{ y: 60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 60, opacity: 0 }}
         transition={{ type: "spring", stiffness: 200, damping: 28 }}
       >

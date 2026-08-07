@@ -1,11 +1,11 @@
 import { notFound } from "next/navigation";
-import { projects } from "@/data/projects";
+import { allWork } from "@/data/projects";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ProjectDetailClient } from "./ProjectDetailClient";
 
 export function generateStaticParams() {
-  return projects.map((p) => ({ slug: p.slug }));
+  return allWork.map((p) => ({ slug: p.slug }));
 }
 
 export default function ProjectDetail({
@@ -13,11 +13,11 @@ export default function ProjectDetail({
 }: {
   params: { slug: string };
 }) {
-  const project = projects.find((p) => p.slug === params.slug);
+  const project = allWork.find((p) => p.slug === params.slug);
   if (!project) notFound();
 
-  const currentIndex = projects.findIndex((p) => p.slug === params.slug);
-  const nextProject = projects[(currentIndex + 1) % projects.length];
+  const currentIndex = allWork.findIndex((p) => p.slug === params.slug);
+  const nextProject = allWork[(currentIndex + 1) % allWork.length];
 
   return (
     <main className="bg-base">

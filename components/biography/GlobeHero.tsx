@@ -136,7 +136,7 @@ export function GlobeHero({
       </svg>
 
       {interactive && (
-        <div className="absolute bottom-3 right-3 flex flex-col overflow-hidden rounded-full border border-accent/25 bg-white/90 shadow-sm backdrop-blur dark:border-white/10 dark:bg-[#22264B]/90">
+        <div className="absolute bottom-3 right-3 flex flex-col overflow-hidden rounded-full border border-accent/25 bg-white/90 shadow-sm backdrop-blur dark:border-white/10 dark:bg-navy-mid/90">
           <button
             aria-label="Zoom in"
             onClick={() => setScale((s) => Math.min(2, s + 0.15))}

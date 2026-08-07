@@ -38,7 +38,7 @@ export function NotYetInterlude({ onCrossOcean }: { onCrossOcean: () => void }) 
 
   return (
     <section
-      className="relative overflow-hidden rounded-3xl border border-border bg-[#FBFAFF] px-6 py-16 shadow-sm dark:border-white/10 dark:bg-[#0A0916] sm:px-10 md:py-24"
+      className="relative overflow-hidden rounded-3xl border border-border bg-[#FBFAFF] px-6 py-16 shadow-sm dark:border-white/10 dark:bg-navy-deep sm:px-10 md:py-24"
       aria-label="Interlude: the years before leaving Hanoi"
     >
       <div

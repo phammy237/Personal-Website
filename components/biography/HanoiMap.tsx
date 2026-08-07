@@ -98,7 +98,7 @@ export function HanoiMap({
   return (
     <div
       ref={containerRef}
-      className={`relative w-full touch-none select-none overflow-hidden rounded-2xl border border-border bg-[#F7F3FA] dark:border-white/10 dark:bg-[#18233F] ${
+      className={`relative w-full touch-none select-none overflow-hidden rounded-2xl border border-border bg-[#F7F3FA] dark:border-white/10 dark:bg-navy ${
         settled ? "cursor-default" : dragging ? "cursor-grabbing" : "cursor-grab"
       }`}
       style={{ aspectRatio: `${HANOI_MAP_WIDTH} / ${HANOI_MAP_HEIGHT}` }}
@@ -181,7 +181,7 @@ export function HanoiMap({
       </div>
 
       <div
-        className={`pointer-events-none absolute bottom-4 right-4 z-30 flex flex-col overflow-hidden rounded-full border border-accent/25 bg-white/90 shadow-sm backdrop-blur transition-opacity duration-300 dark:border-white/10 dark:bg-[#22264B]/90 ${
+        className={`pointer-events-none absolute bottom-4 right-4 z-30 flex flex-col overflow-hidden rounded-full border border-accent/25 bg-white/90 shadow-sm backdrop-blur transition-opacity duration-300 dark:border-white/10 dark:bg-navy-mid/90 ${
           settled ? "opacity-0" : "opacity-100"
         }`}
       >

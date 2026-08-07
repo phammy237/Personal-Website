@@ -39,7 +39,7 @@ export function MapPin({
             ? "h-9 w-9 bg-accent text-white shadow-[0_0_0_6px_rgba(91, 58, 142,0.18)] dark:shadow-[0_0_22px_6px_rgba(91, 58, 142,0.65)]"
             : isCompleted
             ? "h-8 w-8 bg-accent/90 text-white dark:shadow-[0_0_10px_2px_rgba(91, 58, 142,0.4)]"
-            : "h-8 w-8 border-2 border-accent/50 bg-white text-accent hover:border-accent hover:bg-accent-light dark:bg-[#22264B] dark:text-white/70 dark:border-accent/40 dark:hover:bg-accent/20 dark:hover:text-white"
+            : "h-8 w-8 border-2 border-accent/50 bg-white text-accent hover:border-accent hover:bg-accent-light dark:bg-navy-mid dark:text-white/70 dark:border-accent/40 dark:hover:bg-accent/20 dark:hover:text-white"
         }`}
         whileHover={{ scale: 1.12 }}
         whileTap={{ scale: 0.94 }}

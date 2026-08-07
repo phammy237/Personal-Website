@@ -26,7 +26,10 @@ const config: Config = {
         // Midnight navy — intelligent, private, slightly intimidating
         surface: "#18233F",
         navy: "#18233F",
+        // Raised surface in dark mode — cards, panels, modals floating above the navy base
         "navy-mid": "#22264B",
+        // Deepest dark-mode moment (immersive/interlude sections) — deliberately dark but never pure black
+        "navy-deep": "#141B33",
         border: "#E6E0EE",
         muted: "#676186",
       },

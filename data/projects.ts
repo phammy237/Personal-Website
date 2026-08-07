@@ -283,6 +283,7 @@ export const projects: Project[] = [
     tools: ["Python", "NLP", "Chatbot", "AI"],
     github: "#",
     devpost: "#",
+    award: "Winner",
     slides: "/slides/gatorbot-deloitte.pdf",
     stack: [
       { layer: "Language", tech: "Python" },
@@ -398,13 +399,13 @@ export const competitions: Project[] = [
     category: "Math & Modeling",
     year: "2025",
     month: "Nov 2025",
-    logline: "Outstanding Award — Vigilance-Based Predator Detection Model for Mixed-Species Groups",
-    description: "Developed a Vigilance-Based Predator Detection Model: A Probabilistic Framework for Mixed-Species Groups, earning the Outstanding Award at SCUDEM X 2025.",
+    logline: "Outstanding Award — a probabilistic framework for how group size and behavioral synchronization affect predator detection in mixed-species groups.",
+    description: "A mathematical modeling project exploring how group size, individual vigilance, and behavioral synchronization influence a mixed-species group's ability to detect predators — earning the Outstanding Award at SCUDEM X 2025.",
     bullets: [
-      "Developed a probabilistic mathematical model to analyze how species diversity, group size, and synchronized scanning behavior influence predator detection in mixed-species groups.",
-      "Built a four-part modeling framework covering individual vigilance, effective independent watchers, collective vigilance, and Poisson-based detection probability to study tradeoffs in group vigilance behavior.",
-      "Identified that detection benefits increase with group size but show diminishing returns, with moderate groups of about 3 to 5 species providing the strongest advantage before saturation.",
-      "Analyzed how higher synchronization reduces independent coverage and lowers overall detection efficiency, highlighting key behavioral limits of group vigilance.",
+      "Built a four-stage probabilistic framework — individual vigilance, effective independent watchers, collective vigilance, and Poisson-based detection probability — to model how mixed-species groups detect predators.",
+      "Found that detection benefits increase with group size but show diminishing returns, with moderate groups of about 3 to 5 members already capturing most of the available advantage.",
+      "Showed that behavioral synchronization matters more than raw group size: highly synchronized groups gain far less from each additional member, since overlapping scanning adds redundant rather than independent coverage.",
+      "Extended the original model to account for individual heterogeneity, spatial detection ranges, pairwise synchronization, and communication delay — confirming that independence between members matters more than simply adding more of them.",
     ],
     tools: ["MATLAB", "Python", "Probability Theory", "Differential Equations", "Math Modeling", "LaTeX"],
     award: "Outstanding Award",
@@ -425,6 +426,7 @@ export const competitions: Project[] = [
       "Presented findings to a panel of judges.",
     ],
     tools: ["Strategy", "Consulting", "Case Analysis"],
+    award: "Participant",
     competition: "2025 UAA Case Competition",
     gradient: "linear-gradient(135deg, #F97316 0%, #EF4444 100%)",
   },
@@ -441,6 +443,7 @@ export const competitions: Project[] = [
       "Applied quantitative reasoning and financial concepts.",
     ],
     tools: ["Finance", "Analytics", "Quantitative Reasoning"],
+    award: "Participant",
     competition: "Bloomberg Bpuzzled",
     gradient: "linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%)",
   },
@@ -458,6 +461,7 @@ export const competitions: Project[] = [
       "Wrote a full technical report presenting findings and sensitivity analysis.",
     ],
     tools: ["Python", "R", "Monte Carlo Simulation", "Excel", "Data Modeling", "LaTeX"],
+    award: "Participant",
     competition: "COMAP MCM",
     gradient: "linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%)",
   },
@@ -475,136 +479,26 @@ export const competitions: Project[] = [
       "Delivered market entry, relocation, and expansion strategy recommendations.",
     ],
     tools: ["Python", "pandas", "Data Visualization", "Statistical Analysis"],
+    award: "Participant",
     competition: "ASA DataFest",
     gradient: "linear-gradient(135deg, #0369A1 0%, #0EA5E9 100%)",
-  },
-];
-
-export const allWork: Project[] = [...projects, ...competitions];
-
-export type CaseStudy = {
-  slug: string;
-  title: string;
-  competition: string;
-  category: "Hackathon" | "Case Competition" | "Math & Modeling" | "Data Science" | "Finance";
-  award: string;
-  year: string;
-  description: string;
-  tags: string[];
-  gradient: string;
-  slides?: string;
-  image?: string;
-};
-
-export const caseStudies: CaseStudy[] = [
-  {
-    slug: "gatorbot-deloitte",
-    title: "GatorBot",
-    competition: "Deloitte Innovation Challenge",
-    category: "Hackathon",
-    award: "Winner",
-    year: "2025",
-    description: "AI chatbot solution for centralized campus support, reducing referral time by ~70%.",
-    tags: ["AI/ML", "Product", "Social Impact"],
-    gradient: "linear-gradient(135deg, #1D4ED8 0%, #7C3AED 100%)",
-  },
-  {
-    slug: "sase-hacks",
-    title: "CartCoach — SASE Hacks",
-    competition: "SASE Hacks 2026",
-    category: "Hackathon",
-    award: "Best Finance Project",
-    year: "2026",
-    description: "CartCoach: AI Chrome extension reducing impulse spending with real-time budget impact, savings-goal tracking, and cheaper alternative suggestions. Best Finance Project.",
-    tags: ["Finance", "AI/ML", "Chrome Extension", "Hackathon"],
-    gradient: "linear-gradient(135deg, #F59E0B 0%, #EF4444 100%)",
-  },
-  {
-    slug: "code4change",
-    title: "Kite — Code4Change",
-    competition: "Code4Change",
-    category: "Hackathon",
-    award: "3rd Place Overall",
-    year: "2025",
-    description: "Kite: gamified pediatric stealth assessment platform capturing 1,000+ interaction data points per session. Built as a Turborepo monorepo with React Native, Express, and React 19 dashboard. 3rd Place Overall.",
-    tags: ["Healthcare", "Engineering", "React Native", "Social Impact"],
-    gradient: "linear-gradient(135deg, #059669 0%, #3B82F6 100%)",
   },
   {
     slug: "hacklytics",
     title: "Hacklytics 2026",
-    competition: "Hacklytics 2026",
     category: "Hackathon",
-    award: "Participant",
     year: "2026",
-    description: "Data science hackathon hosted at Georgia Tech.",
-    tags: ["Data Science", "Hackathon"],
+    month: "2026",
+    logline: "Data science hackathon hosted at Georgia Tech",
+    description: "Participated in Hacklytics 2026, a data science hackathon hosted at Georgia Tech.",
+    bullets: [
+      "Competed in a 36-hour data science hackathon alongside teams from across the country.",
+    ],
+    tools: ["Data Science", "Hackathon"],
+    award: "Participant",
+    competition: "Hacklytics 2026",
     gradient: "linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)",
   },
-  {
-    slug: "mckinsey",
-    title: "McKinsey Case Competition",
-    competition: "McKinsey Case Competition",
-    category: "Case Competition",
-    award: "Top 20",
-    year: "2025",
-    description: "Strategy consulting case competition. Top 20 finish nationwide.",
-    tags: ["Consulting", "Strategy"],
-    gradient: "linear-gradient(135deg, #0F172A 0%, #1D4ED8 100%)",
-  },
-  {
-    slug: "uaa-case",
-    title: "UAA Case Competition",
-    competition: "2025 UAA Case Competition",
-    category: "Case Competition",
-    award: "Participant",
-    year: "2025",
-    description: "University Athletic Association business case competition.",
-    tags: ["Strategy", "Consulting"],
-    gradient: "linear-gradient(135deg, #F97316 0%, #EF4444 100%)",
-  },
-  {
-    slug: "bloomberg",
-    title: "Bloomberg Bpuzzled",
-    competition: "Bloomberg Bpuzzled",
-    category: "Finance",
-    award: "Participant",
-    year: "2025",
-    description: "Bloomberg's competitive analytical puzzle challenge.",
-    tags: ["Finance", "Analytics"],
-    gradient: "linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%)",
-  },
-  {
-    slug: "scudem",
-    title: "SCUDEM X 2025",
-    competition: "SCUDEM X 2025",
-    category: "Math & Modeling",
-    award: "Outstanding Award",
-    year: "2025",
-    description: "Vigilance-Based Predator Detection Model: A Probabilistic Framework for Mixed-Species Groups. Outstanding Award.",
-    tags: ["Math Modeling", "Probability", "Research"],
-    gradient: "linear-gradient(135deg, #7C3AED 0%, #EC4899 100%)",
-  },
-  {
-    slug: "comap-mcm",
-    title: "COMAP MCM",
-    competition: "COMAP Mathematical/Interdisciplinary Contest in Modeling",
-    category: "Math & Modeling",
-    award: "Participant",
-    year: "2025",
-    description: "International mathematical modeling competition.",
-    tags: ["Math Modeling", "Research"],
-    gradient: "linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%)",
-  },
-  {
-    slug: "savills-datafest",
-    title: "Savills CRE Analysis",
-    competition: "ASA DataFest",
-    category: "Data Science",
-    award: "Participant",
-    year: "2025",
-    description: "Advanced data analysis on 100,000+ U.S. commercial leasing transactions.",
-    tags: ["Data Analysis", "Real Estate"],
-    gradient: "linear-gradient(135deg, #0369A1 0%, #0EA5E9 100%)",
-  },
 ];
+
+export const allWork: Project[] = [...projects, ...competitions];

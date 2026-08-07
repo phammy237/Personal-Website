@@ -18,7 +18,7 @@ export function ChapterCheckpoint({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35 }}
-      className={`rounded-2xl border border-border bg-white/95 p-5 shadow-xl backdrop-blur dark:border-white/10 dark:bg-[#22264B]/95 ${className}`}
+      className={`rounded-2xl border border-border bg-white/95 p-5 shadow-xl backdrop-blur dark:border-white/10 dark:bg-navy-mid/95 ${className}`}
     >
       <span className="flex h-9 w-9 items-center justify-center rounded-full bg-accent/15 text-accent">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

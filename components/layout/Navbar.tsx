@@ -48,7 +48,7 @@ export function Navbar() {
     };
   }, [mobileOpen]);
 
-  const isDark = (isHome && !scrolled) || pathname === "/case-studies";
+  const isDark = isHome && !scrolled;
   const solidBg = scrolled && isHome;
   const lightText = isDark && !solidBg;
 
@@ -60,7 +60,7 @@ export function Navbar() {
             ? "bg-white/90 dark:bg-navy/90 backdrop-blur-sm border-b border-border dark:border-white/10 shadow-sm"
             : isDark
             ? "bg-transparent"
-            : "bg-white/90 dark:bg-[#18233F]/90 backdrop-blur-sm border-b border-border dark:border-white/10 shadow-sm"
+            : "bg-white/90 dark:bg-navy/90 backdrop-blur-sm border-b border-border dark:border-white/10 shadow-sm"
         }`}
         animate={{ y: visible ? 0 : -80 }}
         transition={{ type: "spring", stiffness: 200, damping: 30 }}

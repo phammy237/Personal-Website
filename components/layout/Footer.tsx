@@ -39,7 +39,6 @@ export function Footer() {
       <div className="max-w-[1200px] mx-auto mt-12 pt-8 border-t border-border dark:border-white/5 flex flex-wrap gap-6">
         {[
           ["Projects", "/projects"],
-          ["Case Studies", "/case-studies"],
           ["Involvements", "/involvements"],
           ["CV", "/cv"],
         ].map(([label, href]) => (

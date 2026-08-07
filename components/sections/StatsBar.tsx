@@ -1,5 +1,5 @@
 "use client";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { useOnScreen } from "@/lib/hooks/useOnScreen";
 import { education } from "@/data/cv";
@@ -17,10 +17,14 @@ const stats = [
 function Counter({ value, suffix, decimal }: { value: number; suffix: string; decimal?: boolean }) {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useOnScreen(ref as React.RefObject<Element>);
-  const [count, setCount] = useState(0);
+  const reducedMotion = useReducedMotion();
+  // Start at the real final value — SSR/no-JS/crawlers/screen readers always see the true number.
+  // The count-from-zero animation only kicks in afterward, client-side, for sighted users who allow motion.
+  const [count, setCount] = useState(value);
 
   useEffect(() => {
-    if (!inView) return;
+    if (!inView || reducedMotion) return;
+    setCount(0);
     const steps = 50;
     let step = 0;
     const timer = setInterval(() => {
@@ -30,7 +34,7 @@ function Counter({ value, suffix, decimal }: { value: number; suffix: string; de
       if (step >= steps) clearInterval(timer);
     }, 1200 / steps);
     return () => clearInterval(timer);
-  }, [inView, value]);
+  }, [inView, reducedMotion, value]);
 
   return (
     <span ref={ref}>

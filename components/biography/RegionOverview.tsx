@@ -37,7 +37,7 @@ export function RegionOverview({
   }, [countryFeature, chapter.globeTarget]);
 
   return (
-    <div className="relative w-full overflow-hidden rounded-3xl border border-border bg-[#F7F3FA] dark:border-white/10 dark:bg-[#18233F]" style={{ minHeight: height }}>
+    <div className="relative w-full overflow-hidden rounded-3xl border border-border bg-[#F7F3FA] dark:border-white/10 dark:bg-navy" style={{ minHeight: height }}>
       <div
         className="pointer-events-none absolute -left-16 -bottom-16 h-72 w-72 rounded-full opacity-0 blur-3xl dark:opacity-100"
         style={{ background: "radial-gradient(circle, rgba(91, 58, 142,0.2), transparent 70%)" }}
@@ -75,7 +75,7 @@ export function RegionOverview({
       </p>
 
       <motion.div
-        className="absolute left-4 top-6 w-[calc(100%-2rem)] max-w-[360px] rounded-2xl border border-border bg-white/95 p-6 shadow-lg backdrop-blur dark:border-white/10 dark:bg-[#22264B]/90 md:left-8 md:top-8"
+        className="absolute left-4 top-6 w-[calc(100%-2rem)] max-w-[360px] rounded-2xl border border-border bg-white/95 p-6 shadow-lg backdrop-blur dark:border-white/10 dark:bg-navy-mid/90 md:left-8 md:top-8"
         initial={{ opacity: 0, x: -16 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.15, duration: 0.5 }}

@@ -24,7 +24,7 @@ export function PinPreviewCard({
   className?: string;
 }) {
   return (
-    <div className={`rounded-2xl border border-border bg-white/95 p-5 shadow-xl backdrop-blur dark:border-white/10 dark:bg-[#22264B]/95 ${className}`}>
+    <div className={`rounded-2xl border border-border bg-white/95 p-5 shadow-xl backdrop-blur dark:border-white/10 dark:bg-navy-mid/95 ${className}`}>
       <AnimatePresence mode="wait">
         <motion.div
           key={pin.id}
