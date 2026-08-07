@@ -99,7 +99,7 @@ export const hanoiJourneyPins: HanoiJourneyPin[] = [
     subtitle: "My first classroom",
     ageRange: "6–8",
     coordinates: { lat: 21.0168, lon: 105.8112 },
-    image: "/IMG_3794.JPG",
+    image: "/biography/nam-thanh-cong/nam-thanh-cong-1.png",
     preview: {
       title: "Nam Thành Công Primary School",
       description: "The first formal chapter of a school journey that would eventually take me far beyond Hanoi.",
