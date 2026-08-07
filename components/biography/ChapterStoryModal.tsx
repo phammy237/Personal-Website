@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { ModalShell } from "@/components/ui/ModalShell";
 import type { HanoiJourneyPin } from "@/data/hanoiJourney";
 
+const isVideo = (src: string) => /\.(mp4|webm|mov)$/i.test(src);
+
 function HeroSlideshow({ pin }: { pin: HanoiJourneyPin }) {
   const slides = pin.gallery && pin.gallery.length > 0 ? pin.gallery : [pin.image];
   const [idx, setIdx] = useState(0);
@@ -13,8 +15,12 @@ function HeroSlideshow({ pin }: { pin: HanoiJourneyPin }) {
 
   return (
     <>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={slides[idx]} alt="" className="h-full w-full object-cover" />
+      {isVideo(slides[idx]) ? (
+        <video src={slides[idx]} className="h-full w-full object-cover" controls playsInline />
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={slides[idx]} alt="" className="h-full w-full object-cover" />
+      )}
       {multi && (
         <>
           <button
@@ -171,10 +177,14 @@ export function ChapterStoryModal({
 
       {tab === "media" && hasMedia && (
         <div className="grid grid-cols-2 gap-2 p-6 sm:grid-cols-3 md:p-8">
-          {pin.gallery!.map((src) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img key={src} src={src} alt="" className="aspect-video w-full rounded-lg object-cover" />
-          ))}
+          {pin.gallery!.map((src) =>
+            isVideo(src) ? (
+              <video key={src} src={src} className="aspect-video w-full rounded-lg object-cover" controls playsInline />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img key={src} src={src} alt="" className="aspect-video w-full rounded-lg object-cover" />
+            )
+          )}
         </div>
       )}
     </ModalShell>

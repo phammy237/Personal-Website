@@ -128,6 +128,7 @@ export const projects: Project[] = [
     logline: "Franchise decision simulation integrating player records, salary cap, and fan demand modeling.",
     description: "This project reflects the kind of work I enjoy most: combining strategy, analytics, modeling, and decision-making into one system. I built a simulator to explore how different team-building and business strategies could affect performance, profitability, and risk.",
     competition: "COMAP MCM",
+    image: "/projects/wnba-simulator.png",
     bullets: [
       "I led development of a WNBA decision simulator using 44+ player records, salary-cap constraints, and fan-demand assumptions.",
       "I modeled 4 strategic scenarios and projected a $56M to $79M season profit range under different operating choices.",
@@ -161,6 +162,7 @@ export const projects: Project[] = [
     ],
     tools: ["Python", "Streamlit", "scikit-learn", "pandas", "R"],
     github: "https://github.com/phammy237/MAD2502-Final-Project-Housing-Dataset",
+    image: "/projects/housing-model.png",
     stack: [
       { layer: "Data", tech: "Python + pandas (20K+ records)" },
       { layer: "Model", tech: "scikit-learn (least-squares MLR)" },
@@ -281,6 +283,7 @@ export const projects: Project[] = [
     tools: ["Python", "NLP", "Chatbot", "AI"],
     github: "#",
     devpost: "#",
+    slides: "/slides/gatorbot-deloitte.pdf",
     stack: [
       { layer: "Language", tech: "Python" },
       { layer: "NLP", tech: "Natural Language Processing" },
@@ -386,6 +389,7 @@ export const competitions: Project[] = [
     award: "Top 20",
     competition: "McKinsey Case Competition",
     prize: true,
+    slides: "/slides/mckinsey-case.pdf",
     gradient: "linear-gradient(135deg, #0F172A 0%, #1D4ED8 100%)",
   },
   {
@@ -407,22 +411,6 @@ export const competitions: Project[] = [
     competition: "SCUDEM X 2025",
     prize: true,
     gradient: "linear-gradient(135deg, #7C3AED 0%, #EC4899 100%)",
-  },
-  {
-    slug: "gatorbot-deloitte",
-    title: "GatorBot — Deloitte Challenge",
-    category: "Case Competition",
-    year: "2025",
-    month: "Apr 2025",
-    logline: "AI chatbot for campus support — Deloitte Innovation Challenge",
-    description: "Presented GatorBot, an AI chatbot centralizing student support services at UF, at the Deloitte Innovation Challenge.",
-    bullets: [
-      "Pitched product vision, technical architecture, and projected impact to Deloitte judges.",
-      "Demonstrated 70% reduction in student referral time through chatbot automation.",
-    ],
-    tools: ["Python", "NLP", "Chatbot", "Product Strategy", "Presentation"],
-    competition: "Deloitte Innovation Challenge",
-    gradient: "linear-gradient(135deg, #1D4ED8 0%, #7C3AED 100%)",
   },
   {
     slug: "uaa-case",

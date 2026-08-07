@@ -86,6 +86,10 @@ export const hanoiJourneyPins: HanoiJourneyPin[] = [
       "/biography/home/home-1.jpg",
       "/biography/home/home-2.jpg",
       "/biography/home/home-3.jpg",
+      "/biography/home/home-4.jpg",
+      "/biography/home/home-5.jpg",
+      "/biography/home/home-6.mp4",
+      "/biography/home/home-7.mp4",
     ],
   },
   {
@@ -103,9 +107,14 @@ export const hanoiJourneyPins: HanoiJourneyPin[] = [
     backstory: [
       "I spent the first two years of primary school at Nam Thành Công.",
       "It was the beginning of my formal education, but at that age, school was still mostly a world of routines, uniforms, classmates, and small discoveries. I was learning how to become a student while still carrying all the curiosity and activities my parents had introduced at home.",
+      "When I was seven, I was selected to act in a small part in a movie that was broadcasted on national television, a strange and exciting detour from the routine of classrooms and uniforms.",
       "Although this chapter was relatively short, it became the starting point of a much longer journey. After two years, I transferred to Ngôi Sao Hà Nội, where school became more competitive and my academic world began expanding.",
     ],
     photoIdeas: ["School entrance", "Uniform photo", "Class picture", "Early handwriting or schoolwork", "Childhood friends"],
+    gallery: [
+      "/biography/nam-thanh-cong/nam-thanh-cong-1.png",
+      "/biography/nam-thanh-cong/nam-thanh-cong-movie.mp4",
+    ],
   },
   {
     id: "ngoi-sao-ha-noi",
