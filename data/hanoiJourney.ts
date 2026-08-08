@@ -142,6 +142,10 @@ export const hanoiJourneyPins: HanoiJourneyPin[] = [
       "Medals or awards",
       "American school or English-learning photos",
     ],
+    gallery: [
+      "/biography/ngoi-sao-ha-noi/ngoi-sao-ha-noi-1.jpg",
+      "/biography/ngoi-sao-ha-noi/ngoi-sao-ha-noi-2.jpg",
+    ],
   },
   {
     id: "cau-giay-secondary",
@@ -232,6 +236,8 @@ export const hanoiJourneyPins: HanoiJourneyPin[] = [
       "/biography/nguyen-hue/nguyen-hue-16.jpg",
       "/biography/nguyen-hue/nguyen-hue-17.jpg",
       "/biography/nguyen-hue/nguyen-hue-18.jpg",
+      "/biography/nguyen-hue/nguyen-hue-19.jpg",
+      "/biography/nguyen-hue/nguyen-hue-20.jpg",
     ],
   },
 ];

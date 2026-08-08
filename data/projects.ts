@@ -19,6 +19,8 @@ export type Project = {
   devpost?: string;
   liveUrl?: string;
   slides?: string;
+  /** written paper/report, distinct from the slide deck */
+  paper?: string;
   video?: string;
   image?: string;
   gradient: string;
@@ -122,7 +124,7 @@ export const projects: Project[] = [
   {
     slug: "wnba-simulator",
     title: "WNBA Strategy Simulator",
-    category: "Data & Analytics",
+    category: "Math & Modeling",
     year: "2026",
     month: "Jan 2026",
     logline: "Franchise decision simulation integrating player records, salary cap, and fan demand modeling.",
@@ -132,12 +134,14 @@ export const projects: Project[] = [
     bullets: [
       "I led development of a WNBA decision simulator using 44+ player records, salary-cap constraints, and fan-demand assumptions.",
       "I modeled 4 strategic scenarios and projected a $56M to $79M season profit range under different operating choices.",
-      "I designed a 200-trial Monte Carlo risk model and dashboard to stress-test outcomes across scenarios.",
+      "I designed a 200-trial Monte Carlo risk model and dashboard to stress-test outcomes across scenarios, confirming 0% simulated bankruptcy risk under baseline and macro conditions.",
       "The project helped me think more deeply about tradeoffs, uncertainty, and strategic decision support.",
+      "Wrote a full technical report presenting findings and sensitivity analysis for the COMAP Mathematical/Interdisciplinary Contest in Modeling.",
     ],
-    tools: ["Python", "Monte Carlo Simulation", "Excel", "Data Modeling"],
+    tools: ["Python", "R", "Monte Carlo Simulation", "Excel", "Data Modeling", "LaTeX"],
     github: "https://github.com/phammy237/ICM-2026",
     slides: "/slides/wnba-simulator.pdf",
+    paper: "/slides/wnba-simulator-paper.pdf",
     stack: [
       { layer: "Modeling", tech: "Python (pandas, NumPy)" },
       { layer: "Simulation", tech: "Monte Carlo (200 trials)" },
@@ -217,6 +221,7 @@ export const projects: Project[] = [
     logline: "Collaborative Platform for Healthcare Professionals. LinkedIn for healthcare.",
     description: "Vyspar was a strong example of cross-functional product building. I worked on backend systems, data integration, and analytics for a platform designed to help healthcare professionals connect and engage more effectively.",
     liveUrl: "https://www.vyspar.org/",
+    image: "/projects/vyspar.png",
     bullets: [
       "I led backend development for 10+ RESTful APIs and helped migrate 50K+ records.",
       "I integrated 3 external healthcare data sources to support a more complete platform experience.",
@@ -276,7 +281,7 @@ export const projects: Project[] = [
     description: "GatorBot was designed around a practical service problem: students often struggle to find the right support resource quickly, and that creates frustration for both students and staff.",
     bullets: [
       "I helped build an AI chatbot using Python and NLP to centralize student-support resources.",
-      "The solution was designed to reduce referral time and improve awareness of available services.",
+      "Demonstrated a 70% reduction in student referral time through chatbot automation, pitched to a panel of Deloitte judges.",
       "I also helped shape an operating concept aimed at reducing administrative workload and improving service efficiency.",
       "This project strengthened my interest in service design and operational problem-solving.",
     ],
@@ -285,6 +290,7 @@ export const projects: Project[] = [
     devpost: "#",
     award: "Winner",
     slides: "/slides/gatorbot-deloitte.pdf",
+    image: "/projects/gatorbot-deloitte.png",
     stack: [
       { layer: "Language", tech: "Python" },
       { layer: "NLP", tech: "Natural Language Processing" },
@@ -326,6 +332,7 @@ export const projects: Project[] = [
       "The project gave me a strong foundation in backend thinking and data architecture.",
     ],
     tools: ["MongoDB", "Mongoose", "React", "Node.js", "3D Visualization"],
+    image: "/projects/artificial-reef.png",
     stack: [
       { layer: "Frontend", tech: "React + 3D visualization" },
       { layer: "Backend", tech: "Node.js" },
@@ -391,6 +398,7 @@ export const competitions: Project[] = [
     competition: "McKinsey Case Competition",
     prize: true,
     slides: "/slides/mckinsey-case.pdf",
+    image: "/projects/mckinsey-case.png",
     gradient: "linear-gradient(135deg, #0F172A 0%, #1D4ED8 100%)",
   },
   {
@@ -409,6 +417,8 @@ export const competitions: Project[] = [
     ],
     tools: ["MATLAB", "Python", "Probability Theory", "Differential Equations", "Math Modeling", "LaTeX"],
     award: "Outstanding Award",
+    slides: "/slides/scudem.pdf",
+    image: "/projects/scudem.png",
     competition: "SCUDEM X 2025",
     prize: true,
     gradient: "linear-gradient(135deg, #7C3AED 0%, #EC4899 100%)",
@@ -446,24 +456,6 @@ export const competitions: Project[] = [
     award: "Participant",
     competition: "Bloomberg Bpuzzled",
     gradient: "linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%)",
-  },
-  {
-    slug: "comap-mcm",
-    title: "COMAP MCM",
-    category: "Math & Modeling",
-    year: "2025",
-    month: "Feb 2025",
-    logline: "International mathematical modeling contest — WNBA Strategy Simulator",
-    description: "Built the WNBA Strategy Simulator at the COMAP Mathematical/Interdisciplinary Contest in Modeling, integrating 44+ player records, salary cap, and fan demand modeling.",
-    bullets: [
-      "Evaluated 4 strategic scenarios and projected $56M to $79M season profit range via 200-trial Monte Carlo risk analysis.",
-      "Designed multi-KPI dashboards confirming 0% simulated bankruptcy risk under baseline and macro conditions.",
-      "Wrote a full technical report presenting findings and sensitivity analysis.",
-    ],
-    tools: ["Python", "R", "Monte Carlo Simulation", "Excel", "Data Modeling", "LaTeX"],
-    award: "Participant",
-    competition: "COMAP MCM",
-    gradient: "linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%)",
   },
   {
     slug: "asa-datafest",

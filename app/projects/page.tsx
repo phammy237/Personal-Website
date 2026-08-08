@@ -28,7 +28,7 @@ function DevpostIcon() {
 
 const ROTATE_MS = 6500;
 const ALL_CATEGORIES = [
-  "All", "Product/UX", "Data & Analytics", "Case Competition", "AI/ML", "Engineering", "Math & Modeling",
+  "All", "Product/UX", "Case Competition", "Math & Modeling", "Data & Analytics", "AI/ML", "Engineering",
 ] as const;
 type Cat = typeof ALL_CATEGORIES[number];
 
@@ -38,11 +38,37 @@ const displayWork = allWork.filter((p) => p.category !== "Hackathon");
 /* only prize winners rotate in hero */
 const featuredWork = displayWork.filter((p) => p.prize);
 
+/**
+ * Lead each category with the strongest PM-facing signal — ownership + quantified outcome —
+ * ahead of participation-only or purely technical entries. Anything not listed here keeps its
+ * natural position at the end of its category, so new projects never go missing from the grid.
+ */
+const PM_PRIORITY = [
+  "cartcoach", "kite", "wandr", "tiktok-redesign",
+  "gatorbot", "mckinsey-case", "uaa-case", "bloomberg-bpuzzled",
+  "wnba-simulator", "scudem",
+  "housing-model", "savills-analysis",
+  "smartprep-ai", "biaslens",
+  "campus-compass", "vyspar", "artificial-reef",
+];
+
 function groupWork(filter: Cat) {
   const list = filter === "All" ? displayWork : displayWork.filter((p) => p.category === filter);
-  if (filter !== "All") return [{ cat: filter as string, items: list }];
-  const cats = ["Product/UX", "Data & Analytics", "Case Competition", "AI/ML", "Engineering", "Math & Modeling"];
-  return cats.map((c) => ({ cat: c, items: list.filter((p) => p.category === c) })).filter((g) => g.items.length > 0);
+  if (filter !== "All") {
+    return [{ cat: filter as string, items: sortByPriority(list) }];
+  }
+  const cats = ["Product/UX", "Case Competition", "Math & Modeling", "Data & Analytics", "AI/ML", "Engineering"];
+  return cats
+    .map((c) => ({ cat: c, items: sortByPriority(list.filter((p) => p.category === c)) }))
+    .filter((g) => g.items.length > 0);
+}
+
+function sortByPriority(items: Project[]) {
+  return [...items].sort((a, b) => {
+    const ai = PM_PRIORITY.indexOf(a.slug);
+    const bi = PM_PRIORITY.indexOf(b.slug);
+    return (ai === -1 ? Infinity : ai) - (bi === -1 ? Infinity : bi);
+  });
 }
 
 type Tab = "overview" | "role" | "stack" | "media";
@@ -64,13 +90,14 @@ const MODAL_TABS: { key: Tab; label: string }[] = [
 /* ─── Modal ────────────────────────────────────────── */
 function ProjectModal({ project, initialTab, onClose }: { project: Project; initialTab: Tab; onClose: () => void }) {
   const [tab, setTab] = useState<Tab>(initialTab);
-  const hasMedia = !!(project.video || project.slides);
+  const hasMedia = !!(project.video || project.slides || project.paper);
   const visibleTabs = MODAL_TABS.filter((t) => t.key !== "media" || hasMedia);
 
   const links = [
     project.github && { label: "GitHub", href: project.github },
     project.devpost && { label: "Devpost", href: project.devpost },
     project.slides && { label: "Slides", href: project.slides },
+    project.paper && { label: "Paper", href: project.paper },
     project.liveUrl && { label: "Live Demo", href: project.liveUrl },
   ].filter(Boolean) as { label: string; href: string }[];
 
@@ -173,6 +200,14 @@ function ProjectModal({ project, initialTab, onClose }: { project: Project; init
                   </div>
                 </div>
               )}
+              {project.paper && (
+                <div>
+                  <p className="font-mono text-xs text-white/40 uppercase tracking-widest mb-3">Paper</p>
+                  <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-black">
+                    <iframe src={project.paper} className="absolute inset-0 w-full h-full" title={`${project.title} paper`} allowFullScreen />
+                  </div>
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
@@ -185,13 +220,14 @@ function ProjectModal({ project, initialTab, onClose }: { project: Project; init
 function WorkCard({ project, onSelect }: { project: Project; onSelect: (p: Project, t: Tab) => void }) {
   const [hovered, setHovered] = useState(false);
   const isComp = !!project.competition;
-  const hasMedia = !!(project.video || project.slides);
+  const hasMedia = !!(project.video || project.slides || project.paper);
 
   const extLinks = [
     project.github  && { key: "gh",      href: project.github,   label: "GitHub",   icon: "GH" },
     project.devpost && { key: "dp",       href: project.devpost,  label: "Devpost",  icon: "DP" },
     project.video   && { key: "yt",       href: project.video,    label: "Video",    icon: "▶" },
     project.slides  && { key: "slides",   href: project.slides,   label: "Slides",   icon: "⊞" },
+    project.paper   && { key: "paper",    href: project.paper,    label: "Paper",    icon: "📄" },
     project.liveUrl && { key: "live",     href: project.liveUrl,  label: "Live",     icon: "↗" },
   ].filter(Boolean) as { key: string; href: string; label: string; icon: string }[];
 
@@ -318,7 +354,7 @@ function WorkHero({ onSelect }: { onSelect: (p: Project, t: Tab) => void }) {
             <p className="font-mono text-xs text-white/40 mb-3">{project.competition ?? project.category} · {project.month}</p>
             <p className="font-body text-white/60 max-w-md mb-5 leading-relaxed text-sm">{project.logline}</p>
             <div className="flex gap-3 flex-wrap items-center">
-              {(project.video || project.slides) && (
+              {(project.video || project.slides || project.paper) && (
                 <button onClick={() => onSelect(project, "media")} className="flex items-center gap-2 font-mono text-sm px-6 py-2.5 bg-white text-navy hover:bg-white/90 transition-colors rounded-full">
                   <svg width="10" height="10" viewBox="0 0 12 12" fill="currentColor"><polygon points="1,0 12,6 1,12" /></svg> Play
                 </button>

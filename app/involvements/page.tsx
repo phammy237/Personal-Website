@@ -42,6 +42,12 @@ const involvements: Involvement[] = [
       "/involvements/dsi-2.jpg",
       "/involvements/dsi-3.jpg",
       "/involvements/dsi-4.jpg",
+      "/involvements/dsi-5.jpg",
+      "/involvements/dsi-6.jpg",
+      "/involvements/dsi-7.jpg",
+      "/involvements/dsi-8.jpg",
+      "/involvements/dsi-9.jpg",
+      "/involvements/dsi-10.jpg",
     ],
     roleHistory: [
       { title: "Event Coordinator", period: "Aug 2024 — May 2025" },
@@ -98,6 +104,11 @@ const involvements: Involvement[] = [
     color: "#0EA5E9",
     gradient: "linear-gradient(135deg, #0EA5E9 0%, #6366F1 100%)",
     description: "Selected fellow working on real product strategy challenges for live clients.",
+    image: "/involvements/product-space.jpg",
+    gallery: [
+      "/involvements/product-space-2.jpg",
+      "/involvements/product-space-3.jpg",
+    ],
     bullets: [
       "Working as a product strategy fellow on live client projects (Lattéra, Gator Creek LLC).",
       "Designing MVP pilot measurement systems and go-to-market strategies.",
@@ -112,6 +123,13 @@ const involvements: Involvement[] = [
     color: "#EF4444",
     gradient: "linear-gradient(135deg, #EF4444 0%, #DC2626 100%)",
     description: "Managing finances and cultural programming for VISA.",
+    image: "/involvements/visa.jpg",
+    gallery: [
+      "/involvements/visa-2.jpg",
+      "/involvements/visa-3.jpg",
+      "/involvements/visa-5.jpg",
+      "/involvements/visa-6.jpg",
+    ],
     roleHistory: [
       { title: "Social Chair", period: "Aug 2024 — May 2025" },
       { title: "Treasurer", period: "May 2025 — Present" },
@@ -131,6 +149,7 @@ const involvements: Involvement[] = [
     color: "#F59E0B",
     gradient: "linear-gradient(135deg, #F59E0B 0%, #D97706 100%)",
     description: "Mentoring underclassmen in career and academic development.",
+    image: "/involvements/sase-mentor.jpg",
     bullets: [
       "Providing career guidance and mentorship to underclassmen.",
       "Supporting students with internship applications, interview prep, and networking.",
@@ -167,12 +186,13 @@ const involvements: Involvement[] = [
   },
   {
     role: "Fundraising Committee Intern",
-    org: "Student Organization",
+    org: "Society of Asian Scientists and Engineers (SASE)",
     period: "2025",
     type: "Professional",
     color: "#6366F1",
     gradient: "linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)",
     description: "Supporting fundraising efforts and sponsor outreach.",
+    image: "/involvements/sase-fundraising.jpg",
     bullets: [
       "Assisted with fundraising strategy and sponsor outreach.",
       "Contributed to event planning and execution.",
@@ -184,7 +204,10 @@ const involvements: Involvement[] = [
 const CATEGORIES: InvType[] = ["Leadership", "Professional", "Mentorship"];
 const ROTATE_MS = 6000;
 
-const featured = involvements.slice(0, 5);
+/* entries with a photo lead each row (and the featured hero) — stable sort keeps relative order within each group */
+const orderedInvolvements = [...involvements].sort((a, b) => Number(!!b.image) - Number(!!a.image));
+
+const featured = orderedInvolvements.slice(0, 5);
 
 /* ─── Media slideshow ───────────────────────────────── */
 function MediaSlideshow({ images }: { images: string[] }) {
@@ -482,7 +505,7 @@ export default function InvolvementsPage() {
 
       <div className="pb-24 pt-4">
         {CATEGORIES.map((cat) => {
-          const items = involvements.filter((inv) => inv.type === cat);
+          const items = orderedInvolvements.filter((inv) => inv.type === cat);
           if (!items.length) return null;
           return (
             <motion.div key={cat} className="mb-10" initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-60px" }} transition={{ type: "spring", stiffness: 100, damping: 20 }}>

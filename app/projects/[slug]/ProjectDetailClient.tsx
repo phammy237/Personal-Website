@@ -13,13 +13,14 @@ export function ProjectDetailClient({
   project: Project;
   nextProject: Project;
 }) {
-  const hasMedia = !!(project.video || project.slides || project.liveUrl);
+  const hasMedia = !!(project.video || project.slides || project.paper || project.liveUrl);
   const [tab, setTab] = useState<Tab>("overview");
 
   const links = [
     project.github && { label: "GitHub", href: project.github, style: "border" },
     project.devpost && { label: "Devpost", href: project.devpost, style: "border" },
     project.slides && { label: "Slides", href: project.slides, style: "border" },
+    project.paper && { label: "Paper", href: project.paper, style: "border" },
     project.liveUrl && { label: "Live Demo", href: project.liveUrl, style: "solid" },
   ].filter(Boolean) as { label: string; href: string; style: string }[];
 
@@ -197,6 +198,20 @@ export function ProjectDetailClient({
                   </div>
                 )}
 
+                {project.paper && (
+                  <div>
+                    <p className="font-mono text-xs text-muted uppercase tracking-widest mb-5">Paper</p>
+                    <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden border border-border bg-surface/5">
+                      <iframe
+                        src={project.paper}
+                        className="absolute inset-0 w-full h-full"
+                        title={`${project.title} paper`}
+                        allowFullScreen
+                      />
+                    </div>
+                  </div>
+                )}
+
                 {links.length > 0 && (
                   <div>
                     <p className="font-mono text-xs text-muted uppercase tracking-widest mb-5">Links</p>
@@ -216,7 +231,7 @@ export function ProjectDetailClient({
                   </div>
                 )}
 
-                {!project.video && !project.slides && (
+                {!project.video && !project.slides && !project.paper && (
                   <div className="py-20 text-center">
                     <p className="font-mono text-sm text-muted">Media coming soon.</p>
                     <p className="font-mono text-xs text-muted/50 mt-2">

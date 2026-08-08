@@ -18,13 +18,12 @@ function Counter({ value, suffix, decimal }: { value: number; suffix: string; de
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useOnScreen(ref as React.RefObject<Element>);
   const reducedMotion = useReducedMotion();
-  // Start at the real final value — SSR/no-JS/crawlers/screen readers always see the true number.
-  // The count-from-zero animation only kicks in afterward, client-side, for sighted users who allow motion.
-  const [count, setCount] = useState(value);
+  // Reduced-motion users get the real value immediately with no animation.
+  // Everyone else starts at 0 and counts up once the stat scrolls into view.
+  const [count, setCount] = useState(reducedMotion ? value : 0);
 
   useEffect(() => {
     if (!inView || reducedMotion) return;
-    setCount(0);
     const steps = 50;
     let step = 0;
     const timer = setInterval(() => {
@@ -46,7 +45,7 @@ function Counter({ value, suffix, decimal }: { value: number; suffix: string; de
 
 export function StatsBar() {
   return (
-    <section className="bg-white dark:bg-navy border-y border-border dark:border-white/[0.06] px-[5vw] py-14">
+    <section className="bg-white dark:bg-navy px-[5vw] pt-40 pb-14">
       <div className="max-w-[1200px] mx-auto">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-8 lg:gap-4">
           {stats.map((s, i) => (

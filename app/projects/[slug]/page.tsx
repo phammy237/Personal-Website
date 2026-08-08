@@ -3,6 +3,7 @@ import { allWork } from "@/data/projects";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ProjectDetailClient } from "./ProjectDetailClient";
+import { ScudemDetail } from "./ScudemDetail";
 
 export function generateStaticParams() {
   return allWork.map((p) => ({ slug: p.slug }));
@@ -22,7 +23,11 @@ export default function ProjectDetail({
   return (
     <main className="bg-base">
       <Navbar />
-      <ProjectDetailClient project={project} nextProject={nextProject} />
+      {project.slug === "scudem" ? (
+        <ScudemDetail project={project} nextProject={nextProject} />
+      ) : (
+        <ProjectDetailClient project={project} nextProject={nextProject} />
+      )}
       <Footer />
     </main>
   );

@@ -14,8 +14,8 @@ export default function Home() {
       <SignatureIntro />
       <Navbar />
       <Hero />
-      <Backstory />
       <StatsBar />
+      <Backstory />
       <FeaturedProjects />
       <ExperiencePreview />
       <ReadyToDepart />

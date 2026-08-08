@@ -7,9 +7,9 @@ import { useTheme } from "@/components/layout/ThemeProvider";
 
 const navLinks = [
   ["About", "/#about"],
+  ["Biography", "/biography"],
   ["Work", "/projects"],
   ["Involvements", "/involvements"],
-  ["Biography", "/biography"],
   ["CV", "/cv"],
 ] as [string, string][];
 
@@ -55,7 +55,7 @@ export function Navbar() {
   return (
     <>
       <motion.header
-        className={`fixed top-0 left-0 right-0 z-50 py-4 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-50 py-3 transition-all duration-300 ${
           solidBg
             ? "bg-white/90 dark:bg-navy/90 backdrop-blur-sm border-b border-border dark:border-white/10 shadow-sm"
             : isDark
