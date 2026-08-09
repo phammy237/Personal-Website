@@ -179,22 +179,22 @@ export default function ConnectPage() {
           </div>
 
           <div className="flex flex-col gap-3 mt-8 sm:mt-0">
-            <a href={`mailto:${SITE_EMAIL}`} className="group flex items-center gap-2.5 font-body text-surface dark:text-white hover:text-accent dark:hover:text-accent transition-colors w-fit">
-              <MailIcon className="text-accent" /> Email
-              <ArrowUpRightIcon className="text-muted/50 dark:text-white/30 group-hover:text-accent transition-colors" />
+            <a href={`mailto:${SITE_EMAIL}`} className="group flex items-center gap-2.5 font-body text-surface dark:text-white hover:text-accent dark:hover:text-accent-lavender transition-colors w-fit">
+              <MailIcon className="text-accent dark:text-accent-lavender" /> Email
+              <ArrowUpRightIcon className="text-muted/50 dark:text-white/40 group-hover:text-accent dark:group-hover:text-accent-lavender transition-colors" />
             </a>
-            <a href="https://linkedin.com/in/mypham237" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-2.5 font-body text-surface dark:text-white hover:text-accent dark:hover:text-accent transition-colors w-fit">
-              <LinkedInBoxIcon className="text-accent" /> LinkedIn
-              <ArrowUpRightIcon className="text-muted/50 dark:text-white/30 group-hover:text-accent transition-colors" />
+            <a href="https://linkedin.com/in/mypham237" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-2.5 font-body text-surface dark:text-white hover:text-accent dark:hover:text-accent-lavender transition-colors w-fit">
+              <LinkedInBoxIcon className="text-accent dark:text-accent-lavender" /> LinkedIn
+              <ArrowUpRightIcon className="text-muted/50 dark:text-white/40 group-hover:text-accent dark:group-hover:text-accent-lavender transition-colors" />
             </a>
-            <a href="/cv" className="group flex items-center gap-2.5 font-body text-surface dark:text-white hover:text-accent dark:hover:text-accent transition-colors w-fit">
-              <DocumentIcon className="text-accent" /> Resume
-              <ArrowUpRightIcon className="text-muted/50 dark:text-white/30 group-hover:text-accent transition-colors" />
+            <a href="/cv" className="group flex items-center gap-2.5 font-body text-surface dark:text-white hover:text-accent dark:hover:text-accent-lavender transition-colors w-fit">
+              <DocumentIcon className="text-accent dark:text-accent-lavender" /> Resume
+              <ArrowUpRightIcon className="text-muted/50 dark:text-white/40 group-hover:text-accent dark:group-hover:text-accent-lavender transition-colors" />
             </a>
           </div>
 
           <div className="mt-8 flex items-start gap-3 rounded-2xl border border-border dark:border-white/10 bg-card dark:bg-white/5 p-5 max-w-[340px]">
-            <GlobeIcon className="mt-0.5 shrink-0 text-accent" />
+            <GlobeIcon className="mt-0.5 shrink-0 text-accent dark:text-accent-lavender" />
             <div>
               <p className="font-body font-medium text-surface dark:text-white">Based in Gainesville, FL</p>
               <p className="font-body text-sm text-muted dark:text-white/45 mt-0.5">Open to connecting anywhere in the world.</p>
@@ -217,15 +217,15 @@ export default function ConnectPage() {
                     onClick={() => setMeetMode(mode.key)}
                     className={`text-left rounded-2xl border p-5 transition-colors duration-200 ${
                       active
-                        ? "border-accent/60 bg-accent/[0.06] dark:bg-accent/10"
+                        ? "border-accent/60 bg-accent/[0.06] dark:border-accent-lavender/70 dark:bg-accent/10"
                         : "border-border dark:border-white/10 hover:border-accent/30"
                     }`}
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className={`font-display text-xl ${active ? "text-accent" : "text-surface dark:text-white"}`}>{mode.title}</h3>
+                      <h3 className={`font-display text-xl ${active ? "text-accent dark:text-accent-lavender" : "text-surface dark:text-white"}`}>{mode.title}</h3>
                       <span
                         className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border transition-colors ${
-                          active ? "border-accent bg-accent text-white" : "border-border dark:border-white/20 text-transparent"
+                          active ? "border-accent bg-accent text-white dark:border-accent-lavender dark:bg-accent-lavender dark:text-navy" : "border-border dark:border-white/20 text-transparent"
                         }`}
                       >
                         <CheckIcon />
@@ -240,11 +240,11 @@ export default function ConnectPage() {
 
           {/* 02 — Where I'll be */}
           <motion.div className="mt-10 pt-10 border-t border-border dark:border-white/10" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}>
-            <p className="font-mono text-xs text-accent tracking-widest uppercase mb-4">02 / Where I&apos;ll be</p>
+            <p className="font-mono text-xs text-accent dark:text-accent-lavender tracking-widest uppercase mb-4">02 / Where I&apos;ll be</p>
             <div className="flex items-center gap-3 rounded-xl border border-border dark:border-white/10 bg-card dark:bg-white/5 px-5 py-4">
-              <MapPinIcon className="text-accent shrink-0" />
+              <MapPinIcon className="text-accent dark:text-accent-lavender shrink-0" />
               <span className="font-body text-surface dark:text-white">Gainesville, FL</span>
-              <span className="font-mono text-[10px] uppercase tracking-wider text-accent bg-accent/10 border border-accent/25 rounded-full px-2.5 py-1">
+              <span className="font-mono text-[10px] uppercase tracking-wider text-accent bg-accent/10 border border-accent/25 rounded-full px-2.5 py-1 dark:text-accent-lavender dark:bg-accent/20 dark:border-accent-lavender/40">
                 Current
               </span>
             </div>
@@ -252,7 +252,7 @@ export default function ConnectPage() {
 
           {/* 03 — What sounds good */}
           <motion.div className="mt-10 pt-10 border-t border-border dark:border-white/10" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.26 }}>
-            <p className="font-mono text-xs text-accent tracking-widest uppercase mb-4">03 / What sounds good?</p>
+            <p className="font-mono text-xs text-accent dark:text-accent-lavender tracking-widest uppercase mb-4">03 / What sounds good?</p>
 
             <div className="relative">
               <button
@@ -285,7 +285,7 @@ export default function ConnectPage() {
                           setStatus("idle");
                         }}
                         className={`flex w-full items-center gap-3 px-5 py-3 text-left transition-colors ${
-                          opt.title === selected ? "bg-accent/10 text-accent" : "text-surface dark:text-white hover:bg-black/[0.03] dark:hover:bg-white/5"
+                          opt.title === selected ? "bg-accent/10 text-accent dark:bg-accent/15 dark:text-accent-lavender" : "text-surface dark:text-white hover:bg-black/[0.03] dark:hover:bg-white/5"
                         }`}
                       >
                         <span className="text-lg">{opt.emoji}</span>
@@ -302,7 +302,7 @@ export default function ConnectPage() {
               <button
                 type="button"
                 onClick={() => setShowForm(true)}
-                className="shrink-0 inline-flex items-center gap-2 font-mono text-sm px-6 py-3 border border-accent/40 text-accent hover:bg-accent hover:text-white transition-colors duration-200 rounded-xl"
+                className="shrink-0 inline-flex items-center gap-2 font-mono text-sm px-6 py-3 border border-accent/40 text-accent hover:bg-accent hover:text-white transition-colors duration-200 rounded-xl dark:border-accent-lavender dark:bg-accent-lavender dark:text-navy dark:hover:bg-accent-lavender/85"
               >
                 Let&apos;s do it <span aria-hidden="true">→</span>
               </button>
@@ -348,7 +348,7 @@ export default function ConnectPage() {
                       <button
                         type="submit"
                         disabled={status === "sending"}
-                        className="font-mono text-sm px-6 py-3 bg-accent text-white hover:bg-accent/90 disabled:opacity-60 transition-colors duration-200 rounded-xl"
+                        className="font-mono text-sm px-6 py-3 bg-accent text-white hover:bg-accent/90 disabled:opacity-60 transition-colors duration-200 rounded-xl dark:bg-accent-lavender dark:text-navy dark:hover:bg-accent-lavender/85"
                       >
                         {status === "sending" ? "Sending…" : status === "sent" ? "Sent ✓" : "Send to My →"}
                       </button>
@@ -373,7 +373,7 @@ export default function ConnectPage() {
               <SparkleIcon className="text-accent/70 shrink-0" />
               <p className="font-body text-surface dark:text-white">If our paths cross, I&apos;d love to connect.</p>
             </div>
-            <p className="font-display italic text-lg text-accent">Good people &gt; everything.</p>
+            <p className="font-display italic text-lg text-accent dark:text-accent-lavender">Good people &gt; everything.</p>
           </motion.div>
         </div>
       </div>
