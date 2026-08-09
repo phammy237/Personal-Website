@@ -1,5 +1,5 @@
 "use client";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -7,85 +7,128 @@ import { SITE_EMAIL } from "@/lib/site";
 
 const fieldClass = "font-mono text-sm bg-base dark:bg-white/5 border border-border dark:border-white/10 rounded-xl px-4 py-3 text-surface dark:text-white placeholder:text-muted/60 dark:placeholder:text-white/20 focus:outline-none focus:border-accent/50 transition-colors";
 
+/* ─── Icons ────────────────────────────────────────── */
+type IconProps = { className?: string };
+
+function SparkleIcon({ className = "" }: IconProps) {
+  return (
+    <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2Z" />
+    </svg>
+  );
+}
+
+function MailIcon({ className = "" }: IconProps) {
+  return (
+    <svg className={className} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="2" y="4" width="20" height="16" rx="2" />
+      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+    </svg>
+  );
+}
+
+function LinkedInBoxIcon({ className = "" }: IconProps) {
+  return (
+    <svg className={className} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="3" y="3" width="18" height="18" rx="3" />
+      <path d="M7.5 10.5v6M7.5 7.5v.01M11.5 16.5v-3.7c0-1.1.9-2 2-2s2 .9 2 2v3.7M11.5 10.5v6" />
+    </svg>
+  );
+}
+
+function DocumentIcon({ className = "" }: IconProps) {
+  return (
+    <svg className={className} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
+      <path d="M14 2v6h6M9 13h6M9 17h6" />
+    </svg>
+  );
+}
+
+function ArrowUpRightIcon({ className = "" }: IconProps) {
+  return (
+    <svg className={className} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M7 17 17 7M7 7h10v10" />
+    </svg>
+  );
+}
+
+function GlobeIcon({ className = "" }: IconProps) {
+  return (
+    <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z" />
+    </svg>
+  );
+}
+
+function MapPinIcon({ className = "" }: IconProps) {
+  return (
+    <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
+  );
+}
+
+function ChevronDownIcon({ className = "" }: IconProps) {
+  return (
+    <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="m6 9 6 6 6-6" />
+    </svg>
+  );
+}
+
+function CheckIcon({ className = "" }: IconProps) {
+  return (
+    <svg className={className} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M20 6 9 17l-5-5" />
+    </svg>
+  );
+}
+
+function WavyDivider() {
+  return (
+    <svg viewBox="0 0 320 60" className="h-10 w-full max-w-[320px] text-border dark:text-white/15" fill="none" aria-hidden="true">
+      <path d="M0 40c40 0 40-25 80-25s40 25 80 25 40-25 80-25 40 25 80 25" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 5" />
+      <circle cx="163" cy="27" r="4" className="fill-accent" />
+    </svg>
+  );
+}
+
+/* ─── Content ──────────────────────────────────────── */
+const meetModes = [
+  { key: "in-person", title: "In Person", desc: "Let's meet up if we're in the same city." },
+  { key: "remote", title: "Remote", desc: "Different city? No problem." },
+] as const;
+
 const options = [
-  {
-    emoji: "☕",
-    title: "Coffee Chat",
-    desc: "Wanna swap stories, talk careers, or just vibe over coffee? I'm always down.",
-    subject: "Coffee Chat with My",
-    color: "#F59E0B",
-    gradient: "linear-gradient(135deg, #F59E0B20, #F59E0B05)",
-  },
-  {
-    emoji: "🏈",
-    title: "Go to a Game",
-    desc: "UF football, basketball, you name it. Swamp season is always better with company.",
-    subject: "Let's Go to a Game!",
-    color: "#F97316",
-    gradient: "linear-gradient(135deg, #F9731620, #F9731605)",
-  },
-  {
-    emoji: "🚶",
-    title: "Go on a Walk",
-    desc: "Sometimes the best convos happen while moving. Around campus, the trails, wherever.",
-    subject: "Let's Go on a Walk",
-    color: "#10B981",
-    gradient: "linear-gradient(135deg, #10B98120, #10B98105)",
-  },
-  {
-    emoji: "📋",
-    title: "Case Study Together",
-    desc: "Prepping for consulting recruiting? I'm always up for casing with driven people.",
-    subject: "Case Study Session with My",
-    color: "#3B82F6",
-    gradient: "linear-gradient(135deg, #3B82F620, #3B82F605)",
-  },
-  {
-    emoji: "🍜",
-    title: "Grab Food",
-    desc: "Good food, good conversation. Always yes to trying somewhere new in Gainesville.",
-    subject: "Let's Grab Food!",
-    color: "#EC4899",
-    gradient: "linear-gradient(135deg, #EC489920, #EC489905)",
-  },
-  {
-    emoji: "💡",
-    title: "Talk Product / Strategy",
-    desc: "Working on something interesting? Want a fresh perspective? Let's think through it together.",
-    subject: "Product / Strategy Chat with My",
-    color: "#5B3A8E",
-    gradient: "linear-gradient(135deg, #5B3A8E20, #5B3A8E05)",
-  },
-  {
-    emoji: "🌐",
-    title: "Just Network",
-    desc: "Recruiter, founder, student — if you want to connect professionally, my door's always open.",
-    subject: "Let's Connect — My Pham",
-    color: "#6366F1",
-    gradient: "linear-gradient(135deg, #6366F120, #6366F105)",
-  },
-  {
-    emoji: "🎵",
-    title: "Something Else",
-    desc: "Have something else in mind? Concert, project collab, random idea? Just shoot your shot.",
-    subject: "Hey My!",
-    color: "#0EA5E9",
-    gradient: "linear-gradient(135deg, #0EA5E920, #0EA5E905)",
-  },
+  { emoji: "☕", title: "Coffee Chat", desc: "Wanna swap stories, talk careers, or just vibe over coffee? I'm always down.", subject: "Coffee Chat with My" },
+  { emoji: "🏈", title: "Go to a Game", desc: "UF football, basketball, you name it. Swamp season is always better with company.", subject: "Let's Go to a Game!" },
+  { emoji: "🚶", title: "Go on a Walk", desc: "Sometimes the best convos happen while moving. Around campus, the trails, wherever.", subject: "Let's Go on a Walk" },
+  { emoji: "📋", title: "Case Study Together", desc: "Prepping for consulting recruiting? I'm always up for casing with driven people.", subject: "Case Study Session with My" },
+  { emoji: "🍜", title: "Grab Food", desc: "Good food, good conversation. Always yes to trying somewhere new in Gainesville.", subject: "Let's Grab Food!" },
+  { emoji: "💡", title: "Talk Product / Strategy", desc: "Working on something interesting? Want a fresh perspective? Let's think through it together.", subject: "Product / Strategy Chat with My" },
+  { emoji: "🌐", title: "Just Network", desc: "Recruiter, founder, student — if you want to connect professionally, my door's always open.", subject: "Let's Connect — My Pham" },
+  { emoji: "🎵", title: "Something Else", desc: "Have something else in mind? Concert, project collab, random idea? Just shoot your shot.", subject: "Hey My!" },
 ];
 
 export default function ConnectPage() {
-  const [selected, setSelected] = useState<string | null>(null);
+  const [meetMode, setMeetMode] = useState<(typeof meetModes)[number]["key"]>("in-person");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [selected, setSelected] = useState<string>(options[0].title);
+  const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
-  const selectedOpt = options.find((o) => o.title === selected);
+  const selectedOpt = options.find((o) => o.title === selected)!;
+  const selectedMode = meetModes.find((m) => m.key === meetMode)!;
 
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
-    if (!selectedOpt || status === "sending") return;
+    if (status === "sending") return;
     setStatus("sending");
     try {
       const res = await fetch("/api/contact", {
@@ -95,7 +138,7 @@ export default function ConnectPage() {
           name,
           contact,
           subject: selectedOpt.subject,
-          message: `${selectedOpt.title}\n\n${message}`,
+          message: `${selectedOpt.title} · ${selectedMode.title}\n\n${message}`,
         }),
       });
       if (!res.ok) throw new Error();
@@ -103,7 +146,10 @@ export default function ConnectPage() {
       setName("");
       setContact("");
       setMessage("");
-      setTimeout(() => setStatus("idle"), 4000);
+      setTimeout(() => {
+        setStatus("idle");
+        setShowForm(false);
+      }, 4000);
     } catch {
       setStatus("error");
     }
@@ -113,120 +159,223 @@ export default function ConnectPage() {
     <main className="min-h-screen bg-base dark:bg-[#18233F]">
       <Navbar />
 
-      <div className="px-[5vw] pt-28 pb-24 max-w-[1200px] mx-auto">
-        {/* Header */}
-        <motion.p className="font-mono text-xs text-muted dark:text-white/40 tracking-widest uppercase mb-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          Let&apos;s hang
-        </motion.p>
-        <motion.h1 className="font-display text-5xl md:text-7xl text-surface dark:text-white mb-4" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-          Connect
-        </motion.h1>
-        <motion.p className="font-body text-lg text-muted dark:text-white/50 max-w-lg mb-12" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
-          I genuinely love meeting people. Pick what sounds good and I&apos;ll make it happen.
-        </motion.p>
+      <div className="grid gap-12 px-[5vw] pb-24 pt-28 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16 max-w-[1400px] mx-auto">
+        {/* ─── Left column ─────────────────────────── */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="lg:sticky lg:top-28 lg:self-start">
+          <p className="font-mono text-xs text-accent dark:text-accent-lavender tracking-widest uppercase mb-3">Let&apos;s hang</p>
+          <h1 className="font-display text-6xl md:text-7xl text-surface dark:text-white mb-6">Connect</h1>
 
-        {/* Options grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {options.map((opt, i) => (
-            <motion.button
-              key={opt.title}
-              onClick={() => {
-                setSelected(opt.title === selected ? null : opt.title);
-                setStatus("idle");
-              }}
-              className={`group block text-left rounded-2xl border p-6 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 cursor-pointer ${
-                selected === opt.title
-                  ? "border-accent/60 shadow-lg shadow-accent/10"
-                  : "border-border dark:border-white/10 hover:border-accent/40 hover:shadow-accent/5"
-              }`}
-              style={{ background: opt.gradient }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25 + i * 0.05, type: "spring", stiffness: 120, damping: 20 }}
-            >
-              <h3 className="font-display text-xl text-surface dark:text-white mb-2 group-hover:text-accent transition-colors duration-200">
-                {opt.title}
-              </h3>
-              <p className="font-body text-sm text-muted dark:text-white/50 leading-relaxed mb-4">{opt.desc}</p>
-              <span className={`font-mono text-xs text-accent transition-opacity duration-200 ${selected === opt.title ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
-                {selected === opt.title ? "Selected ✓" : "Select →"}
-              </span>
-            </motion.button>
-          ))}
-        </div>
+          <div className="flex gap-3">
+            <SparkleIcon className="mt-1 shrink-0 text-accent/70" />
+            <div className="font-body text-lg text-surface/80 dark:text-white/70 leading-relaxed">
+              <p>I genuinely love meeting people.</p>
+              <p>Same city? Let&apos;s meet.</p>
+              <p>Different city? We have WiFi.</p>
+            </div>
+          </div>
 
-        {/* Inline form */}
-        {selected && (
-          <motion.div
-            className="mt-10 bg-card dark:bg-white/5 border border-border dark:border-white/10 rounded-2xl p-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ type: "spring", stiffness: 120, damping: 20 }}
-          >
-            <p className="font-mono text-xs text-accent tracking-widest uppercase mb-5">
-              {selected}
-            </p>
-            <form onSubmit={handleSend} className="flex flex-col gap-4">
-              <div className="flex flex-col sm:flex-row gap-4">
-                <input
-                  type="text"
-                  placeholder="Your name"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className={`flex-1 ${fieldClass}`}
-                />
-                <input
-                  type="text"
-                  placeholder="Your email or phone number"
-                  required
-                  value={contact}
-                  onChange={(e) => setContact(e.target.value)}
-                  className={`flex-1 ${fieldClass}`}
-                />
-              </div>
-              <textarea
-                placeholder={`Tell me a bit about what you have in mind...`}
-                value={message}
-                required
-                onChange={(e) => setMessage(e.target.value)}
-                rows={4}
-                className={`${fieldClass} resize-none`}
-              />
-              <div className="flex items-center gap-4">
-                <button
-                  type="submit"
-                  disabled={status === "sending"}
-                  className="font-mono text-sm px-6 py-3 bg-accent text-white hover:bg-accent/90 disabled:opacity-60 transition-colors duration-200 rounded-xl"
-                >
-                  {status === "sending" ? "Sending…" : status === "sent" ? "Sent ✓" : "Send to My →"}
-                </button>
-                <p className="font-mono text-xs text-muted dark:text-white/30">
-                  {status === "error" ? "Something went wrong — try again or email me directly." : "Sends straight to my inbox."}
-                </p>
-              </div>
-            </form>
-          </motion.div>
-        )}
+          <div className="my-8 hidden sm:block">
+            <WavyDivider />
+          </div>
 
-        {/* Direct contact */}
-        <motion.div
-          className="mt-16 flex flex-col sm:flex-row items-start sm:items-center gap-4 border-t border-border dark:border-white/10 pt-10"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.7 }}
-        >
-          <p className="font-body text-muted dark:text-white/40">Or just reach out directly:</p>
-          <div className="flex flex-wrap gap-4">
-            <a href={`mailto:${SITE_EMAIL}`} className="font-mono text-sm text-accent hover:underline">{SITE_EMAIL}</a>
-            <span className="text-border dark:text-white/10">·</span>
-            <a href="https://linkedin.com/in/mypham237" target="_blank" rel="noopener noreferrer" className="font-mono text-sm text-accent hover:underline">LinkedIn ↗</a>
-            <span className="text-border dark:text-white/10">·</span>
-            <a href="https://www.instagram.com/whyy.pmyy_/" target="_blank" rel="noopener noreferrer" className="font-mono text-sm text-accent hover:underline">Instagram ↗</a>
-            <span className="text-border dark:text-white/10">·</span>
-            <a href="https://www.facebook.com/pmyy237/" target="_blank" rel="noopener noreferrer" className="font-mono text-sm text-accent hover:underline">Facebook ↗</a>
+          <div className="flex flex-col gap-3 mt-8 sm:mt-0">
+            <a href={`mailto:${SITE_EMAIL}`} className="group flex items-center gap-2.5 font-body text-surface dark:text-white hover:text-accent dark:hover:text-accent transition-colors w-fit">
+              <MailIcon className="text-accent" /> Email
+              <ArrowUpRightIcon className="text-muted/50 dark:text-white/30 group-hover:text-accent transition-colors" />
+            </a>
+            <a href="https://linkedin.com/in/mypham237" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-2.5 font-body text-surface dark:text-white hover:text-accent dark:hover:text-accent transition-colors w-fit">
+              <LinkedInBoxIcon className="text-accent" /> LinkedIn
+              <ArrowUpRightIcon className="text-muted/50 dark:text-white/30 group-hover:text-accent transition-colors" />
+            </a>
+            <a href="/cv" className="group flex items-center gap-2.5 font-body text-surface dark:text-white hover:text-accent dark:hover:text-accent transition-colors w-fit">
+              <DocumentIcon className="text-accent" /> Resume
+              <ArrowUpRightIcon className="text-muted/50 dark:text-white/30 group-hover:text-accent transition-colors" />
+            </a>
+          </div>
+
+          <div className="mt-8 flex items-start gap-3 rounded-2xl border border-border dark:border-white/10 bg-card dark:bg-white/5 p-5 max-w-[340px]">
+            <GlobeIcon className="mt-0.5 shrink-0 text-accent" />
+            <div>
+              <p className="font-body font-medium text-surface dark:text-white">Based in Gainesville, FL</p>
+              <p className="font-body text-sm text-muted dark:text-white/45 mt-0.5">Open to connecting anywhere in the world.</p>
+            </div>
           </div>
         </motion.div>
+
+        {/* ─── Right column ────────────────────────── */}
+        <div>
+          {/* 01 — How should we meet */}
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+            <p className="font-mono text-xs text-accent dark:text-accent-lavender tracking-widest uppercase mb-4">01 / How should we meet?</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {meetModes.map((mode) => {
+                const active = meetMode === mode.key;
+                return (
+                  <button
+                    key={mode.key}
+                    type="button"
+                    onClick={() => setMeetMode(mode.key)}
+                    className={`text-left rounded-2xl border p-5 transition-colors duration-200 ${
+                      active
+                        ? "border-accent/60 bg-accent/[0.06] dark:bg-accent/10"
+                        : "border-border dark:border-white/10 hover:border-accent/30"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className={`font-display text-xl ${active ? "text-accent" : "text-surface dark:text-white"}`}>{mode.title}</h3>
+                      <span
+                        className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border transition-colors ${
+                          active ? "border-accent bg-accent text-white" : "border-border dark:border-white/20 text-transparent"
+                        }`}
+                      >
+                        <CheckIcon />
+                      </span>
+                    </div>
+                    <p className="font-body text-sm text-muted dark:text-white/50 leading-relaxed">{mode.desc}</p>
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+
+          {/* 02 — Where I'll be */}
+          <motion.div className="mt-10 pt-10 border-t border-border dark:border-white/10" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}>
+            <p className="font-mono text-xs text-accent tracking-widest uppercase mb-4">02 / Where I&apos;ll be</p>
+            <div className="flex items-center gap-3 rounded-xl border border-border dark:border-white/10 bg-card dark:bg-white/5 px-5 py-4">
+              <MapPinIcon className="text-accent shrink-0" />
+              <span className="font-body text-surface dark:text-white">Gainesville, FL</span>
+              <span className="font-mono text-[10px] uppercase tracking-wider text-accent bg-accent/10 border border-accent/25 rounded-full px-2.5 py-1">
+                Current
+              </span>
+            </div>
+          </motion.div>
+
+          {/* 03 — What sounds good */}
+          <motion.div className="mt-10 pt-10 border-t border-border dark:border-white/10" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.26 }}>
+            <p className="font-mono text-xs text-accent tracking-widest uppercase mb-4">03 / What sounds good?</p>
+
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setDropdownOpen((o) => !o)}
+                className="flex w-full items-center gap-3 rounded-xl border border-border dark:border-white/10 bg-card dark:bg-white/5 px-5 py-4 text-left hover:border-accent/30 transition-colors"
+              >
+                <span className="text-xl">{selectedOpt.emoji}</span>
+                <span className="font-display text-xl text-surface dark:text-white flex-1">{selectedOpt.title}</span>
+                <ChevronDownIcon className={`text-muted dark:text-white/40 transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              <AnimatePresence>
+                {dropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute z-20 mt-2 w-full rounded-xl border border-border dark:border-white/10 bg-white dark:bg-[#1E2847] shadow-xl overflow-hidden max-h-72 overflow-y-auto"
+                  >
+                    {options.map((opt) => (
+                      <button
+                        key={opt.title}
+                        type="button"
+                        onClick={() => {
+                          setSelected(opt.title);
+                          setDropdownOpen(false);
+                          setShowForm(false);
+                          setStatus("idle");
+                        }}
+                        className={`flex w-full items-center gap-3 px-5 py-3 text-left transition-colors ${
+                          opt.title === selected ? "bg-accent/10 text-accent" : "text-surface dark:text-white hover:bg-black/[0.03] dark:hover:bg-white/5"
+                        }`}
+                      >
+                        <span className="text-lg">{opt.emoji}</span>
+                        <span className="font-body text-sm">{opt.title}</span>
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            <div className="mt-5 flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
+              <p className="font-body text-surface/80 dark:text-white/60 leading-relaxed max-w-sm">{selectedOpt.desc}</p>
+              <button
+                type="button"
+                onClick={() => setShowForm(true)}
+                className="shrink-0 inline-flex items-center gap-2 font-mono text-sm px-6 py-3 border border-accent/40 text-accent hover:bg-accent hover:text-white transition-colors duration-200 rounded-xl"
+              >
+                Let&apos;s do it <span aria-hidden="true">→</span>
+              </button>
+            </div>
+
+            <AnimatePresence>
+              {showForm && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="overflow-hidden"
+                >
+                  <form onSubmit={handleSend} className="mt-6 flex flex-col gap-4 rounded-2xl border border-border dark:border-white/10 bg-card dark:bg-white/5 p-6">
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      <input
+                        type="text"
+                        placeholder="Your name"
+                        required
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className={`flex-1 ${fieldClass}`}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Your email or phone number"
+                        required
+                        value={contact}
+                        onChange={(e) => setContact(e.target.value)}
+                        className={`flex-1 ${fieldClass}`}
+                      />
+                    </div>
+                    <textarea
+                      placeholder="Tell me a bit about what you have in mind..."
+                      value={message}
+                      required
+                      onChange={(e) => setMessage(e.target.value)}
+                      rows={3}
+                      className={`${fieldClass} resize-none`}
+                    />
+                    <div className="flex items-center gap-4">
+                      <button
+                        type="submit"
+                        disabled={status === "sending"}
+                        className="font-mono text-sm px-6 py-3 bg-accent text-white hover:bg-accent/90 disabled:opacity-60 transition-colors duration-200 rounded-xl"
+                      >
+                        {status === "sending" ? "Sending…" : status === "sent" ? "Sent ✓" : "Send to My →"}
+                      </button>
+                      <p className="font-mono text-xs text-muted dark:text-white/30">
+                        {status === "error" ? "Something went wrong — try again or email me directly." : "Sends straight to my inbox."}
+                      </p>
+                    </div>
+                  </form>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+
+          {/* Bottom banner */}
+          <motion.div
+            className="mt-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border border-border dark:border-white/10 bg-card dark:bg-white/5 px-6 py-5"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.35 }}
+          >
+            <div className="flex items-center gap-3">
+              <SparkleIcon className="text-accent/70 shrink-0" />
+              <p className="font-body text-surface dark:text-white">If our paths cross, I&apos;d love to connect.</p>
+            </div>
+            <p className="font-display italic text-lg text-accent">Good people &gt; everything.</p>
+          </motion.div>
+        </div>
       </div>
 
       <Footer />
