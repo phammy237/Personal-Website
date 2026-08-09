@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { geoMercator, geoPath } from "d3-geo";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import type { FeatureCollection, Point } from "geojson";
-import { hanoiJourneyCopy } from "@/data/hanoiJourney";
+import { hanoiJourneyCopy, hanoiJourneyPins } from "@/data/hanoiJourney";
 import { useJourneyState } from "@/lib/hooks/useJourneyState";
 import { useGeoJson } from "@/lib/hooks/useGeoJson";
 import { HanoiMap, HANOI_MAP_WIDTH, HANOI_MAP_HEIGHT, type ProjectedPin } from "@/components/biography/HanoiMap";
@@ -27,7 +27,7 @@ export function HanoiJourneySection({
   /** called when the reader crosses the ocean at the end of the interlude — will drive the globe transition / U.S. chapter once that's built */
   onChapterComplete?: () => void;
 }) {
-  const journey = useJourneyState();
+  const journey = useJourneyState(hanoiJourneyPins);
   const riverData = useGeoJson("/data/hanoi-river.json");
   const lakeData = useGeoJson("/data/west-lake.json");
   const roadsData = useGeoJson("/data/hanoi-roads.json");

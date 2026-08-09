@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import type { HanoiJourneyPin } from "@/data/hanoiJourney";
 import { MapPin, type PinStatus } from "@/components/biography/MapPin";
 import { RoutePath } from "@/components/biography/RoutePath";
 import { PinLabel } from "@/components/biography/PinLabel";
@@ -11,7 +10,15 @@ export const HANOI_MAP_HEIGHT = 980;
 const MIN_SCALE = 1;
 const MAX_SCALE = 3;
 
-export type ProjectedPin = HanoiJourneyPin & { x: number; y: number };
+/** Minimal shape HanoiMap needs — any chapter's pin type structurally satisfies this. */
+export type ProjectedPin = {
+  id: string;
+  number: number;
+  title: string;
+  subtitle: string;
+  x: number;
+  y: number;
+};
 
 function clampPan(value: number, scale: number) {
   const maxOffset = ((scale - 1) / 2) * 100;

@@ -6,6 +6,7 @@ import { GlobeHero } from "@/components/biography/GlobeHero";
 import { RegionOverview } from "@/components/biography/RegionOverview";
 import { ChapterMap } from "@/components/biography/ChapterMap";
 import { HanoiJourneySection } from "@/components/biography/HanoiJourneySection";
+import { USJourneySection } from "@/components/biography/USJourneySection";
 import { useStoryState } from "@/lib/hooks/useStoryState";
 import { useWorldTopology } from "@/lib/hooks/useWorldTopology";
 import { heroCopy } from "@/data/biography";
@@ -99,7 +100,9 @@ export default function BiographyPage() {
                 ← Back to {story.chapter.regionLabel}
               </button>
               {story.chapter.id === "vietnam" ? (
-                <HanoiJourneySection />
+                <HanoiJourneySection onChapterComplete={story.continueNextChapter} />
+              ) : story.chapter.id === "united-states" ? (
+                <USJourneySection />
               ) : (
                 <ChapterMap
                   chapter={story.chapter}

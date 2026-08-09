@@ -73,7 +73,9 @@ function reducer(state: StoryState, action: StoryAction): StoryState {
     case "CONTINUE_NEXT_CHAPTER": {
       const nextIndex = state.chapterIndex + 1;
       if (nextIndex >= chapters.length) return { ...state, stage: "final" };
-      return { ...state, stage: "transition", chapterIndex: nextIndex };
+      // TODO(Phase 3): route through "transition" for the globe-crossing animation.
+      // Landing straight on "region" keeps the chapter reachable in the meantime.
+      return { ...state, stage: "region", chapterIndex: nextIndex, activePinId: null };
     }
     case "GO_TO_FINAL":
       return { ...state, stage: "final" };
