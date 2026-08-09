@@ -246,8 +246,8 @@ export const projects: Project[] = [
     logline: "Computer vision app detecting ingredients to auto-generate meal plans.",
     description: "SmartPrep AI combined AI, everyday usability, and sustainability. The goal was to make meal planning easier while helping users reduce waste and make better use of ingredients they already had.",
     bullets: [
-      "I helped build a mobile app that detects ingredients from photos and generates personalized meal plans and grocery lists.",
-      "I worked across a 4-person team to support execution spanning AI, UX, and sustainability features.",
+      "I independently built a mobile app that detects ingredients from photos and generates personalized meal plans and grocery lists.",
+      "I designed and executed the full product end to end, spanning AI, UX, and sustainability features.",
       "The product concept centered on convenience, personalization, and reducing avoidable food waste.",
     ],
     tools: ["Python", "Computer Vision", "Mobile", "AI", "UX"],
