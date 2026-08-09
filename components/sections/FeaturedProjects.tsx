@@ -8,7 +8,7 @@ const featured = FEATURED_SLUGS.map((s) => projects.find((p) => p.slug === s)).f
 
 export function FeaturedProjects() {
   return (
-    <section id="work" className="bg-[#F1EAF7] dark:bg-navy px-[5vw] py-24">
+    <section id="work" className="bg-sand dark:bg-navy px-[5vw] py-24">
       <div className="max-w-[1200px] mx-auto">
 
         {/* Header row */}

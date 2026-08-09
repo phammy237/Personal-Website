@@ -45,7 +45,7 @@ function Counter({ value, suffix, decimal }: { value: number; suffix: string; de
 
 export function StatsBar() {
   return (
-    <section className="bg-white dark:bg-navy px-[5vw] pt-40 pb-14">
+    <section className="bg-sand dark:bg-navy px-[5vw] pt-40 pb-14">
       <div className="max-w-[1200px] mx-auto">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-8 lg:gap-4">
           {stats.map((s, i) => (

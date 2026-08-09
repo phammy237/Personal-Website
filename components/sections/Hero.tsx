@@ -86,7 +86,7 @@ function SideRail() {
 function BoardingPass() {
   return (
     <motion.div
-      className="relative overflow-hidden rounded-[18px] border backdrop-blur-md border-accent/25 bg-[#F3ECDF]/50 shadow-[0_20px_70px_rgba(24,35,63,0.1)] dark:border-accent/35 dark:bg-[#18233F]/85 dark:shadow-[0_20px_70px_rgba(0,0,0,0.45)]"
+      className="relative overflow-hidden rounded-[18px] border backdrop-blur-md border-accent/25 bg-sand/50 shadow-[0_20px_70px_rgba(24,35,63,0.1)] dark:border-accent/35 dark:bg-[#18233F]/85 dark:shadow-[0_20px_70px_rgba(0,0,0,0.45)]"
       initial={{ opacity: 0, x: 34 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.38, duration: 0.65, ease: "easeOut" }}
@@ -204,7 +204,7 @@ function TicketChips() {
       {ticketChips.map((ticket) => (
         <div
           key={ticket.title}
-          className="relative flex min-h-[64px] flex-col rounded-lg border backdrop-blur px-4 py-2.5 border-accent/25 bg-[#F3ECDF]/40 shadow-[0_10px_30px_rgba(24,35,63,0.06)] dark:border-accent/35 dark:bg-[#18233F]/70 dark:shadow-[0_10px_30px_rgba(0,0,0,0.25)]"
+          className="relative flex min-h-[64px] flex-col rounded-lg border backdrop-blur px-4 py-2.5 border-accent/25 bg-sand/40 shadow-[0_10px_30px_rgba(24,35,63,0.06)] dark:border-accent/35 dark:bg-[#18233F]/70 dark:shadow-[0_10px_30px_rgba(0,0,0,0.25)]"
         >
           <div className="absolute inset-x-2 top-1 border-t border-dashed border-black/10 dark:border-white/15" />
           <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-surface/45 dark:text-white/45">{ticket.eyebrow}</p>
@@ -237,7 +237,7 @@ function DestinationCards() {
             className="absolute inset-0 scale-105 bg-cover bg-center opacity-40 transition duration-500 group-hover:scale-100 group-hover:opacity-55"
             style={{ backgroundImage: `url(${destination.image})` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#F3ECDF] via-[#F3ECDF]/60 to-[#F3ECDF]/55 dark:from-[#18233F] dark:via-[#18233F]/80 dark:to-[#18233F]/75" />
+          <div className="absolute inset-0 bg-gradient-to-r from-sand via-sand/60 to-sand/55 dark:from-[#18233F] dark:via-[#18233F]/80 dark:to-[#18233F]/75" />
           <div className="relative flex h-full flex-col justify-between p-5">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-surface/75 dark:text-white/70">
               Stop <span className="block pt-1 font-display text-2xl tracking-normal text-surface dark:text-white">{destination.num}</span>
@@ -260,7 +260,7 @@ function DestinationCards() {
 
 export function Hero() {
   return (
-    <section id="hero" className="relative min-h-screen overflow-hidden bg-[#F3ECDF] text-surface dark:bg-[#18233F] dark:text-white">
+    <section id="hero" className="relative min-h-screen overflow-hidden bg-sand text-surface dark:bg-[#18233F] dark:text-white">
       <SideRail />
 
       <div className="absolute inset-0">

@@ -23,6 +23,8 @@ const config: Config = {
         // Pearl white — soft, polished, clean
         base: "#F7F3FA",
         card: "#F7F3FA",
+        // Warm sand — light-mode page background from the hero down through the homepage
+        sand: "#F3ECDF",
         // Midnight navy — intelligent, private, slightly intimidating
         surface: "#18233F",
         navy: "#18233F",

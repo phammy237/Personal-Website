@@ -22,7 +22,7 @@ const experiences = experience.map((exp, i) => ({
 
 export function ExperiencePreview() {
   return (
-    <section id="experience" className="bg-white dark:bg-navy px-[5vw] py-24">
+    <section id="experience" className="bg-sand dark:bg-navy px-[5vw] py-24">
       <div className="max-w-[1200px] mx-auto">
         <div className="flex items-end justify-between mb-12">
           <motion.div

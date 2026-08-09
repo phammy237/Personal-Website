@@ -6,7 +6,7 @@ const ORBITAL_RADII = [220, 160, 110, 68];
 
 export function ReadyToDepart() {
   return (
-    <section className="relative overflow-hidden px-[5vw] py-28 bg-white dark:bg-navy">
+    <section className="relative overflow-hidden px-[5vw] py-28 bg-sand dark:bg-navy">
       {/* Ambient orb */}
       <motion.div
         className="absolute rounded-full pointer-events-none"

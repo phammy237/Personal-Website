@@ -240,7 +240,7 @@ function HowIThink() {
 
 export function Backstory() {
   return (
-    <section id="about" className="bg-white dark:bg-navy px-[5vw] pt-16 pb-28 md:pt-24 md:pb-40">
+    <section id="about" className="bg-sand dark:bg-navy px-[5vw] pt-16 pb-28 md:pt-24 md:pb-40">
       <div className="max-w-[1200px] mx-auto">
         {/* Section label */}
         <motion.p
