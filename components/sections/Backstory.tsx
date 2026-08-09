@@ -240,11 +240,11 @@ function HowIThink() {
 
 export function Backstory() {
   return (
-    <section id="about" className="bg-white dark:bg-navy px-[5vw] py-28 md:py-40">
+    <section id="about" className="bg-white dark:bg-navy px-[5vw] pt-16 pb-28 md:pt-24 md:pb-40">
       <div className="max-w-[1200px] mx-auto">
         {/* Section label */}
         <motion.p
-          className="font-mono text-xs text-muted dark:text-white/40 tracking-widest uppercase mb-12"
+          className="font-mono text-xs text-muted dark:text-white/40 tracking-widest uppercase mb-8"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
