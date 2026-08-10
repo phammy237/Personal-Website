@@ -90,9 +90,15 @@ export function GlobeHero({
 
   return (
     <div className={`relative select-none ${className}`} style={{ width: size, height: size }}>
+      {/* wide soft halo */}
       <div
-        className="pointer-events-none absolute inset-0 opacity-0 blur-3xl dark:opacity-100"
-        style={{ background: "radial-gradient(circle, rgba(91, 58, 142,0.28), transparent 65%)" }}
+        className="pointer-events-none absolute -inset-10 opacity-0 blur-3xl dark:opacity-100"
+        style={{ background: "radial-gradient(circle, rgba(155,139,181,0.5), rgba(91,58,142,0.22) 45%, transparent 70%)" }}
+      />
+      {/* tighter bright rim glow, close to the sphere's edge */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-0 blur-xl dark:opacity-90"
+        style={{ background: "radial-gradient(circle, transparent 58%, rgba(197,184,224,0.4) 68%, transparent 78%)" }}
       />
       <svg
         width={size}
@@ -106,7 +112,14 @@ export function GlobeHero({
         onPointerUp={endDrag}
         onPointerLeave={endDrag}
       >
-        <circle cx={size / 2} cy={size / 2} r={(baseScale * scale)} className="fill-[#F1EAF7] dark:fill-[#18233F]" />
+        <defs>
+          <radialGradient id="globe-sphere-lit" cx="35%" cy="32%" r="75%">
+            <stop offset="0%" stopColor="#454A82" />
+            <stop offset="55%" stopColor="#262B54" />
+            <stop offset="100%" stopColor="#141B33" />
+          </radialGradient>
+        </defs>
+        <circle cx={size / 2} cy={size / 2} r={(baseScale * scale)} className="fill-[#F1EAF7] dark:fill-[url(#globe-sphere-lit)]" />
         {countries?.features.map((f, i) => {
           const id = String((f as { id?: string | number }).id ?? "");
           const isHighlighted = highlightSet.has(id);

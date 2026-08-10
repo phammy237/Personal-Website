@@ -165,6 +165,7 @@ export function HanoiJourneySection({
               <PinPreviewCard
                 key="preview"
                 pin={journey.activePin}
+                metaLabel={`Hanoi · Ages ${journey.activePin.ageRange}`}
                 index={journey.activeIndex}
                 total={journey.total}
                 onLearnMore={handleLearnMore}
@@ -187,6 +188,7 @@ export function HanoiJourneySection({
         ) : (
           <PinPreviewCard
             pin={journey.activePin}
+            metaLabel={`Hanoi · Ages ${journey.activePin.ageRange}`}
             index={journey.activeIndex}
             total={journey.total}
             onLearnMore={handleLearnMore}
@@ -211,6 +213,7 @@ export function HanoiJourneySection({
       ) : (
         <MobilePreviewSheet
           pin={journey.activePin}
+          metaLabel={`Hanoi · Ages ${journey.activePin.ageRange}`}
           index={journey.activeIndex}
           total={journey.total}
           onLearnMore={handleLearnMore}

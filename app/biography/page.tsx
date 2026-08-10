@@ -80,7 +80,16 @@ export default function BiographyPage() {
               >
                 ← Back to globe
               </button>
-              <RegionOverview chapter={story.chapter} countries={countries} onExplore={story.enterMap} onSkip={story.back} />
+              <RegionOverview
+                chapter={story.chapter}
+                countries={countries}
+                onExplore={story.enterMap}
+                onSkip={
+                  story.hasNextChapter
+                    ? () => story.revisitChapter(story.chapterIndex + 1)
+                    : story.enterMap
+                }
+              />
             </motion.section>
           )}
 

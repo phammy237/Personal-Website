@@ -1,26 +1,30 @@
 "use client";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { geoMercator } from "d3-geo";
-import { useReducedMotion } from "framer-motion";
+import { AnimatePresence, useReducedMotion } from "framer-motion";
 import type { FeatureCollection, Point } from "geojson";
 import { usJourneyCopy, usJourneyPins } from "@/data/usJourney";
 import { useJourneyState } from "@/lib/hooks/useJourneyState";
 import { HanoiMap, HANOI_MAP_WIDTH, HANOI_MAP_HEIGHT, type ProjectedPin } from "@/components/biography/HanoiMap";
+import { PinPreviewCard } from "@/components/biography/PinPreviewCard";
+import { MobilePreviewSheet } from "@/components/biography/MobilePreviewSheet";
 import { JourneyProgress } from "@/components/biography/JourneyProgress";
 import { JourneyLegend } from "@/components/biography/JourneyLegend";
+import { ExpandedStory } from "@/components/biography/ExpandedStory";
 
 // Two widely-spaced points at continental scale — a generous margin keeps them
 // from sitting flush against the map's edges the way Hanoi's dense cluster doesn't need to.
 const MARGIN = 180;
 
 /**
- * Phase 1: static map, pins, and route only. Preview cards, the story modal,
- * and the chapter checkpoint/interlude flow land in later phases — see
- * HanoiJourneySection for the fuller pattern this will grow into.
+ * Phase 2: pin interactions, preview cards, and the expanded photo story.
+ * The chapter checkpoint/interlude flow and the globe-crossing transition
+ * still land in Phase 3 — see HanoiJourneySection for that fuller pattern.
  */
 export function USJourneySection() {
   const journey = useJourneyState(usJourneyPins);
   const prefersReducedMotion = useReducedMotion();
+  const [storyOpen, setStoryOpen] = useState(false);
 
   const projectedPins = useMemo(() => {
     const pinFeatureCollection: FeatureCollection<Point> = {
@@ -52,8 +56,27 @@ export function USJourneySection() {
     return projected;
   }, [journey.pins]);
 
+  const metaLabel = `United States · ${journey.activePin.yearRange}`;
+
+  const handleLearnMore = () => {
+    journey.markActiveCompleted();
+    setStoryOpen(true);
+  };
+  const handleCloseStory = () => setStoryOpen(false);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+      e.preventDefault();
+      journey.next();
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+      e.preventDefault();
+      journey.prev();
+    }
+  };
+
   return (
     <section
+      onKeyDown={handleKeyDown}
       className="relative overflow-hidden rounded-3xl border border-border bg-[#F7F3FA] p-5 shadow-sm dark:border-white/10 dark:bg-[#18233F] md:p-8"
       aria-label="United States journey map"
     >
@@ -76,8 +99,67 @@ export function USJourneySection() {
           onSelectPin={journey.selectById}
           reducedMotion={!!prefersReducedMotion}
         />
+
+        {/* desktop floating panel: pin preview */}
+        <div className="absolute right-4 top-1/2 hidden w-[300px] -translate-y-1/2 lg:block xl:w-[320px]">
+          <PinPreviewCard
+            pin={journey.activePin}
+            metaLabel={metaLabel}
+            index={journey.activeIndex}
+            total={journey.total}
+            onLearnMore={handleLearnMore}
+            onPrev={journey.prev}
+            onNext={journey.next}
+            canPrev={journey.canPrev}
+            canNext={journey.canNext}
+          />
+        </div>
+
         <JourneyLegend className="absolute bottom-4 left-4 hidden md:inline-flex" />
       </div>
+
+      {/* tablet/below-lg: panel sits under the map instead of floating over it */}
+      <div className="mt-5 hidden md:block lg:hidden">
+        <PinPreviewCard
+          pin={journey.activePin}
+          metaLabel={metaLabel}
+          index={journey.activeIndex}
+          total={journey.total}
+          onLearnMore={handleLearnMore}
+          onPrev={journey.prev}
+          onNext={journey.next}
+          canPrev={journey.canPrev}
+          canNext={journey.canNext}
+          className="max-w-md"
+        />
+      </div>
+
+      <MobilePreviewSheet
+        pin={journey.activePin}
+        metaLabel={metaLabel}
+        index={journey.activeIndex}
+        total={journey.total}
+        onLearnMore={handleLearnMore}
+        onPrev={journey.prev}
+        onNext={journey.next}
+        canPrev={journey.canPrev}
+        canNext={journey.canNext}
+      />
+
+      <AnimatePresence>
+        {storyOpen && (
+          <ExpandedStory
+            pin={journey.activePin}
+            index={journey.activeIndex}
+            total={journey.total}
+            onClose={handleCloseStory}
+            onPrev={journey.prev}
+            onNext={journey.next}
+            canPrev={journey.canPrev}
+            canNext={journey.canNext}
+          />
+        )}
+      </AnimatePresence>
     </section>
   );
 }

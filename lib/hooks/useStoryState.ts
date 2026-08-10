@@ -96,6 +96,7 @@ function reducer(state: StoryState, action: StoryAction): StoryState {
 export function useStoryState() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const chapter = chapters[state.chapterIndex];
+  const hasNextChapter = state.chapterIndex + 1 < chapters.length;
 
   const beginJourney = useCallback(() => dispatch({ type: "BEGIN_JOURNEY" }), []);
   const enterMap = useCallback(() => dispatch({ type: "ENTER_MAP" }), []);
@@ -113,6 +114,7 @@ export function useStoryState() {
   return {
     ...state,
     chapter,
+    hasNextChapter,
     beginJourney,
     enterMap,
     selectPin,

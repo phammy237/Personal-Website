@@ -1,9 +1,9 @@
 "use client";
-import type { HanoiJourneyPin } from "@/data/hanoiJourney";
-import { PinPreviewCard } from "@/components/biography/PinPreviewCard";
+import { PinPreviewCard, type PreviewPin } from "@/components/biography/PinPreviewCard";
 
 export function MobilePreviewSheet({
   pin,
+  metaLabel,
   index,
   total,
   onLearnMore,
@@ -12,7 +12,8 @@ export function MobilePreviewSheet({
   canPrev,
   canNext,
 }: {
-  pin: HanoiJourneyPin;
+  pin: PreviewPin;
+  metaLabel: string;
   index: number;
   total: number;
   onLearnMore: () => void;
@@ -25,6 +26,7 @@ export function MobilePreviewSheet({
     <div className="fixed inset-x-0 bottom-0 z-30 md:hidden">
       <PinPreviewCard
         pin={pin}
+        metaLabel={metaLabel}
         index={index}
         total={total}
         onLearnMore={onLearnMore}

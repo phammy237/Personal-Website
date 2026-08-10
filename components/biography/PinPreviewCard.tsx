@@ -1,9 +1,22 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
-import type { HanoiJourneyPin } from "@/data/hanoiJourney";
+import { ImagePlaceholder } from "@/components/biography/ImagePlaceholder";
+
+/** Minimal shape PinPreviewCard needs — any chapter's pin type structurally satisfies this. */
+export type PreviewPin = {
+  id: string;
+  number: number;
+  /** omit until a real photo exists; the card falls back to a placeholder block */
+  image?: string;
+  preview: {
+    title: string;
+    description: string;
+  };
+};
 
 export function PinPreviewCard({
   pin,
+  metaLabel,
   index,
   total,
   onLearnMore,
@@ -13,7 +26,9 @@ export function PinPreviewCard({
   canNext,
   className = "",
 }: {
-  pin: HanoiJourneyPin;
+  pin: PreviewPin;
+  /** small caption under the title, e.g. "Hanoi · Ages 6–8" or "United States · 2019" */
+  metaLabel: string;
   index: number;
   total: number;
   onLearnMore: () => void;
@@ -39,14 +54,18 @@ export function PinPreviewCard({
             </span>
             <div>
               <h3 className="font-display text-lg leading-tight text-surface dark:text-white">{pin.preview.title}</h3>
-              <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-accent">Hanoi · Ages {pin.ageRange}</p>
+              <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-accent">{metaLabel}</p>
             </div>
           </div>
           <p className="mt-2 font-body text-sm text-muted dark:text-white/60">{pin.preview.description}</p>
 
           <div className="relative mt-4 aspect-[4/3] w-full overflow-hidden rounded-xl bg-accent-light dark:bg-white/5">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={pin.image} alt="" className="h-full w-full object-cover" />
+            {pin.image ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={pin.image} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <ImagePlaceholder bare className="h-full w-full" />
+            )}
           </div>
 
           <button
