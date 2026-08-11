@@ -15,17 +15,23 @@ export const EarthMaterial = shaderMaterial(
     nightMap: null as Texture | null,
     specularMap: null as Texture | null,
     normalMap: null as Texture | null,
-    sunDirection: new Vector3(1, 0.3, 1).normalize(),
-    nightIntensity: 1.7,
-    vietnamGlow: 0,
+    sunDirection: new Vector3(0.2, 0.45, -1).normalize(),
+    nightIntensity: 2.35,
+    nightFloor: 0.16,
+    focusPoint: new Vector3(0, 0, 1),
+    focusGlow: 0,
   },
   /* vertex */ `
     varying vec2 vUv;
     varying vec3 vNormal;
+    varying vec3 vObjectNormal;
     varying vec3 vWorldPosition;
     void main() {
       vUv = uv;
       vNormal = normalize(normalMatrix * normal);
+      // object-space normal, untouched by the group's live rotation — lets us pin the Hanoi
+      // glow to the actual surface point instead of a fixed spot in view space
+      vObjectNormal = normalize(normal);
       vec4 worldPos = modelMatrix * vec4(position, 1.0);
       vWorldPosition = worldPos.xyz;
       gl_Position = projectionMatrix * viewMatrix * worldPos;
@@ -38,8 +44,12 @@ export const EarthMaterial = shaderMaterial(
     uniform sampler2D normalMap;
     uniform vec3 sunDirection;
     uniform float nightIntensity;
+    uniform float nightFloor;
+    uniform vec3 focusPoint;
+    uniform float focusGlow;
     varying vec2 vUv;
     varying vec3 vNormal;
+    varying vec3 vObjectNormal;
     varying vec3 vWorldPosition;
 
     void main() {
@@ -52,8 +62,12 @@ export const EarthMaterial = shaderMaterial(
       float sunFactor = dot(n, normalize(sunDirection));
       float dayMix = smoothstep(-0.15, 0.22, sunFactor);
 
-      vec3 color = mix(nightColor * nightIntensity, dayColor, dayMix);
-      color *= mix(0.92, 1.0, relief);
+      // dark side stays readable — a soft deep-navy floor instead of true black, so ocean/land
+      // relief and city light halos remain visible across the whole night hemisphere
+      vec3 nightBase = mix(vec3(0.015, 0.022, 0.05), dayColor * 0.18, nightFloor);
+      vec3 nightSide = nightBase + nightColor * nightIntensity;
+      vec3 color = mix(nightSide, dayColor, dayMix);
+      color *= mix(0.9, 1.0, relief);
 
       vec3 viewDir = normalize(cameraPosition - vWorldPosition);
       vec3 halfDir = normalize(normalize(sunDirection) + viewDir);
@@ -64,6 +78,11 @@ export const EarthMaterial = shaderMaterial(
       float terminator = 1.0 - smoothstep(0.0, 0.35, abs(sunFactor));
       color += vec3(0.18, 0.09, 0.22) * terminator * 0.12;
 
+      // restrained warm halo over the focus city (e.g. Hanoi) so it reads clearly on the dark side
+      float focusDist = distance(vObjectNormal, normalize(focusPoint));
+      float focusHalo = smoothstep(0.2, 0.0, focusDist) * focusGlow * (1.0 - dayMix * 0.7);
+      color += vec3(1.0, 0.82, 0.52) * focusHalo * 0.4;
+
       gl_FragColor = vec4(color, 1.0);
     }
   `
@@ -71,7 +90,7 @@ export const EarthMaterial = shaderMaterial(
 
 /** Restrained Fresnel rim-glow shell — no post-processing bloom pass needed. */
 export const AtmosphereMaterial = shaderMaterial(
-  { glowColor: new Color("#9B8BB5"), intensity: 0.9 },
+  { glowColor: new Color("#7C8CE0"), intensity: 1.1 },
   /* vertex */ `
     varying vec3 vNormal;
     void main() {
@@ -84,7 +103,7 @@ export const AtmosphereMaterial = shaderMaterial(
     uniform float intensity;
     varying vec3 vNormal;
     void main() {
-      float rim = pow(0.68 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.2);
+      float rim = pow(clamp(0.62 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 0.0, 1.0), 3.4);
       gl_FragColor = vec4(glowColor, clamp(rim * intensity, 0.0, 1.0));
     }
   `

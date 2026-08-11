@@ -14,8 +14,8 @@ const RADIUS = 1;
 // fov=42° => half-fov≈21° => tan(21°)≈0.384; distance so the sphere fills ~78% of the frame height
 const MIN_DIST = 2.1;
 const MAX_DIST = 4.6;
-const DEFAULT_DIST = 3.3;
-const ZOOMED_DIST = 2.35;
+const DEFAULT_DIST = 2.95;
+const ZOOMED_DIST = 2.2;
 
 export type GlobeMarker = { id: string; position: GeoPoint; label: string };
 
@@ -67,10 +67,14 @@ function EarthSurface({
   lowPower,
   onReady,
   meshRef,
+  focusPoint,
+  focusGlow,
 }: {
   lowPower: boolean;
   onReady?: () => void;
   meshRef: React.RefObject<THREE.Mesh>;
+  focusPoint?: THREE.Vector3;
+  focusGlow?: number;
 }) {
   const textures = useEarthTextures(!lowPower);
   useEffect(() => {
@@ -86,36 +90,37 @@ function EarthSurface({
         nightMap={textures.night}
         specularMap={textures.specular}
         normalMap={textures.normal}
+        focusPoint={focusPoint}
+        focusGlow={focusGlow ?? 0}
+        toneMapped={false}
       />
     </mesh>
   );
 }
 
+/** Static wisp layer — no independent spin, so it never reads as the globe "auto-rotating". */
 function CloudLayer({ opacity }: { opacity: number }) {
   const textures = useEarthTextures(true);
-  const ref = useRef<THREE.Mesh>(null);
-  useFrame((_, dt) => {
-    if (ref.current) ref.current.rotation.y += dt * 0.012;
-  });
   if (!textures.clouds) return null;
   return (
-    <mesh ref={ref}>
+    <mesh>
       <sphereGeometry args={[RADIUS * 1.008, 64, 64]} />
-      <meshBasicMaterial map={textures.clouds} transparent opacity={opacity} depthWrite={false} />
+      <meshBasicMaterial map={textures.clouds} transparent opacity={opacity} depthWrite={false} toneMapped={false} />
     </mesh>
   );
 }
 
 function Atmosphere() {
   return (
-    <mesh scale={1.045}>
+    <mesh scale={1.035}>
       <sphereGeometry args={[RADIUS, 64, 64]} />
       <atmosphereMaterial
-        glowColor={new THREE.Color("#9B8BB5")}
-        intensity={0.85}
+        glowColor={new THREE.Color("#7C8CE0")}
+        intensity={1.1}
         side={THREE.BackSide}
         transparent
         depthWrite={false}
+        toneMapped={false}
       />
     </mesh>
   );
@@ -367,6 +372,11 @@ function GlobeScene({
   }, [controller.zoomBy, controller.resetView, controllerRef]);
 
   const arcSegments = useMemo(() => (arc ? arcPoints(arc.from, arc.to) : null), [arc]);
+  const focusMarker = markers[0];
+  const focusPoint = useMemo(
+    () => (focusMarker ? latLonToVector3(focusMarker.position.lat, focusMarker.position.lon, 1) : undefined),
+    [focusMarker]
+  );
 
   return (
     <>
@@ -385,7 +395,13 @@ function GlobeScene({
       </mesh>
       <group ref={groupRef}>
         <Suspense fallback={null}>
-          <EarthSurface lowPower={lowPower} onReady={handleEarthReady} meshRef={earthMeshRef} />
+          <EarthSurface
+            lowPower={lowPower}
+            onReady={handleEarthReady}
+            meshRef={earthMeshRef}
+            focusPoint={focusPoint}
+            focusGlow={focusPoint ? 1 : 0}
+          />
           {!lowPower && <CloudLayer opacity={0.35} />}
         </Suspense>
         {highlightCountryIds.map((id) => (

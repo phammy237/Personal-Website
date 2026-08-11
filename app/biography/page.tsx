@@ -77,8 +77,8 @@ export default function BiographyPage() {
                   markers={[{ id: "hanoi", position: { lat: 21, lon: 105.85 }, label: "Hanoi" }]}
                   zoomedIn={zoomingIntoVietnam}
                   interactive={!zoomingIntoVietnam}
-                  ambient={!zoomingIntoVietnam}
-                  size={520}
+                  ambient={false}
+                  size={600}
                   ariaLabel="Interactive globe highlighting Vietnam"
                 />
               </div>

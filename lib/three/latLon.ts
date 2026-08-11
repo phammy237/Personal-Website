@@ -1,4 +1,4 @@
-import { Vector3, Quaternion } from "three";
+import { Vector3, Quaternion, Matrix4 } from "three";
 
 /**
  * Standard equirectangular lat/lon → sphere position convention (matches the UV layout of the
@@ -14,8 +14,22 @@ export function latLonToVector3(lat: number, lon: number, radius = 1): Vector3 {
   );
 }
 
-/** Quaternion that rotates a group so the given lat/lon point faces the camera (+Z). */
+const WORLD_UP = new Vector3(0, 1, 0);
+const NORTH_POLE_FALLBACK_EAST = new Vector3(1, 0, 0);
+
+/**
+ * Quaternion that rotates a group so the given lat/lon point faces the camera (+Z) with local
+ * north kept pointing to screen-up (+Y). `setFromUnitVectors` alone (shortest arc to +Z) leaves
+ * an unconstrained twist around the view axis, which rolls the map at an arbitrary, disorienting
+ * angle — recognizable coastlines end up sideways even though the lat/lon math is correct. This
+ * builds a proper look-at basis (east/north/target) instead, so the globe always reads north-up.
+ */
 export function quaternionFacingCamera(lat: number, lon: number): Quaternion {
-  const local = latLonToVector3(lat, lon, 1).normalize();
-  return new Quaternion().setFromUnitVectors(local, new Vector3(0, 0, 1));
+  const target = latLonToVector3(lat, lon, 1).normalize();
+  const east = new Vector3().crossVectors(WORLD_UP, target);
+  if (east.lengthSq() < 1e-6) east.copy(NORTH_POLE_FALLBACK_EAST);
+  east.normalize();
+  const north = new Vector3().crossVectors(target, east).normalize();
+  const basis = new Matrix4().makeBasis(east, north, target);
+  return new Quaternion().setFromRotationMatrix(basis).invert();
 }
