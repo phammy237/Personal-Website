@@ -29,6 +29,7 @@ type StoryAction =
   | { type: "REACH_CHECKPOINT" }
   | { type: "STAY_EXPLORING" }
   | { type: "CONTINUE_NEXT_CHAPTER" }
+  | { type: "ARRIVE_AT_DESTINATION" }
   | { type: "GO_TO_FINAL" }
   | { type: "REVISIT_CHAPTER"; chapterIndex: number }
   | { type: "BACK" }
@@ -73,10 +74,12 @@ function reducer(state: StoryState, action: StoryAction): StoryState {
     case "CONTINUE_NEXT_CHAPTER": {
       const nextIndex = state.chapterIndex + 1;
       if (nextIndex >= chapters.length) return { ...state, stage: "final" };
-      // TODO(Phase 3): route through "transition" for the globe-crossing animation.
-      // Landing straight on "region" keeps the chapter reachable in the meantime.
-      return { ...state, stage: "region", chapterIndex: nextIndex, activePinId: null };
+      // chapterIndex advances immediately so the transition stage can read the real
+      // destination chapter (globe target, region label, etc.) while it animates toward it.
+      return { ...state, stage: "transition", chapterIndex: nextIndex, activePinId: null };
     }
+    case "ARRIVE_AT_DESTINATION":
+      return { ...state, stage: "region" };
     case "GO_TO_FINAL":
       return { ...state, stage: "final" };
     case "REVISIT_CHAPTER":
@@ -106,6 +109,7 @@ export function useStoryState() {
   const reachCheckpoint = useCallback(() => dispatch({ type: "REACH_CHECKPOINT" }), []);
   const stayExploring = useCallback(() => dispatch({ type: "STAY_EXPLORING" }), []);
   const continueNextChapter = useCallback(() => dispatch({ type: "CONTINUE_NEXT_CHAPTER" }), []);
+  const arriveAtDestination = useCallback(() => dispatch({ type: "ARRIVE_AT_DESTINATION" }), []);
   const goToFinal = useCallback(() => dispatch({ type: "GO_TO_FINAL" }), []);
   const revisitChapter = useCallback((chapterIndex: number) => dispatch({ type: "REVISIT_CHAPTER", chapterIndex }), []);
   const back = useCallback(() => dispatch({ type: "BACK" }), []);
@@ -123,6 +127,7 @@ export function useStoryState() {
     reachCheckpoint,
     stayExploring,
     continueNextChapter,
+    arriveAtDestination,
     goToFinal,
     revisitChapter,
     back,

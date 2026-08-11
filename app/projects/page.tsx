@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { Navbar } from "@/components/layout/Navbar";
@@ -27,16 +27,27 @@ function DevpostIcon() {
 }
 
 const ROTATE_MS = 6500;
-const ALL_CATEGORIES = [
-  "All", "Product/UX", "Case Competition", "Math & Modeling", "Data & Analytics", "AI/ML", "Engineering",
+
+/** narrative arc: product thinking → analytical/AI work → technical implementation → competitive problem solving */
+const CATEGORY_ORDER = [
+  "Product & Design", "AI, Data & Modeling", "Software & Engineering", "Case Studies & Competitions",
 ] as const;
+const ALL_CATEGORIES = ["All", ...CATEGORY_ORDER] as const;
 type Cat = typeof ALL_CATEGORIES[number];
 
 /* exclude hackathon-only entries — they're covered by their project counterpart */
 const displayWork = allWork.filter((p) => p.category !== "Hackathon");
 
-/* only prize winners rotate in hero */
-const featuredWork = displayWork.filter((p) => p.prize);
+/** a small, hand-picked set of flagship projects — not a second complete browser */
+const SELECTED_WORK_SLUGS = ["cartcoach", "kite", "wnba-simulator", "campus-compass", "biaslens"];
+const selectedWork = SELECTED_WORK_SLUGS
+  .map((slug) => displayWork.find((p) => p.slug === slug))
+  .filter((p): p is Project => !!p);
+
+/** "Participant" is a neutral status, not a distinction — never render it with award/trophy styling */
+function isRealAward(award?: string) {
+  return !!award && award !== "Participant";
+}
 
 /**
  * Lead each category with the strongest PM-facing signal — ownership + quantified outcome —
@@ -52,23 +63,18 @@ const PM_PRIORITY = [
   "campus-compass", "vyspar", "artificial-reef",
 ];
 
-function groupWork(filter: Cat) {
-  const list = filter === "All" ? displayWork : displayWork.filter((p) => p.category === filter);
-  if (filter !== "All") {
-    return [{ cat: filter as string, items: sortByPriority(list) }];
-  }
-  const cats = ["Product/UX", "Case Competition", "Math & Modeling", "Data & Analytics", "AI/ML", "Engineering"];
-  return cats
-    .map((c) => ({ cat: c, items: sortByPriority(list.filter((p) => p.category === c)) }))
-    .filter((g) => g.items.length > 0);
-}
-
 function sortByPriority(items: Project[]) {
   return [...items].sort((a, b) => {
     const ai = PM_PRIORITY.indexOf(a.slug);
     const bi = PM_PRIORITY.indexOf(b.slug);
     return (ai === -1 ? Infinity : ai) - (bi === -1 ? Infinity : bi);
   });
+}
+
+/** All → one combined list ordered by the category narrative; a single category → just that list */
+function visibleWork(filter: Cat) {
+  if (filter !== "All") return sortByPriority(displayWork.filter((p) => p.category === filter));
+  return CATEGORY_ORDER.flatMap((cat) => sortByPriority(displayWork.filter((p) => p.category === cat)));
 }
 
 type Tab = "overview" | "role" | "stack" | "media";
@@ -110,8 +116,15 @@ function ProjectModal({ project, initialTab, onClose }: { project: Project; init
         <div className="relative z-10 w-full">
           <span className="font-mono text-xs text-white/50 block mb-1">{project.competition ?? project.category} · {project.month}</span>
           <h2 className="font-display text-4xl md:text-5xl text-white leading-none mb-1">{project.title}</h2>
-          {project.award && (
+          {isRealAward(project.award) && (
             <p className="font-mono text-xs text-yellow-400/70 mt-1.5">🏆 {project.award}</p>
+          )}
+          {project.tags && project.tags.length > 0 && (
+            <div className="flex gap-1.5 flex-wrap mt-2.5">
+              {project.tags.map((t) => (
+                <span key={t} className="font-mono text-[10px] px-2.5 py-1 bg-white/10 border border-white/15 text-white/60 rounded-full">{t}</span>
+              ))}
+            </div>
           )}
           {links.length > 0 && (
             <div className="flex gap-2 flex-wrap mt-3">
@@ -285,9 +298,13 @@ function WorkCard({ project, onSelect }: { project: Project; onSelect: (p: Proje
 
         <div className="absolute bottom-0 left-0 right-0 p-2.5">
           <p className="font-display text-white text-sm leading-tight">{project.title}</p>
-          {project.award && (
+          {isRealAward(project.award) ? (
             <p className="font-mono text-[9px] text-yellow-400/70 mt-0.5 leading-tight">🏆 {project.award}</p>
-          )}
+          ) : project.competition ? (
+            <p className="font-mono text-[9px] text-white/40 mt-0.5 leading-tight">
+              {/\d{4}/.test(project.competition) ? project.competition : `${project.competition} · ${project.year}`}
+            </p>
+          ) : null}
         </div>
       </motion.div>
 
@@ -296,6 +313,13 @@ function WorkCard({ project, onSelect }: { project: Project; onSelect: (p: Proje
         {hovered && (
           <motion.div className="absolute left-0 right-0 top-full z-30 bg-white dark:bg-[#18233F] border border-gray-200 dark:border-white/10 rounded-b-xl px-3 py-2.5 shadow-xl" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.15 }}>
             <p className="font-body text-xs text-surface/60 dark:text-white/60 leading-relaxed line-clamp-2">{project.logline}</p>
+            {project.tags && project.tags.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-2">
+                {project.tags.slice(0, 4).map((t) => (
+                  <span key={t} className="font-mono text-[9px] px-2 py-0.5 rounded-full border border-black/10 dark:border-white/15 text-surface/50 dark:text-white/50">{t}</span>
+                ))}
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -303,33 +327,27 @@ function WorkCard({ project, onSelect }: { project: Project; onSelect: (p: Proje
   );
 }
 
-/* ─── Scroll Row with arrows ────────────────────────── */
-function WorkRow({ cat, items, onSelect }: { cat: string; items: Project[]; onSelect: (p: Project, t: Tab) => void }) {
-  const rowRef = useRef<HTMLDivElement>(null);
-  const scroll = (dir: 1 | -1) => rowRef.current?.scrollBy({ left: dir * 290, behavior: "smooth" });
-
+/* ─── Grid ─────────────────────────────────────────── */
+function WorkGrid({ items, onSelect }: { items: Project[]; onSelect: (p: Project, t: Tab) => void }) {
+  if (items.length === 0) return null;
   return (
-    <motion.div className="mb-10 group/row" initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-60px" }} transition={{ type: "spring", stiffness: 100, damping: 20 }}>
-      <div className="flex items-center justify-between px-[5vw] mb-3">
-        <p className="font-mono text-sm text-surface/60 dark:text-white/60 uppercase tracking-widest">{cat}</p>
-        <div className="flex gap-1.5 opacity-0 group-hover/row:opacity-100 transition-opacity duration-200">
-          <button onClick={() => scroll(-1)} className="w-7 h-7 rounded-full bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 flex items-center justify-center text-surface/60 dark:text-white/60 hover:bg-black/20 dark:hover:bg-white/20 hover:text-surface dark:hover:text-white transition-colors text-sm">‹</button>
-          <button onClick={() => scroll(1)} className="w-7 h-7 rounded-full bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 flex items-center justify-center text-surface/60 dark:text-white/60 hover:bg-black/20 dark:hover:bg-white/20 hover:text-surface dark:hover:text-white transition-colors text-sm">›</button>
-        </div>
-      </div>
-      <div ref={rowRef} className="flex gap-4 px-[5vw] overflow-x-auto pb-14 scrollbar-hide">
-        {items.map((p) => <WorkCard key={p.slug} project={p} onSelect={onSelect} />)}
-      </div>
+    <motion.div
+      className="flex flex-wrap gap-x-4 gap-y-20 px-[5vw]"
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: "spring", stiffness: 100, damping: 20 }}
+    >
+      {items.map((p) => <WorkCard key={p.slug} project={p} onSelect={onSelect} />)}
     </motion.div>
   );
 }
 
 /* ─── Hero ──────────────────────────────────────────── */
 function WorkHero({ onSelect }: { onSelect: (p: Project, t: Tab) => void }) {
-  const { idx, setIdx, paused, setPaused, advance, retreat } = useRotatingIndex(featuredWork.length, ROTATE_MS);
+  const { idx, setIdx, paused, setPaused, advance, retreat } = useRotatingIndex(selectedWork.length, ROTATE_MS);
 
-  if (featuredWork.length === 0) return null;
-  const project = featuredWork[idx];
+  if (selectedWork.length === 0) return null;
+  const project = selectedWork[idx];
 
   return (
     <div className="relative w-full h-[42vh] md:h-[52vh] overflow-hidden" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
@@ -345,8 +363,8 @@ function WorkHero({ onSelect }: { onSelect: (p: Project, t: Tab) => void }) {
       <div className="absolute inset-0 flex items-end px-[5vw] pb-12 md:pb-16">
         <AnimatePresence mode="wait">
           <motion.div key={project.slug + "-c"} className="max-w-xl" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.5 }}>
-            {project.award && (
-              <span className={`inline-block font-mono text-xs px-3 py-1 rounded-full border mb-3 ${AWARD_BADGE[project.award] ?? "bg-white/10 text-white/60 border-white/20"}`}>
+            {isRealAward(project.award) && (
+              <span className={`inline-block font-mono text-xs px-3 py-1 rounded-full border mb-3 ${AWARD_BADGE[project.award!] ?? "bg-white/10 text-white/60 border-white/20"}`}>
                 🏆 {project.award}
               </span>
             )}
@@ -367,7 +385,7 @@ function WorkHero({ onSelect }: { onSelect: (p: Project, t: Tab) => void }) {
         </AnimatePresence>
 
         <HeroNavDots
-          count={featuredWork.length}
+          count={selectedWork.length}
           idx={idx}
           paused={paused}
           durationMs={ROTATE_MS}
@@ -384,7 +402,7 @@ function WorkHero({ onSelect }: { onSelect: (p: Project, t: Tab) => void }) {
 export default function WorkPage() {
   const [selected, setSelected] = useState<{ project: Project; tab: Tab } | null>(null);
   const [activeCategory, setActiveCategory] = useState<Cat>("All");
-  const groups = groupWork(activeCategory);
+  const items = visibleWork(activeCategory);
 
   return (
     <main className="min-h-screen bg-base dark:bg-navy">
@@ -393,12 +411,12 @@ export default function WorkPage() {
         <WorkHero onSelect={(p, t) => setSelected({ project: p, tab: t })} />
       </div>
 
-      {/* Category filter */}
+      {/* Category filter — horizontally scrollable on mobile instead of wrapping into a multi-line block */}
       <div className="px-[5vw] pt-6 pb-2 max-w-[1400px] mx-auto">
-        <motion.div className="flex flex-wrap gap-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+        <motion.div className="flex gap-2 overflow-x-auto scrollbar-hide sm:flex-wrap sm:overflow-visible" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
           {ALL_CATEGORIES.map((cat) => (
             <button key={cat} onClick={() => setActiveCategory(cat)}
-              className={`font-mono text-xs px-4 py-2 rounded-full border transition-all duration-200 ${activeCategory === cat ? "bg-accent text-white border-accent" : "bg-black/5 dark:bg-white/5 text-surface/60 dark:text-white/50 border-black/10 dark:border-white/10 hover:border-black/30 dark:hover:border-white/30 hover:text-surface dark:hover:text-white/80"}`}>
+              className={`flex-shrink-0 font-mono text-xs px-4 py-2 rounded-full border transition-all duration-200 ${activeCategory === cat ? "bg-accent text-white border-accent" : "bg-black/5 dark:bg-white/5 text-surface/60 dark:text-white/50 border-black/10 dark:border-white/10 hover:border-black/30 dark:hover:border-white/30 hover:text-surface dark:hover:text-white/80"}`}>
               {cat}
               {cat !== "All" && <span className="ml-1.5 opacity-50">({displayWork.filter((p) => p.category === cat).length})</span>}
             </button>
@@ -407,9 +425,7 @@ export default function WorkPage() {
       </div>
 
       <div className="pb-24 pt-4">
-        {groups.map(({ cat, items }) => (
-          <WorkRow key={cat} cat={cat} items={items} onSelect={(p, t) => setSelected({ project: p, tab: t })} />
-        ))}
+        <WorkGrid items={items} onSelect={(p, t) => setSelected({ project: p, tab: t })} />
       </div>
 
       <AnimatePresence>

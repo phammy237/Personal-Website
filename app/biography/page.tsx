@@ -1,12 +1,15 @@
 "use client";
-import { AnimatePresence, motion } from "framer-motion";
+import { useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { GlobeHero } from "@/components/biography/GlobeHero";
 import { RegionOverview } from "@/components/biography/RegionOverview";
 import { ChapterMap } from "@/components/biography/ChapterMap";
+import { ChapterTransition } from "@/components/biography/ChapterTransition";
 import { HanoiJourneySection } from "@/components/biography/HanoiJourneySection";
 import { USJourneySection } from "@/components/biography/USJourneySection";
+import { JourneyTimelineRail, railIndexFor } from "@/components/biography/JourneyTimelineRail";
 import { useStoryState } from "@/lib/hooks/useStoryState";
 import { useWorldTopology } from "@/lib/hooks/useWorldTopology";
 import { heroCopy } from "@/data/biography";
@@ -14,12 +17,24 @@ import { heroCopy } from "@/data/biography";
 export default function BiographyPage() {
   const story = useStoryState();
   const countries = useWorldTopology();
+  const [zoomingIntoVietnam, setZoomingIntoVietnam] = useState(false);
+  const reducedMotion = !!useReducedMotion();
+
+  const handleBeginJourney = () => {
+    if (reducedMotion) {
+      story.beginJourney();
+      return;
+    }
+    setZoomingIntoVietnam(true);
+    setTimeout(() => story.beginJourney(), 1100);
+  };
 
   return (
     <main className="min-h-screen bg-[#F7F3FA] dark:bg-navy">
       <Navbar />
+      <JourneyTimelineRail activeIndex={railIndexFor(story.stage, story.chapterIndex)} />
 
-      <div className="px-[5vw] pb-24 pt-28">
+      <div className="px-[5vw] pb-24 pt-28 lg:pl-20 xl:pl-24">
         <AnimatePresence mode="wait">
           {story.stage === "globe" && (
             <motion.section
@@ -39,8 +54,9 @@ export default function BiographyPage() {
                   {heroCopy.subheading}
                 </p>
                 <button
-                  onClick={story.beginJourney}
-                  className="mt-7 inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-3 font-mono text-xs uppercase tracking-wider text-white transition-colors hover:bg-accent/90"
+                  onClick={handleBeginJourney}
+                  disabled={zoomingIntoVietnam}
+                  className="mt-7 inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-3 font-mono text-xs uppercase tracking-wider text-white transition-colors hover:bg-accent/90 disabled:opacity-70"
                 >
                   {heroCopy.cta}
                   <span aria-hidden="true">→</span>
@@ -58,6 +74,10 @@ export default function BiographyPage() {
                   countries={countries}
                   highlightCountryIds={["704"]}
                   initialTarget={{ lat: 21, lon: 105.85 }}
+                  markers={[{ id: "hanoi", position: { lat: 21, lon: 105.85 }, label: "Hanoi" }]}
+                  zoomedIn={zoomingIntoVietnam}
+                  interactive={!zoomingIntoVietnam}
+                  ambient={!zoomingIntoVietnam}
                   size={520}
                   ariaLabel="Interactive globe highlighting Vietnam"
                 />
@@ -91,6 +111,10 @@ export default function BiographyPage() {
                 }
               />
             </motion.section>
+          )}
+
+          {story.stage === "transition" && (
+            <ChapterTransition countries={countries} onArrive={story.arriveAtDestination} />
           )}
 
           {story.stage === "map" && (

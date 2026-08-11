@@ -2,13 +2,14 @@ export type Project = {
   slug: string;
   title: string;
   category:
-    | "AI/ML"
-    | "Data & Analytics"
-    | "Product/UX"
-    | "Engineering"
-    | "Hackathon"
-    | "Case Competition"
-    | "Math & Modeling";
+    | "Product & Design"
+    | "AI, Data & Modeling"
+    | "Software & Engineering"
+    | "Case Studies & Competitions"
+    /** hidden duplicate entries kept only so their /projects/[slug] page still resolves — never shown in the main grid */
+    | "Hackathon";
+  /** 2-4 concise secondary tags — skills/context, not another top-level category */
+  tags?: string[];
   year: string;
   month: string;
   logline: string;
@@ -34,7 +35,8 @@ export const projects: Project[] = [
   {
     slug: "campus-compass",
     title: "Campus Compass",
-    category: "Engineering",
+    category: "Software & Engineering",
+    tags: ["C++", "Algorithms", "Graph Theory", "Full-Stack"],
     year: "2026",
     month: "July 2026",
     logline: "Full-stack campus navigation platform built on a custom C++ graph engine",
@@ -62,7 +64,8 @@ export const projects: Project[] = [
   {
     slug: "cartcoach",
     title: "CartCoach",
-    category: "Product/UX",
+    category: "Product & Design",
+    tags: ["Product", "Generative AI", "Chrome Extension"],
     year: "2026",
     month: "March 2026",
     logline: "AI-Powered Chrome Extension for Smarter Spending Decisions",
@@ -92,7 +95,8 @@ export const projects: Project[] = [
   {
     slug: "kite",
     title: "Kite",
-    category: "Product/UX",
+    category: "Product & Design",
+    tags: ["Product Design", "UX", "AI"],
     year: "2026",
     month: "Feb 2026",
     logline: "Gamified Pediatric Stealth Assessment Platform",
@@ -124,7 +128,8 @@ export const projects: Project[] = [
   {
     slug: "wnba-simulator",
     title: "WNBA Strategy Simulator",
-    category: "Math & Modeling",
+    category: "AI, Data & Modeling",
+    tags: ["Simulation", "Monte Carlo", "Strategy", "Modeling"],
     year: "2026",
     month: "Jan 2026",
     logline: "Franchise decision simulation integrating player records, salary cap, and fan demand modeling.",
@@ -153,7 +158,8 @@ export const projects: Project[] = [
   {
     slug: "housing-model",
     title: "Housing Affordability Model",
-    category: "Data & Analytics",
+    category: "AI, Data & Modeling",
+    tags: ["Regression Modeling", "Python", "Streamlit"],
     year: "2025",
     month: "Dec 2025",
     logline: "Gamified interactive tool for housing price prediction and investment decisions.",
@@ -178,7 +184,8 @@ export const projects: Project[] = [
   {
     slug: "tiktok-redesign",
     title: "TikTok Save Redesign",
-    category: "Product/UX",
+    category: "Product & Design",
+    tags: ["Product Design", "User Research", "Prototyping"],
     year: "2025",
     month: "Oct 2025",
     logline: "AI-Driven Save Experience Redesign boosting engagement by 20%.",
@@ -196,7 +203,8 @@ export const projects: Project[] = [
   {
     slug: "wandr",
     title: "Wandr",
-    category: "Product/UX",
+    category: "Product & Design",
+    tags: ["Product Strategy", "UX Research", "Trust & Safety"],
     year: "2025",
     month: "Oct 2025",
     logline: "Connecting People through Personalized Travel and Experiences.",
@@ -215,7 +223,8 @@ export const projects: Project[] = [
   {
     slug: "vyspar",
     title: "Vyspar",
-    category: "Engineering",
+    category: "Software & Engineering",
+    tags: ["Backend", "REST APIs", "PostgreSQL"],
     year: "2025",
     month: "Sep 2025",
     logline: "Collaborative Platform for Healthcare Professionals. LinkedIn for healthcare.",
@@ -240,7 +249,8 @@ export const projects: Project[] = [
   {
     slug: "smartprep-ai",
     title: "SmartPrep AI",
-    category: "AI/ML",
+    category: "AI, Data & Modeling",
+    tags: ["Computer Vision", "Mobile App", "AI"],
     year: "2025",
     month: "Sep 2025",
     logline: "Computer vision app detecting ingredients to auto-generate meal plans.",
@@ -256,7 +266,8 @@ export const projects: Project[] = [
   {
     slug: "biaslens",
     title: "BiasLens",
-    category: "AI/ML",
+    category: "AI, Data & Modeling",
+    tags: ["Machine Learning", "Fairness", "Data Visualization"],
     year: "2025",
     month: "Apr 2025",
     logline: "Detecting Algorithmic Bias in Real-World Datasets.",
@@ -274,7 +285,8 @@ export const projects: Project[] = [
   {
     slug: "gatorbot",
     title: "GatorBot",
-    category: "Case Competition",
+    category: "Case Studies & Competitions",
+    tags: ["Conversational AI", "Product Strategy", "Service Design"],
     year: "2025",
     month: "Apr 2025",
     logline: "AI chatbot centralizing campus support services at UF",
@@ -303,7 +315,8 @@ export const projects: Project[] = [
   {
     slug: "savills-analysis",
     title: "Savills CRE Analysis",
-    category: "Data & Analytics",
+    category: "AI, Data & Modeling",
+    tags: ["Data Analysis", "Statistical Modeling", "Python"],
     year: "2025",
     month: "Mar 2025",
     logline: "ASA DataFest. Advanced analysis of 100,000+ U.S. commercial leasing transactions.",
@@ -320,7 +333,8 @@ export const projects: Project[] = [
   {
     slug: "artificial-reef",
     title: "Artificial Reef Web App",
-    category: "Engineering",
+    category: "Software & Engineering",
+    tags: ["Full-Stack", "MongoDB", "React"],
     year: "2024",
     month: "Nov 2024",
     logline: "Full-stack web app visualizing 3D reef models for ecological data accessibility.",
@@ -384,7 +398,8 @@ export const competitions: Project[] = [
   {
     slug: "mckinsey-case",
     title: "McKinsey Case Competition",
-    category: "Case Competition",
+    category: "Case Studies & Competitions",
+    tags: ["Strategy Consulting", "Case Analysis", "Competition"],
     year: "2025",
     month: "Oct 2025",
     logline: "Top 20 — Strategy consulting case competition",
@@ -404,7 +419,8 @@ export const competitions: Project[] = [
   {
     slug: "scudem",
     title: "SCUDEM X 2025",
-    category: "Math & Modeling",
+    category: "AI, Data & Modeling",
+    tags: ["Mathematical Modeling", "Optimization", "Competition"],
     year: "2025",
     month: "Nov 2025",
     logline: "Outstanding Award — a probabilistic framework for how group size and behavioral synchronization affect predator detection in mixed-species groups.",
@@ -426,7 +442,8 @@ export const competitions: Project[] = [
   {
     slug: "uaa-case",
     title: "UAA Case Competition",
-    category: "Case Competition",
+    category: "Case Studies & Competitions",
+    tags: ["Strategy Consulting", "Case Analysis", "Competition"],
     year: "2025",
     month: "Mar 2025",
     logline: "University Athletic Association business case competition",
@@ -443,7 +460,8 @@ export const competitions: Project[] = [
   {
     slug: "bloomberg-bpuzzled",
     title: "Bloomberg Bpuzzled",
-    category: "Case Competition",
+    category: "Case Studies & Competitions",
+    tags: ["Quantitative Analysis", "Finance", "Competition"],
     year: "2025",
     month: "2025",
     logline: "Bloomberg's competitive analytical puzzle challenge",

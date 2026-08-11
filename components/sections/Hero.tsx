@@ -330,8 +330,7 @@ export function Hero() {
 
         <div className="-mt-1 lg:-mt-5">
           <div className="mb-1.5 flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.24em] text-surface/75 dark:text-white">
-            <span className="h-3 w-3 rounded-full bg-accent shadow-[0_0_18px_rgba(91,58,142,0.3)] dark:shadow-none" />
-            Destinations
+            <span className="h-3 w-3 rounded-full bg-accent shadow-[0_0_18px_rgba(91,58,142,0.3)] dark:shadow-none" /> Destinations
           </div>
           <DestinationCards />
         </div>
