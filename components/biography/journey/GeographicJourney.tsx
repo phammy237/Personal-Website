@@ -1,13 +1,17 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "framer-motion";
 import { journeyChapters, journeyStages, getChapterIndex, getStageAtProgress } from "@/lib/biography/journeyStages";
+import { stageWeight } from "@/lib/biography/journeyMotion";
+import { APPROACH_STAGE_IDS, computeApproachViewState, computeGlobeOpacity, computeMapOpacity } from "@/lib/biography/journeyCamera";
 import type { JourneyChapterId, JourneyStageId } from "@/lib/biography/journeyTypes";
+import type { SatelliteGlobeHandle } from "@/components/biography/SatelliteGlobeCanvas";
 import { JourneyStage } from "@/components/biography/journey/JourneyStage";
 import { JourneyEarthStage } from "@/components/biography/journey/JourneyEarthStage";
+import { JourneyHanoiMapStage } from "@/components/biography/journey/JourneyHanoiMapStage";
 import { JourneyProgressRail } from "@/components/biography/journey/JourneyProgressRail";
 
-const EARTH_INTRO_ID = "earth-intro";
+const EARTH_INTRO_ID: JourneyStageId = "earth-intro";
 
 /** scroll distance dedicated to each stage while the stage is pinned, in viewport-heights */
 const STAGE_VH = 90;
@@ -16,28 +20,27 @@ const TOTAL_VH = STAGE_VH * journeyStages.length;
 const MOTION_FADE = (1 / journeyStages.length) * 0.6;
 const REDUCED_FADE = (1 / journeyStages.length) * 0.25;
 
-/** triangular falloff: 1 inside [start, end], ramping to 0 across `fade` on either side */
-function stageWeight(progress: number, start: number, end: number, fade: number): number {
-  if (progress < start - fade || progress > end + fade) return 0;
-  if (progress >= start && progress <= end) return 1;
-  if (progress < start) return (progress - (start - fade)) / fade;
-  return 1 - (progress - end) / fade;
-}
-
 export function GeographicJourney() {
   const rootRef = useRef<HTMLDivElement>(null);
   const todaySectionRef = useRef<HTMLDivElement>(null);
   const stageElsRef = useRef(new Map<JourneyStageId, HTMLDivElement>());
+  const earthContainerRef = useRef<HTMLDivElement | null>(null);
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const globeHandleRef = useRef<SatelliteGlobeHandle | null>(null);
   const gsapRef = useRef<{ gsap: typeof import("gsap").gsap; trigger: import("gsap/ScrollTrigger").ScrollTrigger } | null>(
     null
   );
 
   const [activeStageId, setActiveStageId] = useState<JourneyStageId>(journeyStages[0].id);
   const activeStageIdRef = useRef(activeStageId);
-  // edge-triggered (only flips at the earth-intro stage's fade boundary), not a per-frame value —
+  // edge-triggered (only flips when the globe's own opacity crosses ~0), not a per-frame value —
   // this is what lets the globe's Canvas pause its render loop instead of re-rendering every tick
   const [earthVisible, setEarthVisible] = useState(true);
   const earthVisibleRef = useRef(true);
+  // the very first applyProgress call (right after ScrollTrigger mounts) must never trigger an
+  // animated camera transition, even on a mid-journey refresh where activeStageIdRef's hardcoded
+  // default ("earth-intro") doesn't yet match the real stage — see applyProgress below
+  const initialSyncRef = useRef(true);
 
   const reducedMotion = !!useReducedMotion();
 
@@ -49,7 +52,14 @@ export function GeographicJourney() {
   const applyProgress = useCallback(
     (progress: number, gsapInstance?: typeof import("gsap").gsap) => {
       const fade = reducedMotion ? REDUCED_FADE : MOTION_FADE;
+      const current = getStageAtProgress(progress);
+      const previousStageId = activeStageIdRef.current;
+
+      // generic per-stage crossfade for every stage except the four absorbed into the combined
+      // Earth → Vietnam → Hanoi approach below (that block needs to stay solid across three of
+      // these stage boundaries instead of fading at each one, so it can't use this per-stage weight)
       for (const stage of journeyStages) {
+        if (APPROACH_STAGE_IDS.has(stage.id)) continue;
         const el = stageElsRef.current.get(stage.id);
         if (!el) continue;
         const weight = stageWeight(progress, stage.start, stage.end, fade);
@@ -64,21 +74,54 @@ export function GeographicJourney() {
         }
         el.style.pointerEvents = weight > 0.5 ? "auto" : "none";
         el.setAttribute("aria-hidden", weight > 0.5 ? "false" : "true");
-
-        if (stage.id === EARTH_INTRO_ID) {
-          const nextVisible = weight > 0.01;
-          if (nextVisible !== earthVisibleRef.current) {
-            earthVisibleRef.current = nextVisible;
-            setEarthVisible(nextVisible);
-          }
-        }
       }
 
-      const current = getStageAtProgress(progress);
-      if (current.id !== activeStageIdRef.current) {
+      // combined approach: one continuous globe camera move, crossfading into the Hanoi map
+      const globeOpacity = computeGlobeOpacity(progress, fade);
+      const mapOpacity = computeMapOpacity(progress, fade);
+      const viewState = computeApproachViewState(progress, reducedMotion);
+
+      const crossingEarthIntroBoundary =
+        !initialSyncRef.current &&
+        !reducedMotion &&
+        (previousStageId === EARTH_INTRO_ID) !== (current.id === EARTH_INTRO_ID);
+      globeHandleRef.current?.setViewState(viewState, { animate: crossingEarthIntroBoundary });
+
+      const earthEl = earthContainerRef.current;
+      if (earthEl) {
+        if (gsapInstance) {
+          if (reducedMotion) gsapInstance.set(earthEl, { opacity: globeOpacity, scale: 1, y: 0 });
+          else gsapInstance.set(earthEl, { opacity: globeOpacity, scale: 0.97 + 0.03 * globeOpacity });
+        } else {
+          earthEl.style.opacity = String(globeOpacity);
+        }
+        earthEl.style.pointerEvents = globeOpacity > 0.5 ? "auto" : "none";
+        earthEl.setAttribute("aria-hidden", globeOpacity > 0.5 ? "false" : "true");
+      }
+
+      const mapEl = mapContainerRef.current;
+      if (mapEl) {
+        if (gsapInstance) {
+          if (reducedMotion) gsapInstance.set(mapEl, { opacity: mapOpacity, scale: 1, y: 0 });
+          else gsapInstance.set(mapEl, { opacity: mapOpacity, scale: 0.92 + 0.08 * mapOpacity });
+        } else {
+          mapEl.style.opacity = String(mapOpacity);
+        }
+        mapEl.style.pointerEvents = mapOpacity > 0.5 ? "auto" : "none";
+        mapEl.setAttribute("aria-hidden", mapOpacity > 0.5 ? "false" : "true");
+      }
+
+      const nextEarthVisible = globeOpacity > 0.01;
+      if (nextEarthVisible !== earthVisibleRef.current) {
+        earthVisibleRef.current = nextEarthVisible;
+        setEarthVisible(nextEarthVisible);
+      }
+
+      if (current.id !== previousStageId) {
         activeStageIdRef.current = current.id;
         setActiveStageId(current.id);
       }
+      initialSyncRef.current = false;
     },
     [reducedMotion]
   );
@@ -105,6 +148,7 @@ export function GeographicJourney() {
         });
         gsapRef.current = { gsap, trigger };
         // reflect whatever scroll position we already have (e.g. a mid-journey page refresh)
+        initialSyncRef.current = true;
         applyProgress(trigger.progress, gsap);
       }, rootRef);
 
@@ -129,6 +173,7 @@ export function GeographicJourney() {
 
   const activeStage = journeyStages.find((s) => s.id === activeStageId) ?? journeyStages[0];
   const activeChapterIndex = getChapterIndex(activeStage.chapter);
+  const earthInteractive = activeStageId === EARTH_INTRO_ID;
 
   const scrollToStageStart = useCallback((stageId: JourneyStageId) => {
     const stage = journeyStages.find((s) => s.id === stageId);
@@ -167,16 +212,29 @@ export function GeographicJourney() {
     <div className="relative bg-navy">
       <div ref={rootRef} className="relative" style={{ height: `${TOTAL_VH}vh` }}>
         <div className="sticky top-0 h-screen w-full overflow-hidden">
-          {journeyStages.map((stage, index) =>
-            stage.id === EARTH_INTRO_ID ? (
-              <JourneyEarthStage
-                key={stage.id}
-                ref={setStageRef(stage.id)}
-                stage={stage}
-                initiallyActive={index === 0}
-                visible={earthVisible}
-              />
-            ) : (
+          {journeyStages.map((stage, index) => {
+            if (stage.id === EARTH_INTRO_ID) {
+              return (
+                <Fragment key="earth-approach">
+                  <JourneyEarthStage
+                    ref={(el) => {
+                      earthContainerRef.current = el;
+                    }}
+                    handleRef={globeHandleRef}
+                    visible={earthVisible}
+                    interactive={earthInteractive}
+                  />
+                  <JourneyHanoiMapStage
+                    ref={(el) => {
+                      mapContainerRef.current = el;
+                    }}
+                    reducedMotion={reducedMotion}
+                  />
+                </Fragment>
+              );
+            }
+            if (APPROACH_STAGE_IDS.has(stage.id)) return null; // absorbed into the block above
+            return (
               <JourneyStage
                 key={stage.id}
                 ref={setStageRef(stage.id)}
@@ -185,8 +243,8 @@ export function GeographicJourney() {
                 total={journeyStages.length}
                 initiallyActive={index === 0}
               />
-            )
-          )}
+            );
+          })}
         </div>
       </div>
 

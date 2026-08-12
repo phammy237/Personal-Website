@@ -16,7 +16,10 @@ const MIN_DIST = 2.1;
 const MAX_DIST = 4.6;
 export const GLOBE_DEFAULT_DISTANCE = 2.95;
 const DEFAULT_DIST = GLOBE_DEFAULT_DISTANCE;
-const ZOOMED_DIST = 2.2;
+/** the closest distance already verified to look good without exposing blurry texture detail —
+ *  reused as-is by the journey's Hanoi-approach camera keyframe instead of a new guessed value */
+export const GLOBE_ZOOMED_DISTANCE = 2.2;
+const ZOOMED_DIST = GLOBE_ZOOMED_DISTANCE;
 
 export type GlobeMarker = { id: string; position: GeoPoint; label: string };
 
@@ -327,7 +330,7 @@ function useGlobeController({
     const rotY = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), dx * 0.006);
     const rotX = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), dy * 0.006);
     groupRef.current.quaternion.premultiply(rotY).premultiply(rotX);
-  }, []);
+  }, [groupRef]);
   const endDrag = useCallback((e: ThreeEvent<PointerEvent>) => {
     activePointers.current.delete(e.pointerId);
     pinchStartDist.current = null;
@@ -356,7 +359,7 @@ function useGlobeController({
     groupRef.current.quaternion.copy(quaternionFacingCamera(target.lat, target.lon));
     modeRef.current = "idle";
     targetDistRef.current = viewState?.distance ?? DEFAULT_DIST;
-  }, [initialTarget, viewState]);
+  }, [groupRef, initialTarget, viewState]);
 
   /** imperative, ref-driven — safe to call every animation frame without touching React state */
   const setViewState = useCallback(
@@ -372,7 +375,7 @@ function useGlobeController({
       }
       targetDistRef.current = Math.max(MIN_DIST, Math.min(MAX_DIST, next.distance));
     },
-    [reducedMotion]
+    [groupRef, reducedMotion]
   );
 
   useFrame((_, delta) => {
