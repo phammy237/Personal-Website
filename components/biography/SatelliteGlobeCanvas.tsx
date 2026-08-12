@@ -14,10 +14,35 @@ const RADIUS = 1;
 // fov=42° => half-fov≈21° => tan(21°)≈0.384; distance so the sphere fills ~78% of the frame height
 const MIN_DIST = 2.1;
 const MAX_DIST = 4.6;
-const DEFAULT_DIST = 2.95;
+export const GLOBE_DEFAULT_DISTANCE = 2.95;
+const DEFAULT_DIST = GLOBE_DEFAULT_DISTANCE;
 const ZOOMED_DIST = 2.2;
 
 export type GlobeMarker = { id: string; position: GeoPoint; label: string };
+
+/**
+ * Controlled presentation state for scroll-driven callers (the journey page). Distinct from the
+ * `initialTarget`/`focusTarget`/`zoomedIn` props the uncontrolled `/biography` hero uses — those
+ * two modes never mix for a given caller.
+ */
+export type GlobeViewState = {
+  latitude: number;
+  longitude: number;
+  distance: number;
+  /** reserved for a future flight-arc scrub; unused while the view state is static */
+  routeProgress?: number;
+};
+
+/**
+ * Imperative escape hatch so a scroll loop can drive orientation/distance every frame without
+ * going through React state or re-rendering the scene graph — mirrors the internal controllerRef
+ * pattern already used here for the zoom/reset buttons, just exposed to the caller.
+ */
+export type SatelliteGlobeHandle = {
+  setViewState: (viewState: GlobeViewState, opts?: { animate?: boolean }) => void;
+  resetView: () => void;
+  zoomBy: (delta: number) => void;
+};
 
 export type SatelliteGlobeProps = {
   countries: FeatureCollection<Geometry> | null;
@@ -33,10 +58,20 @@ export type SatelliteGlobeProps = {
   focusTarget?: GeoPoint | null;
   /** dolly the camera in for a "zooming into the destination" beat */
   zoomedIn?: boolean;
+  /** wheel-over-globe also nudges camera distance by default; disable where the wheel already
+   *  means something else (e.g. the scroll-scrubbed journey, where the globe fills the screen) */
+  wheelZoom?: boolean;
   reducedMotion?: boolean;
   lowPower?: boolean;
   onFocusComplete?: () => void;
   onReady?: () => void;
+  /** controlled orientation/distance for scroll-driven callers — seeds the initial view instead
+   *  of `initialTarget`/the default distance. Leave unset for the existing uncontrolled hero. */
+  viewState?: GlobeViewState;
+  /** pauses the render loop (no unmount) when this globe isn't the visible stage */
+  visible?: boolean;
+  /** populated with an imperative handle once the scene mounts — see SatelliteGlobeHandle */
+  handleRef?: React.MutableRefObject<SatelliteGlobeHandle | null>;
 };
 
 function extractRings(geometry: Geometry): [number, number][][] {
@@ -189,6 +224,8 @@ function useGlobeController({
   interactive,
   reducedMotion,
   zoomedIn,
+  viewState,
+  wheelZoom,
   onFocusComplete,
 }: {
   groupRef: React.RefObject<THREE.Group>;
@@ -198,29 +235,37 @@ function useGlobeController({
   interactive: boolean;
   reducedMotion: boolean;
   zoomedIn: boolean;
+  viewState?: GlobeViewState;
+  wheelZoom: boolean;
   onFocusComplete?: () => void;
 }) {
   const { camera } = useThree();
   const modeRef = useRef<"idle" | "dragging" | "transition">("idle");
   const transitionRef = useRef<{ from: THREE.Quaternion; to: THREE.Quaternion; start: number; duration: number } | null>(null);
-  const distRef = useRef(DEFAULT_DIST);
-  const targetDistRef = useRef(DEFAULT_DIST);
+  const baseDist = viewState?.distance ?? DEFAULT_DIST;
+  const distRef = useRef(baseDist);
+  const targetDistRef = useRef(baseDist);
   const dragState = useRef<{ x: number; y: number } | null>(null);
   /** active pointers by id, for single-finger drag vs. two-finger pinch disambiguation */
   const activePointers = useRef<Map<number, { x: number; y: number }>>(new Map());
   const pinchStartDist = useRef<number | null>(null);
 
-  // initial orientation, set once
+  // initial orientation, set once — `viewState` (controlled callers) wins over `initialTarget`
   useEffect(() => {
     if (!groupRef.current) return;
-    const target = initialTarget;
+    const target = viewState ? { lat: viewState.latitude, lon: viewState.longitude } : initialTarget;
     if (target) groupRef.current.quaternion.copy(quaternionFacingCamera(target.lat, target.lon));
-    camera.position.set(0, 0, DEFAULT_DIST);
+    const dist = viewState?.distance ?? DEFAULT_DIST;
+    distRef.current = dist;
+    targetDistRef.current = dist;
+    camera.position.set(0, 0, dist);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
+    if (viewState) return; // controlled distance is only ever set via setViewState/mount, not zoomedIn
     targetDistRef.current = zoomedIn ? ZOOMED_DIST : DEFAULT_DIST;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [zoomedIn]);
 
   const lastFocusKey = useRef<string | null>(null);
@@ -294,20 +339,41 @@ function useGlobeController({
 
   const onWheel = useCallback(
     (e: ThreeEvent<WheelEvent>) => {
-      if (!interactive) return;
+      // deliberately never calls preventDefault/stopPropagation — the page's own scroll (and, in
+      // the journey, the whole scrubbed journey) must keep receiving this same wheel event
+      if (!interactive || !wheelZoom) return;
       targetDistRef.current = Math.max(MIN_DIST, Math.min(MAX_DIST, targetDistRef.current + e.deltaY * 0.0022));
     },
-    [interactive]
+    [interactive, wheelZoom]
   );
 
   const zoomBy = useCallback((delta: number) => {
     targetDistRef.current = Math.max(MIN_DIST, Math.min(MAX_DIST, targetDistRef.current + delta));
   }, []);
   const resetView = useCallback(() => {
-    if (!groupRef.current || !initialTarget) return;
-    groupRef.current.quaternion.copy(quaternionFacingCamera(initialTarget.lat, initialTarget.lon));
-    targetDistRef.current = DEFAULT_DIST;
-  }, [initialTarget]);
+    const target = initialTarget ?? (viewState ? { lat: viewState.latitude, lon: viewState.longitude } : undefined);
+    if (!groupRef.current || !target) return;
+    groupRef.current.quaternion.copy(quaternionFacingCamera(target.lat, target.lon));
+    modeRef.current = "idle";
+    targetDistRef.current = viewState?.distance ?? DEFAULT_DIST;
+  }, [initialTarget, viewState]);
+
+  /** imperative, ref-driven — safe to call every animation frame without touching React state */
+  const setViewState = useCallback(
+    (next: GlobeViewState, opts?: { animate?: boolean }) => {
+      if (!groupRef.current) return;
+      const to = quaternionFacingCamera(next.latitude, next.longitude);
+      if (opts?.animate && !reducedMotion) {
+        transitionRef.current = { from: groupRef.current.quaternion.clone(), to, start: performance.now(), duration: 800 };
+        modeRef.current = "transition";
+      } else {
+        groupRef.current.quaternion.copy(to);
+        if (modeRef.current === "transition") modeRef.current = "idle";
+      }
+      targetDistRef.current = Math.max(MIN_DIST, Math.min(MAX_DIST, next.distance));
+    },
+    [reducedMotion]
+  );
 
   useFrame((_, delta) => {
     if (!groupRef.current) return;
@@ -330,7 +396,7 @@ function useGlobeController({
     camera.position.z = distRef.current;
   });
 
-  return { onPointerDown, onPointerMove, onPointerUp: endDrag, onPointerLeave: endDrag, onWheel, zoomBy, resetView };
+  return { onPointerDown, onPointerMove, onPointerUp: endDrag, onPointerLeave: endDrag, onWheel, zoomBy, resetView, setViewState };
 }
 
 function GlobeScene({
@@ -343,11 +409,14 @@ function GlobeScene({
   arc,
   focusTarget,
   zoomedIn = false,
+  wheelZoom = true,
   reducedMotion = false,
   lowPower = false,
   onFocusComplete,
   onReady,
   controllerRef,
+  viewState,
+  handleRef,
 }: SatelliteGlobeProps & { controllerRef: React.MutableRefObject<{ zoomBy: (d: number) => void; resetView: () => void } | null> }) {
   const groupRef = useRef<THREE.Group>(null!);
   const earthMeshRef = useRef<THREE.Mesh>(null!);
@@ -363,13 +432,23 @@ function GlobeScene({
     ambient,
     interactive,
     reducedMotion,
+    wheelZoom,
     zoomedIn,
+    viewState,
     onFocusComplete,
   });
 
   useEffect(() => {
     controllerRef.current = { zoomBy: controller.zoomBy, resetView: controller.resetView };
   }, [controller.zoomBy, controller.resetView, controllerRef]);
+
+  useEffect(() => {
+    if (!handleRef) return;
+    handleRef.current = { setViewState: controller.setViewState, resetView: controller.resetView, zoomBy: controller.zoomBy };
+    return () => {
+      if (handleRef.current) handleRef.current = null;
+    };
+  }, [handleRef, controller.setViewState, controller.resetView, controller.zoomBy]);
 
   const arcSegments = useMemo(() => (arc ? arcPoints(arc.from, arc.to) : null), [arc]);
   const focusMarker = markers[0];
@@ -425,12 +504,15 @@ export function SatelliteGlobeCanvas({
   interactive = true,
   lowPower,
   onReady,
+  visible = true,
+  viewState,
   ...props
 }: SatelliteGlobeProps) {
   const [ready, setReady] = useState(false);
   const controllerRef = useRef<{ zoomBy: (d: number) => void; resetView: () => void } | null>(null);
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
   const effectiveLowPower = lowPower ?? isMobile;
+  const initialDistance = viewState?.distance ?? DEFAULT_DIST;
 
   const handleReady = useCallback(() => {
     setReady(true);
@@ -452,11 +534,13 @@ export function SatelliteGlobeCanvas({
       <Canvas
         dpr={[1, 2]}
         gl={{ antialias: true, alpha: true }}
-        camera={{ fov: 42, near: 0.1, far: 10, position: [0, 0, DEFAULT_DIST] }}
+        camera={{ fov: 42, near: 0.1, far: 10, position: [0, 0, initialDistance] }}
         style={{ width: size, height: size, cursor: interactive ? "grab" : "default", touchAction: "none" }}
+        frameloop={visible ? "always" : "never"}
       >
         <GlobeScene
           {...props}
+          viewState={viewState}
           interactive={interactive}
           lowPower={effectiveLowPower}
           onReady={handleReady}
