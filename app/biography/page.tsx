@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -28,6 +28,24 @@ export default function BiographyPage() {
     setZoomingIntoVietnam(true);
     setTimeout(() => story.beginJourney(), 1100);
   };
+
+  // Scrolling past the hero starts the same "begin in Vietnam" transition, exactly once — a
+  // wheel-based nudge, not a scroll-position trap, so normal page scrolling is never blocked.
+  const wheelTriggeredRef = useRef(false);
+  useEffect(() => {
+    if (story.stage !== "globe") return;
+    wheelTriggeredRef.current = false;
+    const onWheel = (e: WheelEvent) => {
+      if (wheelTriggeredRef.current || zoomingIntoVietnam) return;
+      if (e.deltaY > 24) {
+        wheelTriggeredRef.current = true;
+        handleBeginJourney();
+      }
+    };
+    window.addEventListener("wheel", onWheel, { passive: true });
+    return () => window.removeEventListener("wheel", onWheel);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [story.stage, zoomingIntoVietnam]);
 
   return (
     <main className="min-h-screen bg-[#F7F3FA] dark:bg-navy">
