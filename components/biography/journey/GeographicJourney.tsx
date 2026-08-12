@@ -4,6 +4,7 @@ import { useReducedMotion } from "framer-motion";
 import { journeyChapters, journeyStages, getChapterIndex, getStageAtProgress } from "@/lib/biography/journeyStages";
 import { stageWeight } from "@/lib/biography/journeyMotion";
 import { APPROACH_STAGE_IDS, computeApproachViewState, computeGlobeOpacity, computeMapOpacity } from "@/lib/biography/journeyCamera";
+import { HANOI_PIN_STAGE_IDS_SET, type HanoiMapStageHandle } from "@/lib/biography/hanoiCamera";
 import type { JourneyChapterId, JourneyStageId } from "@/lib/biography/journeyTypes";
 import type { SatelliteGlobeHandle } from "@/components/biography/SatelliteGlobeCanvas";
 import { JourneyStage } from "@/components/biography/journey/JourneyStage";
@@ -27,6 +28,7 @@ export function GeographicJourney() {
   const earthContainerRef = useRef<HTMLDivElement | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const globeHandleRef = useRef<SatelliteGlobeHandle | null>(null);
+  const hanoiMapHandleRef = useRef<HanoiMapStageHandle | null>(null);
   const gsapRef = useRef<{ gsap: typeof import("gsap").gsap; trigger: import("gsap/ScrollTrigger").ScrollTrigger } | null>(
     null
   );
@@ -55,11 +57,11 @@ export function GeographicJourney() {
       const current = getStageAtProgress(progress);
       const previousStageId = activeStageIdRef.current;
 
-      // generic per-stage crossfade for every stage except the four absorbed into the combined
-      // Earth → Vietnam → Hanoi approach below (that block needs to stay solid across three of
-      // these stage boundaries instead of fading at each one, so it can't use this per-stage weight)
+      // generic per-stage crossfade for every stage except the ones absorbed into the combined
+      // Earth → Vietnam → Hanoi map block below (that block needs to stay solid across several
+      // stage boundaries instead of fading at each one, so it can't use this per-stage weight)
       for (const stage of journeyStages) {
-        if (APPROACH_STAGE_IDS.has(stage.id)) continue;
+        if (APPROACH_STAGE_IDS.has(stage.id) || HANOI_PIN_STAGE_IDS_SET.has(stage.id)) continue;
         const el = stageElsRef.current.get(stage.id);
         if (!el) continue;
         const weight = stageWeight(progress, stage.start, stage.end, fade);
@@ -86,6 +88,7 @@ export function GeographicJourney() {
         !reducedMotion &&
         (previousStageId === EARTH_INTRO_ID) !== (current.id === EARTH_INTRO_ID);
       globeHandleRef.current?.setViewState(viewState, { animate: crossingEarthIntroBoundary });
+      hanoiMapHandleRef.current?.updateCamera(progress);
 
       const earthEl = earthContainerRef.current;
       if (earthEl) {
@@ -228,12 +231,13 @@ export function GeographicJourney() {
                     ref={(el) => {
                       mapContainerRef.current = el;
                     }}
+                    handleRef={hanoiMapHandleRef}
                     reducedMotion={reducedMotion}
                   />
                 </Fragment>
               );
             }
-            if (APPROACH_STAGE_IDS.has(stage.id)) return null; // absorbed into the block above
+            if (APPROACH_STAGE_IDS.has(stage.id) || HANOI_PIN_STAGE_IDS_SET.has(stage.id)) return null; // absorbed above
             return (
               <JourneyStage
                 key={stage.id}

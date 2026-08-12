@@ -10,6 +10,7 @@ const EARTH_INTRO = getStageById("earth-intro");
 const VIETNAM_APPROACH = getStageById("vietnam-approach");
 const HANOI_APPROACH = getStageById("hanoi-approach");
 const HANOI_OVERVIEW = getStageById("hanoi-overview");
+const HANOI_PIN_5 = getStageById("hanoi-pin-5");
 
 export const APPROACH_STAGE_IDS: ReadonlySet<string> = new Set([
   EARTH_INTRO.id,
@@ -72,12 +73,13 @@ export function computeGlobeOpacity(progress: number, fade: number): number {
 }
 
 /**
- * Map opacity: the exact same triangular-falloff formula the generic per-stage engine already
- * uses for hanoi-overview — its fade-in mirrors the globe's fade-out over the same window, and
- * its fade-out into hanoi-pin-1 matches that (still-generic) stage's own fade-in precisely.
+ * Map opacity: fades in over the same window the globe fades out (mirroring it exactly), stays
+ * solid across hanoi-overview and all five pin stages (Phase 5 absorbs those into the same
+ * persistent map), and fades out into hanoi-departure using the same triangular-falloff formula
+ * that stage's own (still-generic) fade-in already uses — so the two match precisely.
  */
 export function computeMapOpacity(progress: number, fade: number): number {
-  return stageWeight(progress, HANOI_OVERVIEW.start, HANOI_OVERVIEW.end, fade);
+  return stageWeight(progress, HANOI_OVERVIEW.start, HANOI_PIN_5.end, fade);
 }
 
 /** container opacity for the combined 4-stage approach block — solid throughout, fading only at

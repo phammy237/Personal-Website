@@ -36,6 +36,7 @@ export function HanoiMap({
   reducedMotion,
   progressOverride,
   settled = false,
+  pinsInteractive = true,
 }: {
   pins: ProjectedPin[];
   activePinId: string;
@@ -49,6 +50,9 @@ export function HanoiMap({
   progressOverride?: number;
   /** true once the journey is complete: pulls the map back slightly and settles the route */
   settled?: boolean;
+  /** false neutralizes pin/label buttons (disabled, no click) without hiding or redesigning them —
+   *  for contexts like the scroll-driven journey where pin selection isn't wired up yet */
+  pinsInteractive?: boolean;
 }) {
   const activeIndex = pins.findIndex((p) => p.id === activePinId);
   const progress = progressOverride ?? (pins.length > 1 ? activeIndex / (pins.length - 1) : 1);
@@ -172,6 +176,7 @@ export function HanoiMap({
                 side={side}
                 active={pin.id === activePinId}
                 onClick={() => onSelectPin(pin.id)}
+                disabled={!pinsInteractive}
               />
               <MapPin
                 number={pin.number}
@@ -181,6 +186,7 @@ export function HanoiMap({
                 label={`Stop ${pin.number}: ${pin.title}`}
                 onClick={() => onSelectPin(pin.id)}
                 reducedMotion={reducedMotion}
+                disabled={!pinsInteractive}
               />
             </div>
           );
