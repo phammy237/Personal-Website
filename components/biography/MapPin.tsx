@@ -38,7 +38,7 @@ export function MapPin({
         disabled={disabled}
         onClick={disabled ? undefined : onClick}
         aria-label={label}
-        aria-current={isActive ? "true" : undefined}
+        aria-current={isActive ? "step" : undefined}
         className={`group relative flex items-center justify-center rounded-full font-mono text-xs font-medium outline-none transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-[#F7F3FA] dark:focus-visible:ring-offset-[#18233F] ${
           disabled ? "cursor-default" : ""
         } ${

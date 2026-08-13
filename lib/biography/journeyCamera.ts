@@ -1,6 +1,6 @@
 import { chapters } from "@/data/biography";
 import { getStageById } from "@/lib/biography/journeyStages";
-import { clamp01, lerp, localProgress, rampDownTo, smoothstep, stageWeight } from "@/lib/biography/journeyMotion";
+import { clamp01, lerp, localProgress, rampDownTo, rampUpFrom, smoothstep, stageWeight } from "@/lib/biography/journeyMotion";
 import { GLOBE_DEFAULT_DISTANCE, GLOBE_ZOOMED_DISTANCE, type GlobeViewState } from "@/components/biography/SatelliteGlobeCanvas";
 
 /** Hanoi — the one verified coordinate this whole approach is built around, reused verbatim. */
@@ -73,13 +73,26 @@ export function computeGlobeOpacity(progress: number, fade: number): number {
 }
 
 /**
+ * Pin-5's exit fade uses a much narrower window than the standard 60%-overlap `fade`. Phase 5
+ * found the standard width left only ~0.08 of local progress (≈60px of scroll) between the
+ * camera settling (local 0.32) and this fade starting (local 1 - fade/stageWidth ≈ 0.4) — barely
+ * any room for Phase 6's story to be read. Narrowing just this one boundary (not the entrance,
+ * which already reads well, and not pins 1–4, whose "exit" is a continued camera move handled by
+ * deriveStoryWeights instead of an opacity fade) pushes the fade-out to local ≈0.88, giving a
+ * real reading window while still handing off smoothly into hanoi-departure's own unchanged
+ * generic fade-in (which starts at the same absolute progress as before).
+ */
+const PIN_5_EXIT_FADE_RATIO = 0.2;
+
+/**
  * Map opacity: fades in over the same window the globe fades out (mirroring it exactly), stays
  * solid across hanoi-overview and all five pin stages (Phase 5 absorbs those into the same
- * persistent map), and fades out into hanoi-departure using the same triangular-falloff formula
- * that stage's own (still-generic) fade-in already uses — so the two match precisely.
+ * persistent map), and fades out into hanoi-departure — narrowly, per PIN_5_EXIT_FADE_RATIO above.
  */
 export function computeMapOpacity(progress: number, fade: number): number {
-  return stageWeight(progress, HANOI_OVERVIEW.start, HANOI_PIN_5.end, fade);
+  const enter = rampUpFrom(progress, HANOI_OVERVIEW.start, fade);
+  const exit = rampDownTo(progress, HANOI_PIN_5.end, fade * PIN_5_EXIT_FADE_RATIO);
+  return Math.min(enter, exit);
 }
 
 /** container opacity for the combined 4-stage approach block — solid throughout, fading only at

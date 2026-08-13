@@ -25,7 +25,7 @@ export function PinLabel({
       type="button"
       disabled={disabled}
       onClick={disabled ? undefined : onClick}
-      aria-current={active ? "true" : undefined}
+      aria-current={active ? "step" : undefined}
       className={`absolute z-10 max-w-[160px] rounded-xl border bg-white/95 px-3 py-2 text-left shadow-md backdrop-blur transition-all duration-200 dark:bg-navy-mid/95 ${
         disabled ? "cursor-default" : ""
       } ${

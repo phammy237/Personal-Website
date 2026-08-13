@@ -2,15 +2,16 @@
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "framer-motion";
 import { journeyChapters, journeyStages, getChapterIndex, getStageAtProgress } from "@/lib/biography/journeyStages";
-import { stageWeight } from "@/lib/biography/journeyMotion";
+import { motionFade, reducedMotionFade, stageWeight } from "@/lib/biography/journeyMotion";
 import { APPROACH_STAGE_IDS, computeApproachViewState, computeGlobeOpacity, computeMapOpacity } from "@/lib/biography/journeyCamera";
-import { HANOI_PIN_STAGE_IDS_SET, type HanoiMapStageHandle } from "@/lib/biography/hanoiCamera";
+import { HANOI_PIN_STAGE_IDS_SET, computePinClickTargetProgress, type HanoiMapStageHandle } from "@/lib/biography/hanoiCamera";
 import type { JourneyChapterId, JourneyStageId } from "@/lib/biography/journeyTypes";
 import type { SatelliteGlobeHandle } from "@/components/biography/SatelliteGlobeCanvas";
 import { JourneyStage } from "@/components/biography/journey/JourneyStage";
 import { JourneyEarthStage } from "@/components/biography/journey/JourneyEarthStage";
 import { JourneyHanoiMapStage } from "@/components/biography/journey/JourneyHanoiMapStage";
 import { JourneyProgressRail } from "@/components/biography/journey/JourneyProgressRail";
+import { hanoiJourneyPins } from "@/data/hanoiJourney";
 
 const EARTH_INTRO_ID: JourneyStageId = "earth-intro";
 
@@ -18,8 +19,8 @@ const EARTH_INTRO_ID: JourneyStageId = "earth-intro";
 const STAGE_VH = 90;
 const TOTAL_VH = STAGE_VH * journeyStages.length;
 /** how far (in normalized progress) a stage fades in/out into its neighbors — the crossfade overlap */
-const MOTION_FADE = (1 / journeyStages.length) * 0.6;
-const REDUCED_FADE = (1 / journeyStages.length) * 0.25;
+const MOTION_FADE = motionFade(journeyStages.length);
+const REDUCED_FADE = reducedMotionFade(journeyStages.length);
 
 export function GeographicJourney() {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -178,19 +179,33 @@ export function GeographicJourney() {
   const activeChapterIndex = getChapterIndex(activeStage.chapter);
   const earthInteractive = activeStageId === EARTH_INTRO_ID;
 
-  const scrollToStageStart = useCallback((stageId: JourneyStageId) => {
-    const stage = journeyStages.find((s) => s.id === stageId);
-    const root = rootRef.current;
-    if (!stage || !root) return;
-    const rect = root.getBoundingClientRect();
-    const wrapperTop = rect.top + window.scrollY;
-    const scrollableRange = root.offsetHeight - window.innerHeight;
-    // nudge a hair past the exact boundary — landing precisely on stage.start can round down a
-    // fraction of a pixel short and get classified as the previous (adjacent) stage instead
-    const targetProgress = Math.min(1, stage.start + 1 / journeyStages.length / 4);
-    const targetY = wrapperTop + Math.max(0, scrollableRange) * targetProgress;
-    window.scrollTo({ top: targetY, behavior: reducedMotion ? "auto" : "smooth" });
-  }, [reducedMotion]);
+  // centralized boundary-safe scroll: converts a target progress (0–1) into a scrollY and scrolls
+  // there — every programmatic navigation (chapter rail, pin clicks) goes through this one helper
+  // instead of each computing its own scrollY math
+  const scrollToProgress = useCallback(
+    (targetProgress: number) => {
+      const root = rootRef.current;
+      if (!root) return;
+      const rect = root.getBoundingClientRect();
+      const wrapperTop = rect.top + window.scrollY;
+      const scrollableRange = root.offsetHeight - window.innerHeight;
+      const clamped = Math.min(1, Math.max(0, targetProgress));
+      const targetY = wrapperTop + Math.max(0, scrollableRange) * clamped;
+      window.scrollTo({ top: targetY, behavior: reducedMotion ? "auto" : "smooth" });
+    },
+    [reducedMotion]
+  );
+
+  const scrollToStageStart = useCallback(
+    (stageId: JourneyStageId) => {
+      const stage = journeyStages.find((s) => s.id === stageId);
+      if (!stage) return;
+      // nudge a hair past the exact boundary — landing precisely on stage.start can round down a
+      // fraction of a pixel short and get classified as the previous (adjacent) stage instead
+      scrollToProgress(stage.start + 1 / journeyStages.length / 4);
+    },
+    [scrollToProgress]
+  );
 
   const scrollToTodaySection = useCallback(() => {
     const el = todaySectionRef.current;
@@ -209,6 +224,17 @@ export function GeographicJourney() {
       if (chapter) scrollToStageStart(chapter.firstStageId);
     },
     [scrollToStageStart, scrollToTodaySection]
+  );
+
+  // pin clicks only ever request a scroll — the existing applyProgress/updateCamera engine is
+  // what actually recomputes camera, route, pin statuses, and story visibility as it animates
+  const scrollToPin = useCallback(
+    (pinId: string) => {
+      const index = hanoiJourneyPins.findIndex((p) => p.id === pinId);
+      if (index === -1) return;
+      scrollToProgress(computePinClickTargetProgress(index));
+    },
+    [scrollToProgress]
   );
 
   return (
@@ -233,6 +259,7 @@ export function GeographicJourney() {
                     }}
                     handleRef={hanoiMapHandleRef}
                     reducedMotion={reducedMotion}
+                    onSelectPin={scrollToPin}
                   />
                 </Fragment>
               );

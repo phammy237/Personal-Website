@@ -37,3 +37,20 @@ export function rampDownTo(progress: number, at: number, fade: number): number {
   if (progress >= at) return 0;
   return (at - progress) / fade;
 }
+
+/** one-sided ramp: 0 before (at - fade), ramping to 1 by `at`, staying 1 after — never ramps back down */
+export function rampUpFrom(progress: number, at: number, fade: number): number {
+  if (progress <= at - fade) return 0;
+  if (progress >= at) return 1;
+  return (progress - (at - fade)) / fade;
+}
+
+/** scroll distance dedicated to each of the 20 journey stages, in viewport-heights */
+export const STAGE_VH = 90;
+/** how far (in normalized progress) a stage fades in/out into its neighbors — the crossfade overlap */
+export function motionFade(stageCount: number): number {
+  return (1 / stageCount) * 0.6;
+}
+export function reducedMotionFade(stageCount: number): number {
+  return (1 / stageCount) * 0.25;
+}

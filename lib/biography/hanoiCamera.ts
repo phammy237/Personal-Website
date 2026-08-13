@@ -17,7 +17,7 @@ export type HanoiMapViewport = {
 
 export type HanoiCameraTargetId = "overview" | "pin-1" | "pin-2" | "pin-3" | "pin-4" | "pin-5";
 
-const HANOI_PIN_STAGE_IDS: JourneyStageId[] = [
+export const HANOI_PIN_STAGE_IDS: JourneyStageId[] = [
   "hanoi-pin-1",
   "hanoi-pin-2",
   "hanoi-pin-3",
@@ -149,6 +149,47 @@ export function resolveHanoiComposition(
 
 export function lerpComposition(a: Composition, b: Composition, t: number): Composition {
   return { dx: lerp(a.dx, b.dx, t), dy: lerp(a.dy, b.dy, t), scale: lerp(a.scale, b.scale, t) };
+}
+
+function pinIndexOfTarget(id: HanoiCameraTargetId): number {
+  return id === "overview" ? -1 : Number(id.split("-")[1]) - 1;
+}
+
+/**
+ * Per-pin story opacity (index 0–4, for pin-1..pin-5), derived from the exact same camera frame
+ * that drives the map — not a separate index. While transitioning into pin N, its story weight
+ * rises with the same eased `t` the camera arrives with; while transitioning out (into pin N+1),
+ * it falls by the complementary `1 - t`, producing a natural crossfade between adjacent stories
+ * without ever having two panels reach full opacity at once. The one story with no "next pin" to
+ * crossfade against — pin-5 — instead fades out via the caller multiplying this by the map's own
+ * (Pin-5-aware) opacity envelope; see computeMapOpacity in journeyCamera.ts.
+ */
+export function deriveStoryWeights(frame: HanoiCameraFrame): number[] {
+  const weights = [0, 0, 0, 0, 0];
+  const fromIdx = pinIndexOfTarget(frame.fromId);
+  const toIdx = pinIndexOfTarget(frame.toId);
+  if (fromIdx === toIdx) {
+    if (toIdx >= 0) weights[toIdx] = 1;
+    return weights;
+  }
+  if (toIdx >= 0) weights[toIdx] = frame.t;
+  if (fromIdx >= 0) weights[fromIdx] = 1 - frame.t;
+  return weights;
+}
+
+/**
+ * Local progress (within a pin's own stage) a pin-click scroll targets — well past the camera's
+ * own settle point (0.32) and comfortably before any exit fade (Pin-5's included, which starts
+ * around local 0.88 — see PIN_5_EXIT_FADE_RATIO in journeyCamera.ts), so a single constant works
+ * for every pin without landing near a floating-point stage boundary.
+ */
+const PIN_CLICK_TARGET_LOCAL = 0.55;
+
+/** Absolute scroll progress a click on pin `pinIndex` (0–4) should land on — inside that pin's
+ *  stable reading window, never on its boundary. */
+export function computePinClickTargetProgress(pinIndex: number): number {
+  const stage = getStageById(HANOI_PIN_STAGE_IDS[pinIndex]);
+  return stage.start + (stage.end - stage.start) * PIN_CLICK_TARGET_LOCAL;
 }
 
 /** — pin visual state — */
