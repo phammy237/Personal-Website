@@ -3,13 +3,26 @@ import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "framer-motion";
 import { journeyChapters, journeyStages, getChapterIndex, getStageAtProgress } from "@/lib/biography/journeyStages";
 import { motionFade, reducedMotionFade, stageWeight } from "@/lib/biography/journeyMotion";
-import { APPROACH_STAGE_IDS, computeApproachViewState, computeGlobeOpacity, computeMapOpacity } from "@/lib/biography/journeyCamera";
+import {
+  APPROACH_STAGE_IDS,
+  HANOI_APPROACH,
+  computeApproachViewState,
+  computeGlobeOpacity,
+  computeMapOpacity,
+} from "@/lib/biography/journeyCamera";
 import { HANOI_PIN_STAGE_IDS_SET, computePinClickTargetProgress, type HanoiMapStageHandle } from "@/lib/biography/hanoiCamera";
+import {
+  TRANSPACIFIC_STAGE_IDS,
+  computeTranspacificGlobeView,
+  computePlaneOpacity,
+  computeUsMapOpacity,
+} from "@/lib/biography/transpacificCamera";
 import type { JourneyChapterId, JourneyStageId } from "@/lib/biography/journeyTypes";
 import type { SatelliteGlobeHandle } from "@/components/biography/SatelliteGlobeCanvas";
 import { JourneyStage } from "@/components/biography/journey/JourneyStage";
 import { JourneyEarthStage } from "@/components/biography/journey/JourneyEarthStage";
 import { JourneyHanoiMapStage } from "@/components/biography/journey/JourneyHanoiMapStage";
+import { JourneyUsMapStage } from "@/components/biography/journey/JourneyUsMapStage";
 import { JourneyProgressRail } from "@/components/biography/journey/JourneyProgressRail";
 import { hanoiJourneyPins } from "@/data/hanoiJourney";
 
@@ -28,6 +41,8 @@ export function GeographicJourney() {
   const stageElsRef = useRef(new Map<JourneyStageId, HTMLDivElement>());
   const earthContainerRef = useRef<HTMLDivElement | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const usMapContainerRef = useRef<HTMLDivElement | null>(null);
+  const travelLabelRef = useRef<HTMLDivElement | null>(null);
   const globeHandleRef = useRef<SatelliteGlobeHandle | null>(null);
   const hanoiMapHandleRef = useRef<HanoiMapStageHandle | null>(null);
   const gsapRef = useRef<{ gsap: typeof import("gsap").gsap; trigger: import("gsap/ScrollTrigger").ScrollTrigger } | null>(
@@ -62,7 +77,8 @@ export function GeographicJourney() {
       // Earth → Vietnam → Hanoi map block below (that block needs to stay solid across several
       // stage boundaries instead of fading at each one, so it can't use this per-stage weight)
       for (const stage of journeyStages) {
-        if (APPROACH_STAGE_IDS.has(stage.id) || HANOI_PIN_STAGE_IDS_SET.has(stage.id)) continue;
+        if (APPROACH_STAGE_IDS.has(stage.id) || HANOI_PIN_STAGE_IDS_SET.has(stage.id) || TRANSPACIFIC_STAGE_IDS.has(stage.id))
+          continue;
         const el = stageElsRef.current.get(stage.id);
         if (!el) continue;
         const weight = stageWeight(progress, stage.start, stage.end, fade);
@@ -79,15 +95,24 @@ export function GeographicJourney() {
         el.setAttribute("aria-hidden", weight > 0.5 ? "false" : "true");
       }
 
-      // combined approach: one continuous globe camera move, crossfading into the Hanoi map
+      // combined approach: one continuous globe camera move, crossfading into the Hanoi map, then
+      // (Phase 7) back out into a Hanoi-facing globe, across the Pacific, and into the U.S. map.
+      // The two view-state functions hand off at HANOI_APPROACH.end, where they evaluate to the
+      // exact same keyframe (Hanoi, at the globe's zoomed distance) — no discontinuity at the seam.
       const globeOpacity = computeGlobeOpacity(progress, fade);
       const mapOpacity = computeMapOpacity(progress, fade);
-      const viewState = computeApproachViewState(progress, reducedMotion);
+      const transpacificView = computeTranspacificGlobeView(progress, reducedMotion);
+      const viewState = progress < HANOI_APPROACH.end ? computeApproachViewState(progress, reducedMotion) : transpacificView;
+      const routeProgress = transpacificView.routeProgress ?? 0;
+      const usMapOpacity = computeUsMapOpacity(progress);
+      const planeLabelOpacity = computePlaneOpacity(routeProgress);
 
       const crossingEarthIntroBoundary =
         !initialSyncRef.current &&
         !reducedMotion &&
         (previousStageId === EARTH_INTRO_ID) !== (current.id === EARTH_INTRO_ID);
+      // routine scroll frames are always scrubbed directly (animate:false) — the only animated
+      // transition anywhere in the journey is the one-off earth-intro interactive/scroll handoff
       globeHandleRef.current?.setViewState(viewState, { animate: crossingEarthIntroBoundary });
       hanoiMapHandleRef.current?.updateCamera(progress);
 
@@ -113,6 +138,25 @@ export function GeographicJourney() {
         }
         mapEl.style.pointerEvents = mapOpacity > 0.5 ? "auto" : "none";
         mapEl.setAttribute("aria-hidden", mapOpacity > 0.5 ? "false" : "true");
+      }
+
+      const usMapEl = usMapContainerRef.current;
+      if (usMapEl) {
+        if (gsapInstance) {
+          if (reducedMotion) gsapInstance.set(usMapEl, { opacity: usMapOpacity, scale: 1, y: 0 });
+          else gsapInstance.set(usMapEl, { opacity: usMapOpacity, scale: 0.92 + 0.08 * usMapOpacity });
+        } else {
+          usMapEl.style.opacity = String(usMapOpacity);
+        }
+        usMapEl.style.pointerEvents = usMapOpacity > 0.5 ? "auto" : "none";
+        usMapEl.setAttribute("aria-hidden", usMapOpacity > 0.5 ? "false" : "true");
+      }
+
+      // minimal, purely decorative travel label — fades with the plane/route it accompanies
+      const labelEl = travelLabelRef.current;
+      if (labelEl) {
+        if (gsapInstance) gsapInstance.set(labelEl, { opacity: planeLabelOpacity });
+        else labelEl.style.opacity = String(planeLabelOpacity);
       }
 
       const nextEarthVisible = globeOpacity > 0.01;
@@ -261,10 +305,25 @@ export function GeographicJourney() {
                     reducedMotion={reducedMotion}
                     onSelectPin={scrollToPin}
                   />
+                  <JourneyUsMapStage
+                    ref={(el) => {
+                      usMapContainerRef.current = el;
+                    }}
+                    reducedMotion={reducedMotion}
+                  />
+                  <div
+                    ref={travelLabelRef}
+                    aria-hidden="true"
+                    style={{ opacity: 0 }}
+                    className="pointer-events-none absolute left-1/2 top-[10%] z-10 -translate-x-1/2 whitespace-nowrap text-center font-mono text-[11px] uppercase tracking-[0.3em] text-white/45"
+                  >
+                    Hanoi, Vietnam <span aria-hidden="true">→</span> United States
+                  </div>
                 </Fragment>
               );
             }
-            if (APPROACH_STAGE_IDS.has(stage.id) || HANOI_PIN_STAGE_IDS_SET.has(stage.id)) return null; // absorbed above
+            if (APPROACH_STAGE_IDS.has(stage.id) || HANOI_PIN_STAGE_IDS_SET.has(stage.id) || TRANSPACIFIC_STAGE_IDS.has(stage.id))
+              return null; // absorbed above
             return (
               <JourneyStage
                 key={stage.id}

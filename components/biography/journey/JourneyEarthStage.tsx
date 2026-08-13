@@ -5,11 +5,18 @@ import type { GlobeViewState, SatelliteGlobeHandle } from "@/components/biograph
 import { useWorldTopology } from "@/lib/hooks/useWorldTopology";
 import { chapters } from "@/data/biography";
 import { APPROACH_CAMERA_KEYFRAMES } from "@/lib/biography/journeyCamera";
+import { FLIGHT_ORIGIN, FLIGHT_DESTINATION } from "@/lib/biography/transpacificCamera";
 
 /** Vietnam/Hanoi — reused verbatim from the existing biography chapter data, not a new coordinate. */
 const VIETNAM_TARGET = chapters[0].globeTarget;
 const VIETNAM_COUNTRY_ID = chapters[0].countryId;
-const INITIAL_VIEW_STATE: GlobeViewState = APPROACH_CAMERA_KEYFRAMES["earth-intro"];
+// routeProgress:0 opts this globe instance into SatelliteGlobeCanvas's progressive route+plane
+// rendering (see its `progressiveRoute` check) for the whole Phase 7 transpacific-flight stage —
+// the actual per-frame value is driven imperatively via handleRef.setViewState, never this prop
+const INITIAL_VIEW_STATE: GlobeViewState = { ...APPROACH_CAMERA_KEYFRAMES["earth-intro"], routeProgress: 0 };
+// module-level (not recreated per render) so SatelliteGlobeCanvas's arcSegments memo — keyed on
+// this object's identity — never recomputes the cached flight-path geometry after first mount
+const FLIGHT_ARC = { from: FLIGHT_ORIGIN, to: FLIGHT_DESTINATION };
 
 type JourneyEarthStageProps = {
   /** populated with the globe's imperative handle once the scene mounts — GeographicJourney
@@ -57,6 +64,7 @@ export const JourneyEarthStage = forwardRef<HTMLDivElement, JourneyEarthStagePro
         countries={countries}
         highlightCountryIds={[VIETNAM_COUNTRY_ID]}
         markers={[{ id: "hanoi", position: VIETNAM_TARGET, label: "Hanoi" }]}
+        arc={FLIGHT_ARC}
         viewState={INITIAL_VIEW_STATE}
         interactive={interactive}
         ambient={false}

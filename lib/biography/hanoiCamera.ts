@@ -1,6 +1,7 @@
 import { hanoiJourneyPins } from "@/data/hanoiJourney";
 import { getStageAtProgress, getStageById } from "@/lib/biography/journeyStages";
 import { clamp01, lerp, localProgress, smoothstep } from "@/lib/biography/journeyMotion";
+import { DEPARTURE_RETRACT_AT, DEPARTURE_RETRACT_WIDTH } from "@/lib/biography/transpacificCamera";
 import type { JourneyStageId } from "@/lib/biography/journeyTypes";
 import type { PinStatus } from "@/components/biography/MapPin";
 
@@ -107,7 +108,14 @@ export function derivePinCursor(progress: number): number {
 export function computeHanoiCameraFrame(progress: number): HanoiCameraFrame {
   const pinCursor = derivePinCursor(progress);
   if (pinCursor <= -1) return { fromId: "overview", toId: "overview", t: 1, pinCursor: -1 };
-  if (pinCursor >= 5) return { fromId: "pin-5", toId: "pin-5", t: 1, pinCursor: 5 };
+  if (pinCursor >= 5) {
+    // Phase 7: once departed, the camera blends from pin-5's framing back to the neutral overview
+    // across the same hold-then-retract window journeyCamera's map-opacity crossfade uses (see
+    // transpacificCamera's DEPARTURE_RETRACT_AT/WIDTH) — so it settles into "overview" exactly as
+    // the map itself finishes fading, instead of staying frozen on pin-5 forever.
+    const t = smoothstep(clamp01((progress - (DEPARTURE_RETRACT_AT - DEPARTURE_RETRACT_WIDTH)) / DEPARTURE_RETRACT_WIDTH));
+    return { fromId: "pin-5", toId: "overview", t, pinCursor: 5 };
+  }
   const toId = `pin-${pinCursor + 1}` as HanoiCameraTargetId;
   const fromId = pinCursor === 0 ? "overview" : (`pin-${pinCursor}` as HanoiCameraTargetId);
   const stage = getStageById(HANOI_PIN_STAGE_IDS[pinCursor]);

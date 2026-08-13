@@ -8,6 +8,7 @@ import "@/components/biography/earth/earthMaterial";
 import { useEarthTextures } from "@/components/biography/earth/textures";
 import { latLonToVector3, quaternionFacingCamera } from "@/lib/three/latLon";
 import { findCountry } from "@/lib/hooks/useWorldTopology";
+import { clamp01, smoothstep } from "@/lib/biography/journeyMotion";
 import type { GeoPoint } from "@/data/biography";
 
 const RADIUS = 1;
@@ -248,6 +249,9 @@ function useGlobeController({
   const baseDist = viewState?.distance ?? DEFAULT_DIST;
   const distRef = useRef(baseDist);
   const targetDistRef = useRef(baseDist);
+  // imperative flight-route scrub — updated by setViewState, read every frame by FlightRoute
+  // below; never touches React state, so a scroll tick never re-renders this component
+  const routeProgressRef = useRef(viewState?.routeProgress ?? 0);
   const dragState = useRef<{ x: number; y: number } | null>(null);
   /** active pointers by id, for single-finger drag vs. two-finger pinch disambiguation */
   const activePointers = useRef<Map<number, { x: number; y: number }>>(new Map());
@@ -374,6 +378,7 @@ function useGlobeController({
         if (modeRef.current === "transition") modeRef.current = "idle";
       }
       targetDistRef.current = Math.max(MIN_DIST, Math.min(MAX_DIST, next.distance));
+      if (next.routeProgress !== undefined) routeProgressRef.current = next.routeProgress;
     },
     [groupRef, reducedMotion]
   );
@@ -399,7 +404,107 @@ function useGlobeController({
     camera.position.z = distRef.current;
   });
 
-  return { onPointerDown, onPointerMove, onPointerUp: endDrag, onPointerLeave: endDrag, onWheel, zoomBy, resetView, setViewState };
+  return {
+    onPointerDown,
+    onPointerMove,
+    onPointerUp: endDrag,
+    onPointerLeave: endDrag,
+    onWheel,
+    zoomBy,
+    resetView,
+    setViewState,
+    routeProgressRef,
+  };
+}
+
+/** small dart/kite plane silhouette, flat in the local X-Z plane (Y = surface-normal thickness),
+ *  nose at local -Z — matches the forward convention `Matrix4.lookAt` produces (see FlightRoute) */
+const PLANE_MARKER_POSITIONS = new Float32Array([
+  0, 0, -0.022, 0.013, 0, 0.011, 0, 0, 0.005,
+  0, 0, 0.005, -0.013, 0, 0.011, 0, 0, -0.022,
+]);
+
+function PlaneMarker({ matRef }: { matRef: React.RefObject<THREE.MeshBasicMaterial> }) {
+  return (
+    <mesh>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" count={6} array={PLANE_MARKER_POSITIONS} itemSize={3} />
+      </bufferGeometry>
+      <meshBasicMaterial ref={matRef} color="#F1EAF7" transparent opacity={0} depthWrite={false} toneMapped={false} side={THREE.DoubleSide} />
+    </mesh>
+  );
+}
+
+const ORIGIN = new THREE.Vector3(0, 0, 0);
+/** kept in sync with transpacificCamera.ts's own FLIGHT_FADE_WINDOW — this generic component
+ *  can't import that journey-specific module without creating an import cycle */
+const FLIGHT_FADE_WINDOW = 0.08;
+
+/**
+ * Progressive great-circle route + tangent-facing plane marker, revealed by `routeProgressRef`
+ * (imperative — never React state, so a scroll tick never re-renders this tree). Reuses the exact
+ * same cached `points` the static `arc` line renders from; only how much of it is drawn, and the
+ * plane's position along it, change per frame.
+ */
+function FlightRoute({ points, routeProgressRef }: { points: THREE.Vector3[]; routeProgressRef: React.RefObject<number> }) {
+  const lineGeomRef = useRef<THREE.BufferGeometry>(null!);
+  const lineMatRef = useRef<THREE.LineBasicMaterial>(null!);
+  const planeGroupRef = useRef<THREE.Group>(null!);
+  const planeMatRef = useRef<THREE.MeshBasicMaterial>(null!);
+  const scratchPos = useMemo(() => new THREE.Vector3(), []);
+  const scratchTangent = useMemo(() => new THREE.Vector3(), []);
+  const scratchUp = useMemo(() => new THREE.Vector3(), []);
+  const scratchMatrix = useMemo(() => new THREE.Matrix4(), []);
+
+  const positions = useMemo(() => {
+    const arr = new Float32Array(points.length * 3);
+    points.forEach((p, i) => {
+      arr[i * 3] = p.x;
+      arr[i * 3 + 1] = p.y;
+      arr[i * 3 + 2] = p.z;
+    });
+    return arr;
+  }, [points]);
+
+  useFrame(() => {
+    const t = clamp01(routeProgressRef.current ?? 0);
+    const lastIndex = points.length - 1;
+
+    lineGeomRef.current?.setDrawRange(0, Math.max(2, Math.round(t * lastIndex) + 1));
+
+    const fadeIn = smoothstep(t / FLIGHT_FADE_WINDOW);
+    const fadeOut = 1 - smoothstep((t - (1 - FLIGHT_FADE_WINDOW)) / FLIGHT_FADE_WINDOW);
+    const opacity = Math.min(fadeIn, fadeOut);
+    if (lineMatRef.current) lineMatRef.current.opacity = 0.7 * opacity;
+
+    const idx = t * lastIndex;
+    const i0 = Math.min(lastIndex - 1, Math.floor(idx));
+    const localT = idx - i0;
+    scratchPos.lerpVectors(points[i0], points[i0 + 1], localT);
+    scratchTangent.subVectors(points[i0 + 1], points[i0]).normalize();
+    scratchUp.copy(scratchPos).normalize();
+
+    if (planeGroupRef.current) {
+      planeGroupRef.current.position.copy(scratchPos);
+      scratchMatrix.lookAt(ORIGIN, scratchTangent, scratchUp);
+      planeGroupRef.current.quaternion.setFromRotationMatrix(scratchMatrix);
+    }
+    if (planeMatRef.current) planeMatRef.current.opacity = opacity;
+  });
+
+  return (
+    <>
+      <line>
+        <bufferGeometry ref={lineGeomRef}>
+          <bufferAttribute attach="attributes-position" count={points.length} array={positions} itemSize={3} />
+        </bufferGeometry>
+        <lineBasicMaterial ref={lineMatRef} color="#C9BAD9" transparent opacity={0} depthWrite={false} toneMapped={false} />
+      </line>
+      <group ref={planeGroupRef}>
+        <PlaneMarker matRef={planeMatRef} />
+      </group>
+    </>
+  );
 }
 
 function GlobeScene({
@@ -454,6 +559,10 @@ function GlobeScene({
   }, [handleRef, controller.setViewState, controller.resetView, controller.zoomBy]);
 
   const arcSegments = useMemo(() => (arc ? arcPoints(arc.from, arc.to) : null), [arc]);
+  // progressive route+plane mode is opt-in via the caller's initial viewState including a
+  // routeProgress number (see GlobeViewState) — undefined (ChapterTransition's usage) keeps the
+  // original always-fully-drawn static arc unchanged
+  const progressiveRoute = arc != null && viewState?.routeProgress !== undefined;
   const focusMarker = markers[0];
   const focusPoint = useMemo(
     () => (focusMarker ? latLonToVector3(focusMarker.position.lat, focusMarker.position.lon, 1) : undefined),
@@ -494,7 +603,12 @@ function GlobeScene({
         {earthReady && markers.map((m) => (
           <Marker key={m.id} marker={m} occludeBy={earthMeshRef} />
         ))}
-        {arcSegments && <Line points={arcSegments} color="#C9BAD9" dashed dashSize={0.022} gapSize={0.016} transparent opacity={0.75} />}
+        {arcSegments &&
+          (progressiveRoute ? (
+            <FlightRoute points={arcSegments} routeProgressRef={controller.routeProgressRef} />
+          ) : (
+            <Line points={arcSegments} color="#C9BAD9" dashed dashSize={0.022} gapSize={0.016} transparent opacity={0.75} />
+          ))}
       </group>
       <Atmosphere />
     </>

@@ -2,6 +2,10 @@ import { chapters } from "@/data/biography";
 import { getStageById } from "@/lib/biography/journeyStages";
 import { clamp01, lerp, localProgress, rampDownTo, rampUpFrom, smoothstep, stageWeight } from "@/lib/biography/journeyMotion";
 import { GLOBE_DEFAULT_DISTANCE, GLOBE_ZOOMED_DISTANCE, type GlobeViewState } from "@/components/biography/SatelliteGlobeCanvas";
+import {
+  computeGlobeArrivalOpacity,
+  computeHanoiMapExitOpacity,
+} from "@/lib/biography/transpacificCamera";
 
 /** Hanoi — the one verified coordinate this whole approach is built around, reused verbatim. */
 const HANOI = chapters[0].globeTarget;
@@ -10,7 +14,6 @@ const EARTH_INTRO = getStageById("earth-intro");
 const VIETNAM_APPROACH = getStageById("vietnam-approach");
 const HANOI_APPROACH = getStageById("hanoi-approach");
 const HANOI_OVERVIEW = getStageById("hanoi-overview");
-const HANOI_PIN_5 = getStageById("hanoi-pin-5");
 
 export const APPROACH_STAGE_IDS: ReadonlySet<string> = new Set([
   EARTH_INTRO.id,
@@ -62,36 +65,29 @@ export function computeApproachViewState(progress: number, reducedMotion: boolea
 }
 
 /**
- * Globe opacity: solid through earth-intro and vietnam-approach, ramping to 0 across the final
- * portion of hanoi-approach so it's fully hidden by the moment hanoi-overview begins — never
- * ramps back up past that point. The caller passes a much smaller `fade` under reduced motion
- * (REDUCED_FADE vs MOTION_FADE), which is what turns this into "a short window right at the
- * hanoi-overview boundary" instead of a fade spread across the tail of hanoi-approach.
+ * Globe opacity has two humps, occupying disjoint regions of the 0–1 progress domain so a plain
+ * `Math.max` combines them safely: the original earth-intro → hanoi-overview approach (solid,
+ * ramping to 0 by hanoi-overview, never ramping back up on its own), and Phase 7's departure →
+ * arrival hump (0 through the Hanoi pin stages, ramping up as hanoi-departure reveals the globe
+ * again, solid through transpacific-flight, ramping back to 0 approaching us-overview). The
+ * second hump's own timing constants are centralized in transpacificCamera.ts, the single source
+ * for the whole hanoi-departure/transpacific-flight/us-overview sequence.
  */
 export function computeGlobeOpacity(progress: number, fade: number): number {
-  return rampDownTo(progress, HANOI_OVERVIEW.start, fade);
+  const approach = rampDownTo(progress, HANOI_OVERVIEW.start, fade);
+  const departureToArrival = computeGlobeArrivalOpacity(progress);
+  return Math.max(approach, departureToArrival);
 }
-
-/**
- * Pin-5's exit fade uses a much narrower window than the standard 60%-overlap `fade`. Phase 5
- * found the standard width left only ~0.08 of local progress (≈60px of scroll) between the
- * camera settling (local 0.32) and this fade starting (local 1 - fade/stageWidth ≈ 0.4) — barely
- * any room for Phase 6's story to be read. Narrowing just this one boundary (not the entrance,
- * which already reads well, and not pins 1–4, whose "exit" is a continued camera move handled by
- * deriveStoryWeights instead of an opacity fade) pushes the fade-out to local ≈0.88, giving a
- * real reading window while still handing off smoothly into hanoi-departure's own unchanged
- * generic fade-in (which starts at the same absolute progress as before).
- */
-const PIN_5_EXIT_FADE_RATIO = 0.2;
 
 /**
  * Map opacity: fades in over the same window the globe fades out (mirroring it exactly), stays
  * solid across hanoi-overview and all five pin stages (Phase 5 absorbs those into the same
- * persistent map), and fades out into hanoi-departure — narrowly, per PIN_5_EXIT_FADE_RATIO above.
+ * persistent map), then retracts during hanoi-departure — Pin 5 stays readable through that
+ * stage's own leading hold fraction before fading, per transpacificCamera's DEPARTURE_RETRACT_AT.
  */
 export function computeMapOpacity(progress: number, fade: number): number {
   const enter = rampUpFrom(progress, HANOI_OVERVIEW.start, fade);
-  const exit = rampDownTo(progress, HANOI_PIN_5.end, fade * PIN_5_EXIT_FADE_RATIO);
+  const exit = computeHanoiMapExitOpacity(progress);
   return Math.min(enter, exit);
 }
 
