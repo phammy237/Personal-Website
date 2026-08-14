@@ -17,6 +17,7 @@ import {
   computePlaneOpacity,
   computeUsMapOpacity,
 } from "@/lib/biography/transpacificCamera";
+import { US_JOURNEY_STAGE_IDS, type UsMapStageHandle } from "@/lib/biography/usCamera";
 import type { JourneyChapterId, JourneyStageId } from "@/lib/biography/journeyTypes";
 import type { SatelliteGlobeHandle } from "@/components/biography/SatelliteGlobeCanvas";
 import { JourneyStage } from "@/components/biography/journey/JourneyStage";
@@ -45,6 +46,7 @@ export function GeographicJourney() {
   const travelLabelRef = useRef<HTMLDivElement | null>(null);
   const globeHandleRef = useRef<SatelliteGlobeHandle | null>(null);
   const hanoiMapHandleRef = useRef<HanoiMapStageHandle | null>(null);
+  const usMapHandleRef = useRef<UsMapStageHandle | null>(null);
   const gsapRef = useRef<{ gsap: typeof import("gsap").gsap; trigger: import("gsap/ScrollTrigger").ScrollTrigger } | null>(
     null
   );
@@ -77,7 +79,12 @@ export function GeographicJourney() {
       // Earth → Vietnam → Hanoi map block below (that block needs to stay solid across several
       // stage boundaries instead of fading at each one, so it can't use this per-stage weight)
       for (const stage of journeyStages) {
-        if (APPROACH_STAGE_IDS.has(stage.id) || HANOI_PIN_STAGE_IDS_SET.has(stage.id) || TRANSPACIFIC_STAGE_IDS.has(stage.id))
+        if (
+          APPROACH_STAGE_IDS.has(stage.id) ||
+          HANOI_PIN_STAGE_IDS_SET.has(stage.id) ||
+          TRANSPACIFIC_STAGE_IDS.has(stage.id) ||
+          US_JOURNEY_STAGE_IDS.has(stage.id)
+        )
           continue;
         const el = stageElsRef.current.get(stage.id);
         if (!el) continue;
@@ -115,6 +122,7 @@ export function GeographicJourney() {
       // transition anywhere in the journey is the one-off earth-intro interactive/scroll handoff
       globeHandleRef.current?.setViewState(viewState, { animate: crossingEarthIntroBoundary });
       hanoiMapHandleRef.current?.updateCamera(progress);
+      usMapHandleRef.current?.updateCamera(progress);
 
       const earthEl = earthContainerRef.current;
       if (earthEl) {
@@ -309,6 +317,7 @@ export function GeographicJourney() {
                     ref={(el) => {
                       usMapContainerRef.current = el;
                     }}
+                    handleRef={usMapHandleRef}
                     reducedMotion={reducedMotion}
                   />
                   <div
@@ -322,7 +331,12 @@ export function GeographicJourney() {
                 </Fragment>
               );
             }
-            if (APPROACH_STAGE_IDS.has(stage.id) || HANOI_PIN_STAGE_IDS_SET.has(stage.id) || TRANSPACIFIC_STAGE_IDS.has(stage.id))
+            if (
+              APPROACH_STAGE_IDS.has(stage.id) ||
+              HANOI_PIN_STAGE_IDS_SET.has(stage.id) ||
+              TRANSPACIFIC_STAGE_IDS.has(stage.id) ||
+              US_JOURNEY_STAGE_IDS.has(stage.id)
+            )
               return null; // absorbed above
             return (
               <JourneyStage
