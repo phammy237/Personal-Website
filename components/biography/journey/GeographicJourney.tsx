@@ -17,7 +17,14 @@ import {
   computePlaneOpacity,
   computeUsMapOpacity,
 } from "@/lib/biography/transpacificCamera";
-import { US_JOURNEY_STAGE_IDS, type UsMapStageHandle } from "@/lib/biography/usCamera";
+import {
+  GAINESVILLE_PIN_ID,
+  RIVERMONT_PIN_ID,
+  US_JOURNEY_STAGE_IDS,
+  computeGainesvilleClickTargetProgress,
+  computeRivermontClickTargetProgress,
+  type UsMapStageHandle,
+} from "@/lib/biography/usCamera";
 import type { JourneyChapterId, JourneyStageId } from "@/lib/biography/journeyTypes";
 import type { SatelliteGlobeHandle } from "@/components/biography/SatelliteGlobeCanvas";
 import { JourneyStage } from "@/components/biography/journey/JourneyStage";
@@ -289,6 +296,16 @@ export function GeographicJourney() {
     [scrollToProgress]
   );
 
+  // same pattern for the U.S. map's two real pins — lands inside each location's own stable story
+  // window, never touches camera/story/status state directly
+  const scrollToUsPin = useCallback(
+    (pinId: string) => {
+      if (pinId === RIVERMONT_PIN_ID) scrollToProgress(computeRivermontClickTargetProgress());
+      else if (pinId === GAINESVILLE_PIN_ID) scrollToProgress(computeGainesvilleClickTargetProgress());
+    },
+    [scrollToProgress]
+  );
+
   return (
     <div className="relative bg-navy">
       <div ref={rootRef} className="relative" style={{ height: `${TOTAL_VH}vh` }}>
@@ -319,6 +336,7 @@ export function GeographicJourney() {
                     }}
                     handleRef={usMapHandleRef}
                     reducedMotion={reducedMotion}
+                    onSelectPin={scrollToUsPin}
                   />
                   <div
                     ref={travelLabelRef}
