@@ -1,12 +1,10 @@
 "use client";
-import { useMemo, useState } from "react";
-import { geoMercator, geoPath } from "d3-geo";
+import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import type { FeatureCollection, Point } from "geojson";
 import { hanoiJourneyCopy, hanoiJourneyPins } from "@/data/hanoiJourney";
 import { useJourneyState } from "@/lib/hooks/useJourneyState";
-import { useGeoJson } from "@/lib/hooks/useGeoJson";
-import { HanoiMap, HANOI_MAP_WIDTH, HANOI_MAP_HEIGHT, type ProjectedPin } from "@/components/biography/HanoiMap";
+import { useHanoiMapProjection } from "@/lib/hooks/useHanoiMapProjection";
+import { HanoiMap } from "@/components/biography/HanoiMap";
 import { PinPreviewCard } from "@/components/biography/PinPreviewCard";
 import { MobilePreviewSheet } from "@/components/biography/MobilePreviewSheet";
 import { JourneyProgress } from "@/components/biography/JourneyProgress";
@@ -14,8 +12,6 @@ import { JourneyLegend } from "@/components/biography/JourneyLegend";
 import { ChapterStoryModal } from "@/components/biography/ChapterStoryModal";
 import { ChapterCheckpoint } from "@/components/biography/ChapterCheckpoint";
 import { NotYetInterlude } from "@/components/biography/NotYetInterlude";
-
-const MARGIN = 120;
 
 type View = "map" | "checkpoint" | "interlude";
 
@@ -28,53 +24,8 @@ export function HanoiJourneySection({
   onChapterComplete?: () => void;
 }) {
   const journey = useJourneyState(hanoiJourneyPins);
-  const riverData = useGeoJson("/data/hanoi-river.json");
-  const lakeData = useGeoJson("/data/west-lake.json");
-  const roadsData = useGeoJson("/data/hanoi-roads.json");
   const prefersReducedMotion = useReducedMotion();
-
-  const { projectedPins, riverPathD, lakePathD, roadsPathD } = useMemo(() => {
-    const pinFeatureCollection: FeatureCollection<Point> = {
-      type: "FeatureCollection",
-      features: journey.pins.map((p) => ({
-        type: "Feature",
-        properties: { id: p.id },
-        geometry: { type: "Point", coordinates: [p.coordinates.lon, p.coordinates.lat] },
-      })),
-    };
-
-    const projection = geoMercator().fitExtent(
-      [
-        [MARGIN, MARGIN],
-        [HANOI_MAP_WIDTH - MARGIN, HANOI_MAP_HEIGHT - MARGIN],
-      ],
-      pinFeatureCollection
-    );
-    const pathGen = geoPath(projection);
-
-    const projectedPins: ProjectedPin[] = journey.pins.map((p) => {
-      const point = projection([p.coordinates.lon, p.coordinates.lat]);
-      return {
-        ...p,
-        x: point ? (point[0] / HANOI_MAP_WIDTH) * 100 : 50,
-        y: point ? (point[1] / HANOI_MAP_HEIGHT) * 100 : 50,
-      };
-    });
-
-    const roadsPathD = roadsData
-      ? roadsData.features
-          .map((f) => pathGen(f as never))
-          .filter((d): d is string => !!d)
-          .join(" ")
-      : undefined;
-
-    return {
-      projectedPins,
-      riverPathD: riverData ? (pathGen(riverData.features[0] as never) ?? undefined) : undefined,
-      lakePathD: lakeData ? (pathGen(lakeData.features[0] as never) ?? undefined) : undefined,
-      roadsPathD: roadsPathD || undefined,
-    };
-  }, [journey.pins, riverData, lakeData, roadsData]);
+  const { projectedPins, riverPathD, lakePathD, roadsPathD } = useHanoiMapProjection(journey.pins);
 
   const [storyOpen, setStoryOpen] = useState(false);
   const [pendingCheckpoint, setPendingCheckpoint] = useState(false);

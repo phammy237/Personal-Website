@@ -8,16 +8,45 @@ import "@/components/biography/earth/earthMaterial";
 import { useEarthTextures } from "@/components/biography/earth/textures";
 import { latLonToVector3, quaternionFacingCamera } from "@/lib/three/latLon";
 import { findCountry } from "@/lib/hooks/useWorldTopology";
+import { clamp01, smoothstep } from "@/lib/biography/journeyMotion";
 import type { GeoPoint } from "@/data/biography";
 
 const RADIUS = 1;
 // fov=42° => half-fov≈21° => tan(21°)≈0.384; distance so the sphere fills ~78% of the frame height
 const MIN_DIST = 2.1;
 const MAX_DIST = 4.6;
-const DEFAULT_DIST = 2.95;
-const ZOOMED_DIST = 2.2;
+export const GLOBE_DEFAULT_DISTANCE = 2.95;
+const DEFAULT_DIST = GLOBE_DEFAULT_DISTANCE;
+/** the closest distance already verified to look good without exposing blurry texture detail —
+ *  reused as-is by the journey's Hanoi-approach camera keyframe instead of a new guessed value */
+export const GLOBE_ZOOMED_DISTANCE = 2.2;
+const ZOOMED_DIST = GLOBE_ZOOMED_DISTANCE;
 
 export type GlobeMarker = { id: string; position: GeoPoint; label: string };
+
+/**
+ * Controlled presentation state for scroll-driven callers (the journey page). Distinct from the
+ * `initialTarget`/`focusTarget`/`zoomedIn` props the uncontrolled `/biography` hero uses — those
+ * two modes never mix for a given caller.
+ */
+export type GlobeViewState = {
+  latitude: number;
+  longitude: number;
+  distance: number;
+  /** reserved for a future flight-arc scrub; unused while the view state is static */
+  routeProgress?: number;
+};
+
+/**
+ * Imperative escape hatch so a scroll loop can drive orientation/distance every frame without
+ * going through React state or re-rendering the scene graph — mirrors the internal controllerRef
+ * pattern already used here for the zoom/reset buttons, just exposed to the caller.
+ */
+export type SatelliteGlobeHandle = {
+  setViewState: (viewState: GlobeViewState, opts?: { animate?: boolean }) => void;
+  resetView: () => void;
+  zoomBy: (delta: number) => void;
+};
 
 export type SatelliteGlobeProps = {
   countries: FeatureCollection<Geometry> | null;
@@ -33,10 +62,20 @@ export type SatelliteGlobeProps = {
   focusTarget?: GeoPoint | null;
   /** dolly the camera in for a "zooming into the destination" beat */
   zoomedIn?: boolean;
+  /** wheel-over-globe also nudges camera distance by default; disable where the wheel already
+   *  means something else (e.g. the scroll-scrubbed journey, where the globe fills the screen) */
+  wheelZoom?: boolean;
   reducedMotion?: boolean;
   lowPower?: boolean;
   onFocusComplete?: () => void;
   onReady?: () => void;
+  /** controlled orientation/distance for scroll-driven callers — seeds the initial view instead
+   *  of `initialTarget`/the default distance. Leave unset for the existing uncontrolled hero. */
+  viewState?: GlobeViewState;
+  /** pauses the render loop (no unmount) when this globe isn't the visible stage */
+  visible?: boolean;
+  /** populated with an imperative handle once the scene mounts — see SatelliteGlobeHandle */
+  handleRef?: React.MutableRefObject<SatelliteGlobeHandle | null>;
 };
 
 function extractRings(geometry: Geometry): [number, number][][] {
@@ -189,6 +228,8 @@ function useGlobeController({
   interactive,
   reducedMotion,
   zoomedIn,
+  viewState,
+  wheelZoom,
   onFocusComplete,
 }: {
   groupRef: React.RefObject<THREE.Group>;
@@ -198,29 +239,40 @@ function useGlobeController({
   interactive: boolean;
   reducedMotion: boolean;
   zoomedIn: boolean;
+  viewState?: GlobeViewState;
+  wheelZoom: boolean;
   onFocusComplete?: () => void;
 }) {
   const { camera } = useThree();
   const modeRef = useRef<"idle" | "dragging" | "transition">("idle");
   const transitionRef = useRef<{ from: THREE.Quaternion; to: THREE.Quaternion; start: number; duration: number } | null>(null);
-  const distRef = useRef(DEFAULT_DIST);
-  const targetDistRef = useRef(DEFAULT_DIST);
+  const baseDist = viewState?.distance ?? DEFAULT_DIST;
+  const distRef = useRef(baseDist);
+  const targetDistRef = useRef(baseDist);
+  // imperative flight-route scrub — updated by setViewState, read every frame by FlightRoute
+  // below; never touches React state, so a scroll tick never re-renders this component
+  const routeProgressRef = useRef(viewState?.routeProgress ?? 0);
   const dragState = useRef<{ x: number; y: number } | null>(null);
   /** active pointers by id, for single-finger drag vs. two-finger pinch disambiguation */
   const activePointers = useRef<Map<number, { x: number; y: number }>>(new Map());
   const pinchStartDist = useRef<number | null>(null);
 
-  // initial orientation, set once
+  // initial orientation, set once — `viewState` (controlled callers) wins over `initialTarget`
   useEffect(() => {
     if (!groupRef.current) return;
-    const target = initialTarget;
+    const target = viewState ? { lat: viewState.latitude, lon: viewState.longitude } : initialTarget;
     if (target) groupRef.current.quaternion.copy(quaternionFacingCamera(target.lat, target.lon));
-    camera.position.set(0, 0, DEFAULT_DIST);
+    const dist = viewState?.distance ?? DEFAULT_DIST;
+    distRef.current = dist;
+    targetDistRef.current = dist;
+    camera.position.set(0, 0, dist);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
+    if (viewState) return; // controlled distance is only ever set via setViewState/mount, not zoomedIn
     targetDistRef.current = zoomedIn ? ZOOMED_DIST : DEFAULT_DIST;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [zoomedIn]);
 
   const lastFocusKey = useRef<string | null>(null);
@@ -282,7 +334,7 @@ function useGlobeController({
     const rotY = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), dx * 0.006);
     const rotX = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), dy * 0.006);
     groupRef.current.quaternion.premultiply(rotY).premultiply(rotX);
-  }, []);
+  }, [groupRef]);
   const endDrag = useCallback((e: ThreeEvent<PointerEvent>) => {
     activePointers.current.delete(e.pointerId);
     pinchStartDist.current = null;
@@ -294,20 +346,42 @@ function useGlobeController({
 
   const onWheel = useCallback(
     (e: ThreeEvent<WheelEvent>) => {
-      if (!interactive) return;
+      // deliberately never calls preventDefault/stopPropagation — the page's own scroll (and, in
+      // the journey, the whole scrubbed journey) must keep receiving this same wheel event
+      if (!interactive || !wheelZoom) return;
       targetDistRef.current = Math.max(MIN_DIST, Math.min(MAX_DIST, targetDistRef.current + e.deltaY * 0.0022));
     },
-    [interactive]
+    [interactive, wheelZoom]
   );
 
   const zoomBy = useCallback((delta: number) => {
     targetDistRef.current = Math.max(MIN_DIST, Math.min(MAX_DIST, targetDistRef.current + delta));
   }, []);
   const resetView = useCallback(() => {
-    if (!groupRef.current || !initialTarget) return;
-    groupRef.current.quaternion.copy(quaternionFacingCamera(initialTarget.lat, initialTarget.lon));
-    targetDistRef.current = DEFAULT_DIST;
-  }, [initialTarget]);
+    const target = initialTarget ?? (viewState ? { lat: viewState.latitude, lon: viewState.longitude } : undefined);
+    if (!groupRef.current || !target) return;
+    groupRef.current.quaternion.copy(quaternionFacingCamera(target.lat, target.lon));
+    modeRef.current = "idle";
+    targetDistRef.current = viewState?.distance ?? DEFAULT_DIST;
+  }, [groupRef, initialTarget, viewState]);
+
+  /** imperative, ref-driven — safe to call every animation frame without touching React state */
+  const setViewState = useCallback(
+    (next: GlobeViewState, opts?: { animate?: boolean }) => {
+      if (!groupRef.current) return;
+      const to = quaternionFacingCamera(next.latitude, next.longitude);
+      if (opts?.animate && !reducedMotion) {
+        transitionRef.current = { from: groupRef.current.quaternion.clone(), to, start: performance.now(), duration: 800 };
+        modeRef.current = "transition";
+      } else {
+        groupRef.current.quaternion.copy(to);
+        if (modeRef.current === "transition") modeRef.current = "idle";
+      }
+      targetDistRef.current = Math.max(MIN_DIST, Math.min(MAX_DIST, next.distance));
+      if (next.routeProgress !== undefined) routeProgressRef.current = next.routeProgress;
+    },
+    [groupRef, reducedMotion]
+  );
 
   useFrame((_, delta) => {
     if (!groupRef.current) return;
@@ -330,7 +404,107 @@ function useGlobeController({
     camera.position.z = distRef.current;
   });
 
-  return { onPointerDown, onPointerMove, onPointerUp: endDrag, onPointerLeave: endDrag, onWheel, zoomBy, resetView };
+  return {
+    onPointerDown,
+    onPointerMove,
+    onPointerUp: endDrag,
+    onPointerLeave: endDrag,
+    onWheel,
+    zoomBy,
+    resetView,
+    setViewState,
+    routeProgressRef,
+  };
+}
+
+/** small dart/kite plane silhouette, flat in the local X-Z plane (Y = surface-normal thickness),
+ *  nose at local -Z — matches the forward convention `Matrix4.lookAt` produces (see FlightRoute) */
+const PLANE_MARKER_POSITIONS = new Float32Array([
+  0, 0, -0.022, 0.013, 0, 0.011, 0, 0, 0.005,
+  0, 0, 0.005, -0.013, 0, 0.011, 0, 0, -0.022,
+]);
+
+function PlaneMarker({ matRef }: { matRef: React.RefObject<THREE.MeshBasicMaterial> }) {
+  return (
+    <mesh>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" count={6} array={PLANE_MARKER_POSITIONS} itemSize={3} />
+      </bufferGeometry>
+      <meshBasicMaterial ref={matRef} color="#F1EAF7" transparent opacity={0} depthWrite={false} toneMapped={false} side={THREE.DoubleSide} />
+    </mesh>
+  );
+}
+
+const ORIGIN = new THREE.Vector3(0, 0, 0);
+/** kept in sync with transpacificCamera.ts's own FLIGHT_FADE_WINDOW — this generic component
+ *  can't import that journey-specific module without creating an import cycle */
+const FLIGHT_FADE_WINDOW = 0.08;
+
+/**
+ * Progressive great-circle route + tangent-facing plane marker, revealed by `routeProgressRef`
+ * (imperative — never React state, so a scroll tick never re-renders this tree). Reuses the exact
+ * same cached `points` the static `arc` line renders from; only how much of it is drawn, and the
+ * plane's position along it, change per frame.
+ */
+function FlightRoute({ points, routeProgressRef }: { points: THREE.Vector3[]; routeProgressRef: React.RefObject<number> }) {
+  const lineGeomRef = useRef<THREE.BufferGeometry>(null!);
+  const lineMatRef = useRef<THREE.LineBasicMaterial>(null!);
+  const planeGroupRef = useRef<THREE.Group>(null!);
+  const planeMatRef = useRef<THREE.MeshBasicMaterial>(null!);
+  const scratchPos = useMemo(() => new THREE.Vector3(), []);
+  const scratchTangent = useMemo(() => new THREE.Vector3(), []);
+  const scratchUp = useMemo(() => new THREE.Vector3(), []);
+  const scratchMatrix = useMemo(() => new THREE.Matrix4(), []);
+
+  const positions = useMemo(() => {
+    const arr = new Float32Array(points.length * 3);
+    points.forEach((p, i) => {
+      arr[i * 3] = p.x;
+      arr[i * 3 + 1] = p.y;
+      arr[i * 3 + 2] = p.z;
+    });
+    return arr;
+  }, [points]);
+
+  useFrame(() => {
+    const t = clamp01(routeProgressRef.current ?? 0);
+    const lastIndex = points.length - 1;
+
+    lineGeomRef.current?.setDrawRange(0, Math.max(2, Math.round(t * lastIndex) + 1));
+
+    const fadeIn = smoothstep(t / FLIGHT_FADE_WINDOW);
+    const fadeOut = 1 - smoothstep((t - (1 - FLIGHT_FADE_WINDOW)) / FLIGHT_FADE_WINDOW);
+    const opacity = Math.min(fadeIn, fadeOut);
+    if (lineMatRef.current) lineMatRef.current.opacity = 0.7 * opacity;
+
+    const idx = t * lastIndex;
+    const i0 = Math.min(lastIndex - 1, Math.floor(idx));
+    const localT = idx - i0;
+    scratchPos.lerpVectors(points[i0], points[i0 + 1], localT);
+    scratchTangent.subVectors(points[i0 + 1], points[i0]).normalize();
+    scratchUp.copy(scratchPos).normalize();
+
+    if (planeGroupRef.current) {
+      planeGroupRef.current.position.copy(scratchPos);
+      scratchMatrix.lookAt(ORIGIN, scratchTangent, scratchUp);
+      planeGroupRef.current.quaternion.setFromRotationMatrix(scratchMatrix);
+    }
+    if (planeMatRef.current) planeMatRef.current.opacity = opacity;
+  });
+
+  return (
+    <>
+      <line>
+        <bufferGeometry ref={lineGeomRef}>
+          <bufferAttribute attach="attributes-position" count={points.length} array={positions} itemSize={3} />
+        </bufferGeometry>
+        <lineBasicMaterial ref={lineMatRef} color="#C9BAD9" transparent opacity={0} depthWrite={false} toneMapped={false} />
+      </line>
+      <group ref={planeGroupRef}>
+        <PlaneMarker matRef={planeMatRef} />
+      </group>
+    </>
+  );
 }
 
 function GlobeScene({
@@ -343,11 +517,14 @@ function GlobeScene({
   arc,
   focusTarget,
   zoomedIn = false,
+  wheelZoom = true,
   reducedMotion = false,
   lowPower = false,
   onFocusComplete,
   onReady,
   controllerRef,
+  viewState,
+  handleRef,
 }: SatelliteGlobeProps & { controllerRef: React.MutableRefObject<{ zoomBy: (d: number) => void; resetView: () => void } | null> }) {
   const groupRef = useRef<THREE.Group>(null!);
   const earthMeshRef = useRef<THREE.Mesh>(null!);
@@ -363,7 +540,9 @@ function GlobeScene({
     ambient,
     interactive,
     reducedMotion,
+    wheelZoom,
     zoomedIn,
+    viewState,
     onFocusComplete,
   });
 
@@ -371,7 +550,19 @@ function GlobeScene({
     controllerRef.current = { zoomBy: controller.zoomBy, resetView: controller.resetView };
   }, [controller.zoomBy, controller.resetView, controllerRef]);
 
+  useEffect(() => {
+    if (!handleRef) return;
+    handleRef.current = { setViewState: controller.setViewState, resetView: controller.resetView, zoomBy: controller.zoomBy };
+    return () => {
+      if (handleRef.current) handleRef.current = null;
+    };
+  }, [handleRef, controller.setViewState, controller.resetView, controller.zoomBy]);
+
   const arcSegments = useMemo(() => (arc ? arcPoints(arc.from, arc.to) : null), [arc]);
+  // progressive route+plane mode is opt-in via the caller's initial viewState including a
+  // routeProgress number (see GlobeViewState) — undefined (ChapterTransition's usage) keeps the
+  // original always-fully-drawn static arc unchanged
+  const progressiveRoute = arc != null && viewState?.routeProgress !== undefined;
   const focusMarker = markers[0];
   const focusPoint = useMemo(
     () => (focusMarker ? latLonToVector3(focusMarker.position.lat, focusMarker.position.lon, 1) : undefined),
@@ -412,7 +603,12 @@ function GlobeScene({
         {earthReady && markers.map((m) => (
           <Marker key={m.id} marker={m} occludeBy={earthMeshRef} />
         ))}
-        {arcSegments && <Line points={arcSegments} color="#C9BAD9" dashed dashSize={0.022} gapSize={0.016} transparent opacity={0.75} />}
+        {arcSegments &&
+          (progressiveRoute ? (
+            <FlightRoute points={arcSegments} routeProgressRef={controller.routeProgressRef} />
+          ) : (
+            <Line points={arcSegments} color="#C9BAD9" dashed dashSize={0.022} gapSize={0.016} transparent opacity={0.75} />
+          ))}
       </group>
       <Atmosphere />
     </>
@@ -425,12 +621,15 @@ export function SatelliteGlobeCanvas({
   interactive = true,
   lowPower,
   onReady,
+  visible = true,
+  viewState,
   ...props
 }: SatelliteGlobeProps) {
   const [ready, setReady] = useState(false);
   const controllerRef = useRef<{ zoomBy: (d: number) => void; resetView: () => void } | null>(null);
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
   const effectiveLowPower = lowPower ?? isMobile;
+  const initialDistance = viewState?.distance ?? DEFAULT_DIST;
 
   const handleReady = useCallback(() => {
     setReady(true);
@@ -452,11 +651,13 @@ export function SatelliteGlobeCanvas({
       <Canvas
         dpr={[1, 2]}
         gl={{ antialias: true, alpha: true }}
-        camera={{ fov: 42, near: 0.1, far: 10, position: [0, 0, DEFAULT_DIST] }}
+        camera={{ fov: 42, near: 0.1, far: 10, position: [0, 0, initialDistance] }}
         style={{ width: size, height: size, cursor: interactive ? "grab" : "default", touchAction: "none" }}
+        frameloop={visible ? "always" : "never"}
       >
         <GlobeScene
           {...props}
+          viewState={viewState}
           interactive={interactive}
           lowPower={effectiveLowPower}
           onReady={handleReady}

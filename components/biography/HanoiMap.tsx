@@ -36,6 +36,8 @@ export function HanoiMap({
   reducedMotion,
   progressOverride,
   settled = false,
+  pinsInteractive = true,
+  isPinInteractive,
 }: {
   pins: ProjectedPin[];
   activePinId: string;
@@ -49,6 +51,17 @@ export function HanoiMap({
   progressOverride?: number;
   /** true once the journey is complete: pulls the map back slightly and settles the route */
   settled?: boolean;
+  /** false neutralizes pin/label buttons (disabled, no click) without hiding or redesigning them —
+   *  for contexts like the scroll-driven journey where pin selection isn't wired up yet. Ignored
+   *  for any pin covered by `isPinInteractive` below. */
+  pinsInteractive?: boolean;
+  /** optional per-pin override — when provided, takes precedence over `pinsInteractive` for that
+   *  pin id; additive and backward compatible: omitting it preserves the existing all-or-nothing
+   *  behavior exactly (every existing caller — /biography's two chapters, the Hanoi journey stage —
+   *  keeps working unchanged). Lets a caller with more than one real pin (e.g. the U.S. journey's
+   *  Rivermont + Gainesville) enable specific pins without an all-or-nothing toggle, with no DOM
+   *  interception or CSS pointer-events hacks. */
+  isPinInteractive?: (id: string) => boolean;
 }) {
   const activeIndex = pins.findIndex((p) => p.id === activePinId);
   const progress = progressOverride ?? (pins.length > 1 ? activeIndex / (pins.length - 1) : 1);
@@ -162,6 +175,7 @@ export function HanoiMap({
         {pins.map((pin) => {
           const side = pin.x > 45 ? "left" : "right";
           const status = statusFor(pin.id);
+          const interactive = isPinInteractive ? isPinInteractive(pin.id) : pinsInteractive;
           return (
             <div key={pin.id}>
               <PinLabel
@@ -172,6 +186,7 @@ export function HanoiMap({
                 side={side}
                 active={pin.id === activePinId}
                 onClick={() => onSelectPin(pin.id)}
+                disabled={!interactive}
               />
               <MapPin
                 number={pin.number}
@@ -181,6 +196,7 @@ export function HanoiMap({
                 label={`Stop ${pin.number}: ${pin.title}`}
                 onClick={() => onSelectPin(pin.id)}
                 reducedMotion={reducedMotion}
+                disabled={!interactive}
               />
             </div>
           );
