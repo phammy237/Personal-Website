@@ -1,6 +1,18 @@
 export const experience = [
   {
     role: "Product Management Intern",
+    company: "Stealth Consumer AI Startup",
+    period: "2026 — Present",
+    description: "As the sole Product Manager at an early-stage consumer AI startup, I work across product strategy, user experience, personalization, and feature development. I've helped reshape the product from a relatively linear styling tool into a more complete personalized experience, connecting how users are analyzed, what they're recommended, and how the product learns from their preferences over time.",
+    bullets: [
+      "I redesigned the end-to-end product experience across 8+ core flows, including onboarding, the home experience, wardrobe, recommendation windows, outfit planning, and personalization. I also designed the style quiz from scratch and lead recurring UI/UX reviews with the team to improve how features connect across the product.",
+      "I drove 10+ product initiatives from concept through launch, including facial evaluation, personal color analysis, visual-weight grading, makeup and accessory recommendations, outfit planning, wardrobe redesign, and marketplace and affiliate experiences, translating early ideas into product requirements, flows, and implementation priorities.",
+      "I work directly with the founder and engineering team on the product's grading and recommendation logic, helping develop rubrics around facial proportions, visual weight, skin tone, lip color, contrast, and other personalization signals, as well as feedback loops that use actions such as saving, refining, rejecting, and wearing recommendations to improve future results.",
+      "I analyzed 24 competing fashion-tech products and gathered feedback from 100+ users, including 20+ direct user conversations, using those insights to identify product gaps and prioritize the roadmap. I also contribute to early growth strategy through social media positioning, visual direction, and content planning.",
+    ],
+  },
+  {
+    role: "Product Management Intern",
     company: "Lattéra, Gator Creek LLC",
     period: "Feb 2026 — Present",
     description: "I'm helping build and validate an early-stage beverage product, working across product strategy, experimentation, analytics, and technical operations. What I like most about this role is getting to turn early-stage ideas into real user experiences, systems, and launch decisions.",
