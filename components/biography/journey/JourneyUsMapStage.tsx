@@ -5,7 +5,8 @@ import type { FeatureCollection, Point } from "geojson";
 import { HanoiMap, HANOI_MAP_WIDTH, HANOI_MAP_HEIGHT, type ProjectedPin } from "@/components/biography/HanoiMap";
 import type { PinStatus } from "@/components/biography/MapPin";
 import { JourneyUsStoryPanel } from "@/components/biography/journey/JourneyUsStoryPanel";
-import { usJourneyPins } from "@/data/usJourney";
+import { JourneyUsMemoriesPanel } from "@/components/biography/journey/JourneyUsMemoriesPanel";
+import { usJourneyPins, usMemoryMarkers } from "@/data/usJourney";
 import {
   DOMESTIC_ROUTE_WAYPOINTS,
   GAINESVILLE_PIN_ID,
@@ -115,6 +116,7 @@ export const JourneyUsMapStage = forwardRef<HTMLDivElement, JourneyUsMapStagePro
   const cameraRef = useRef<HTMLDivElement | null>(null);
   const rivermontStoryRef = useRef<HTMLDivElement | null>(null);
   const gainesvilleStoryRef = useRef<HTMLDivElement | null>(null);
+  const usMemoriesRef = useRef<HTMLDivElement | null>(null);
   const routeLineRef = useRef<SVGPathElement | null>(null);
   const planeRef = useRef<SVGGElement | null>(null);
   // cached from the measured container, not read on every scroll tick — only on mount + resize
@@ -209,6 +211,7 @@ export const JourneyUsMapStage = forwardRef<HTMLDivElement, JourneyUsMapStagePro
       };
       applyStoryWeight(rivermontStoryRef.current, frame.rivermontStoryWeight);
       applyStoryWeight(gainesvilleStoryRef.current, frame.gainesvilleStoryWeight);
+      applyStoryWeight(usMemoriesRef.current, frame.usMemoriesWeight);
     },
     [reducedMotion]
   );
@@ -286,6 +289,7 @@ export const JourneyUsMapStage = forwardRef<HTMLDivElement, JourneyUsMapStagePro
 
       <JourneyUsStoryPanel ref={rivermontStoryRef} pin={RIVERMONT_PIN_DATA} />
       <JourneyUsStoryPanel ref={gainesvilleStoryRef} pin={GAINESVILLE_PIN_DATA} />
+      <JourneyUsMemoriesPanel ref={usMemoriesRef} markers={usMemoryMarkers} />
     </div>
   );
 });

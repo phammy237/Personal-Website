@@ -41,11 +41,10 @@ export const usJourneyCopy = {
   instruction: "Follow the main route or select a location.",
 };
 
-export const usCheckpointCopy = {
-  heading: "[Placeholder heading — U.S. chapter checkpoint]",
-  subheading: "[Placeholder subheading]",
-  continueLabel: "Continue",
-  stayLabel: "Keep exploring",
+export const usMemoriesCopy = {
+  eyebrow: "US Chapter · More to come",
+  heading: "There's more to this chapter.",
+  body: "Beyond Rivermont and Gainesville, there are more places and people worth marking on this map — I'm adding them next.",
 };
 
 export const usJourneyPins: USJourneyPin[] = [

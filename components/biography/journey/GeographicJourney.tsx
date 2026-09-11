@@ -1,5 +1,6 @@
 "use client";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useReducedMotion } from "framer-motion";
 import { journeyChapters, journeyStages, getChapterIndex, getStageAtProgress } from "@/lib/biography/journeyStages";
 import { motionFade, reducedMotionFade, stageWeight } from "@/lib/biography/journeyMotion";
@@ -35,6 +36,7 @@ import { JourneyProgressRail } from "@/components/biography/journey/JourneyProgr
 import { hanoiJourneyPins } from "@/data/hanoiJourney";
 
 const EARTH_INTRO_ID: JourneyStageId = "earth-intro";
+const TODAY_AHEAD_ID: JourneyStageId = "today-ahead";
 
 /** scroll distance dedicated to each stage while the stage is pinned, in viewport-heights */
 const STAGE_VH = 90;
@@ -90,7 +92,8 @@ export function GeographicJourney() {
           APPROACH_STAGE_IDS.has(stage.id) ||
           HANOI_PIN_STAGE_IDS_SET.has(stage.id) ||
           TRANSPACIFIC_STAGE_IDS.has(stage.id) ||
-          US_JOURNEY_STAGE_IDS.has(stage.id)
+          US_JOURNEY_STAGE_IDS.has(stage.id) ||
+          stage.id === TODAY_AHEAD_ID
         )
           continue;
         const el = stageElsRef.current.get(stage.id);
@@ -353,9 +356,10 @@ export function GeographicJourney() {
               APPROACH_STAGE_IDS.has(stage.id) ||
               HANOI_PIN_STAGE_IDS_SET.has(stage.id) ||
               TRANSPACIFIC_STAGE_IDS.has(stage.id) ||
-              US_JOURNEY_STAGE_IDS.has(stage.id)
+              US_JOURNEY_STAGE_IDS.has(stage.id) ||
+              stage.id === TODAY_AHEAD_ID
             )
-              return null; // absorbed above
+              return null; // absorbed above / rendered in the real closing <section> below
             return (
               <JourneyStage
                 key={stage.id}
@@ -393,11 +397,17 @@ export function GeographicJourney() {
         className="relative z-10 flex min-h-screen flex-col items-center justify-center gap-6 bg-navy px-6 py-24 text-center"
       >
         <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent-lavender">Today &amp; Ahead</p>
-        <h2 className="max-w-2xl font-display text-4xl text-white md:text-5xl">The journey continues here.</h2>
+        <h2 className="max-w-2xl font-display text-4xl text-white md:text-5xl">This is where the story catches up to today.</h2>
         <p className="max-w-xl font-body text-base leading-relaxed text-white/60">
-          This is the landing point for the full story — where the real narrative, photos, and what comes next will
-          live once the journey is fully connected.
+          Hanoi, Rivermont, Gainesville — that&apos;s the journey so far. If any of it resonated, I&apos;d love to hear from
+          you and see where our paths cross next.
         </p>
+        <Link
+          href="/connect"
+          className="font-mono text-xs px-6 py-3 bg-accent text-white hover:bg-accent/85 transition-colors duration-200 rounded-full tracking-wider"
+        >
+          Let&apos;s Connect →
+        </Link>
       </section>
     </div>
   );

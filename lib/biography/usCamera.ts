@@ -32,20 +32,27 @@ export const RIVERMONT_DEPARTURE = getStageById("rivermont-departure");
 export const FLORIDA_FLIGHT = getStageById("florida-flight");
 export const GAINESVILLE_APPROACH = getStageById("gainesville-approach");
 export const GAINESVILLE_STORY = getStageById("gainesville-story");
+export const US_MEMORIES = getStageById("us-memories");
 
 /** every stage slot this module owns end to end — GeographicJourney excludes these from both the
  *  generic per-stage placeholder crossfade and the generic placeholder render loop, the same way
  *  transpacificCamera's TRANSPACIFIC_STAGE_IDS excludes hanoi-departure/transpacific-flight/
- *  us-overview. `rivermont-departure` is deliberately NOT included — Phase 9's own spec ties
- *  "close Rivermont" to florida-flight's own early window ("this stage includes Rivermont
- *  departure"), so rivermont-departure stays the same untouched generic placeholder it already
- *  was after Phase 8. */
+ *  us-overview. `rivermont-departure` IS included: the actual "leaving Rivermont" motion (camera
+ *  pullback, story panel retracting) is tied to florida-flight's own early window
+ *  (RIVERMONT_STORY_EXIT_AT/CAMERA_PULLBACK_AT below), so during rivermont-departure's own scroll
+ *  window the camera and story already hold steady (see computeUsCameraFrame /
+ *  deriveRivermontStoryWeight below) — it needs no rendered content of its own, only exclusion
+ *  from the generic placeholder. `us-memories` is included for the same reason: the camera holds
+ *  at Gainesville through it (see computeUsCameraFrame), and it owns its own overlay panel driven
+ *  by deriveUsMemoriesWeight below instead of the generic placeholder. */
 export const US_JOURNEY_STAGE_IDS: ReadonlySet<string> = new Set<JourneyStageId>([
   RIVERMONT_APPROACH.id,
   RIVERMONT_STORY.id,
+  RIVERMONT_DEPARTURE.id,
   FLORIDA_FLIGHT.id,
   GAINESVILLE_APPROACH.id,
   GAINESVILLE_STORY.id,
+  US_MEMORIES.id,
 ]);
 
 /** presentation-only values — centralized here, not duplicated at each call site */
@@ -253,6 +260,23 @@ export function deriveGainesvilleStoryWeight(progress: number): number {
   );
 }
 
+/**
+ * "More to come" overlay weight for us-memories — enters a quarter into its own stage window,
+ * ramps fully back down by the stage's end so today-ahead's own window is a quiet, overlay-free
+ * beat over the still-held Gainesville map (mirroring Gainesville's own story exit pattern above).
+ */
+const US_MEMORIES_ENTER_AT = lerp(US_MEMORIES.start, US_MEMORIES.end, 0.25);
+const US_MEMORIES_ENTER_WIDTH = (US_MEMORIES.end - US_MEMORIES.start) * 0.25;
+const US_MEMORIES_EXIT_AT = US_MEMORIES.end;
+const US_MEMORIES_EXIT_WIDTH = (US_MEMORIES.end - US_MEMORIES.start) * 0.2;
+
+export function deriveUsMemoriesWeight(progress: number): number {
+  return Math.min(
+    rampUpFrom(progress, US_MEMORIES_ENTER_AT, US_MEMORIES_ENTER_WIDTH),
+    rampDownTo(progress, US_MEMORIES_EXIT_AT, US_MEMORIES_EXIT_WIDTH)
+  );
+}
+
 /** — domestic route geometry — */
 
 const ROUTE_SEGMENTS = 48;
@@ -289,6 +313,7 @@ export type UsJourneyFrame = {
   planeOpacity: number;
   rivermontStoryWeight: number;
   gainesvilleStoryWeight: number;
+  usMemoriesWeight: number;
   rivermontStatus: JourneyPinStatus;
   gainesvilleStatus: JourneyPinStatus;
 };
@@ -306,6 +331,7 @@ export function computeUsJourneyFrame(progress: number): UsJourneyFrame {
     planeOpacity: computePlaneOpacity(routeProgress),
     rivermontStoryWeight: deriveRivermontStoryWeight(progress),
     gainesvilleStoryWeight: deriveGainesvilleStoryWeight(progress),
+    usMemoriesWeight: deriveUsMemoriesWeight(progress),
     rivermontStatus: deriveRivermontStatus(progress),
     gainesvilleStatus: deriveGainesvilleStatus(progress),
   };
