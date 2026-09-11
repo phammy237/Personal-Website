@@ -2,7 +2,7 @@ export const experience = [
   {
     role: "Product Management Intern",
     company: "Stealth Consumer AI Startup",
-    period: "2026 — Present",
+    period: "May 2026 — Present",
     description: "As the sole Product Manager at an early-stage consumer AI startup, I work across product strategy, user experience, personalization, and feature development. I've helped reshape the product from a relatively linear styling tool into a more complete personalized experience, connecting how users are analyzed, what they're recommended, and how the product learns from their preferences over time.",
     bullets: [
       "I redesigned the end-to-end product experience across 8+ core flows, including onboarding, the home experience, wardrobe, recommendation windows, outfit planning, and personalization. I also designed the style quiz from scratch and lead recurring UI/UX reviews with the team to improve how features connect across the product.",
