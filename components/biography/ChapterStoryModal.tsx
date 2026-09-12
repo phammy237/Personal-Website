@@ -1,17 +1,22 @@
 "use client";
 import { useEffect, useState } from "react";
 import { ModalShell } from "@/components/ui/ModalShell";
+import { ImagePlaceholder } from "@/components/biography/ImagePlaceholder";
 import type { HanoiJourneyPin } from "@/data/hanoiJourney";
 
 const isVideo = (src: string) => /\.(mp4|webm|mov)$/i.test(src);
 
 function HeroSlideshow({ pin }: { pin: HanoiJourneyPin }) {
-  const slides = pin.gallery && pin.gallery.length > 0 ? pin.gallery : [pin.image];
+  const slides = pin.gallery && pin.gallery.length > 0 ? pin.gallery : pin.image ? [pin.image] : [];
   const [idx, setIdx] = useState(0);
   const multi = slides.length > 1;
 
   // reset to the first slide whenever the chapter changes (this component stays mounted across prev/next)
   useEffect(() => setIdx(0), [pin.id]);
+
+  if (slides.length === 0) {
+    return <ImagePlaceholder bare caption="No photos yet" className="h-full w-full" />;
+  }
 
   return (
     <>

@@ -12,15 +12,15 @@ import type { USJourneyPin } from "@/data/usJourney";
  * existing `StorySection` renderer verbatim (three layout variants, placeholder-image handling)
  * instead of re-implementing that layout logic here.
  *
- * GeographicJourney/JourneyUsMapStage own this element's opacity/transform via the forwarded ref —
- * nothing here animates on its own. Aria-hidden/inert are likewise applied imperatively by the
- * caller's scroll-tick loop, matching JourneyPinStoryPanel's own established pattern.
+ * JourneyStoryLayer owns this element's opacity/transform via the forwarded ref — nothing here
+ * animates on its own. Aria-hidden/inert are likewise applied imperatively by the caller's
+ * scroll-tick loop, matching JourneyPinStoryPanel's own established pattern. `loadMedia` gates
+ * whether real media actually loads — only the current and immediately adjacent stories load
+ * media, matching JourneyPinStoryPanel's own perf gate.
  */
-export const JourneyUsStoryPanel = forwardRef<HTMLDivElement, { pin: USJourneyPin }>(function JourneyUsStoryPanel(
-  { pin },
-  ref
-) {
-  return (
+export const JourneyUsStoryPanel = forwardRef<HTMLDivElement, { pin: USJourneyPin; loadMedia: boolean }>(
+  function JourneyUsStoryPanel({ pin, loadMedia }, ref) {
+    return (
     // Same outer-wrapper/inner-ref split as JourneyPinStoryPanel, for the same reason: layout
     // positioning (mobile bottom sheet vs. desktop right panel) lives on this static wrapper via
     // flexbox, never as a transform, so it never fights with the inner element's own imperative
@@ -41,7 +41,7 @@ export const JourneyUsStoryPanel = forwardRef<HTMLDivElement, { pin: USJourneyPi
             {String(pin.number).padStart(2, "0")}
           </span>
           <div className="min-w-0">
-            <h3 className="font-display text-lg leading-tight text-surface dark:text-white">{pin.preview.title}</h3>
+            <h2 className="font-display text-lg leading-tight text-surface dark:text-white">{pin.preview.title}</h2>
             <p className="mt-0.5 truncate font-mono text-[10px] uppercase tracking-wider text-accent">
               {pin.subtitle} · {pin.yearRange}
             </p>
@@ -58,10 +58,11 @@ export const JourneyUsStoryPanel = forwardRef<HTMLDivElement, { pin: USJourneyPi
           <p className="font-body text-sm leading-relaxed text-muted dark:text-white/65">{pin.preview.description}</p>
 
           {pin.storySections.map((section, i) => (
-            <StorySection key={section.id} section={section} index={i} />
+            <StorySection key={section.id} section={section} index={i} loadMedia={loadMedia} />
           ))}
         </div>
       </div>
     </div>
-  );
-});
+    );
+  }
+);

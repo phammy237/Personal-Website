@@ -1,193 +1,89 @@
 "use client";
-import { Fragment, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useReducedMotion } from "framer-motion";
 import { journeyChapters, journeyStages, getChapterIndex, getStageAtProgress } from "@/lib/biography/journeyStages";
-import { motionFade, reducedMotionFade, stageWeight } from "@/lib/biography/journeyMotion";
 import {
-  APPROACH_STAGE_IDS,
-  HANOI_APPROACH,
-  computeApproachViewState,
-  computeGlobeOpacity,
-  computeMapOpacity,
-} from "@/lib/biography/journeyCamera";
-import { HANOI_PIN_STAGE_IDS_SET, computePinClickTargetProgress, type HanoiMapStageHandle } from "@/lib/biography/hanoiCamera";
+  derivePinCursor,
+  derivePinStatus,
+  toMapPinStatus,
+  deriveRouteProgress,
+  computePinClickTargetProgress,
+} from "@/lib/biography/hanoiCamera";
+import { computeGlobeArrivalOpacity } from "@/lib/biography/transpacificCamera";
 import {
-  TRANSPACIFIC_STAGE_IDS,
-  computeTranspacificGlobeView,
-  computePlaneOpacity,
-  computeUsMapOpacity,
-} from "@/lib/biography/transpacificCamera";
-import {
-  GAINESVILLE_PIN_ID,
   RIVERMONT_PIN_ID,
-  US_JOURNEY_STAGE_IDS,
-  computeGainesvilleClickTargetProgress,
+  GAINESVILLE_PIN_ID,
+  deriveRivermontStatus,
+  deriveGainesvilleStatus,
+  toUsMapPinStatus,
+  computeUsRouteProgress,
   computeRivermontClickTargetProgress,
-  type UsMapStageHandle,
+  computeGainesvilleClickTargetProgress,
 } from "@/lib/biography/usCamera";
-import type { JourneyChapterId, JourneyStageId } from "@/lib/biography/journeyTypes";
-import type { SatelliteGlobeHandle } from "@/components/biography/SatelliteGlobeCanvas";
-import { JourneyStage } from "@/components/biography/journey/JourneyStage";
-import { JourneyEarthStage } from "@/components/biography/journey/JourneyEarthStage";
-import { JourneyHanoiMapStage } from "@/components/biography/journey/JourneyHanoiMapStage";
-import { JourneyUsMapStage } from "@/components/biography/journey/JourneyUsMapStage";
+import { computeJourneyCameraState } from "@/lib/biography/journeyMapCamera";
+import type { JourneyChapterId } from "@/lib/biography/journeyTypes";
+import { useTheme } from "@/components/layout/ThemeProvider";
+import { JourneyMapStage } from "@/components/biography/journey/JourneyMapStage";
+import type { JourneyMapHandle } from "@/components/biography/journey/JourneyMapCanvas";
+import { JourneyStoryLayer, type JourneyStoryLayerHandle } from "@/components/biography/journey/JourneyStoryLayer";
 import { JourneyProgressRail } from "@/components/biography/journey/JourneyProgressRail";
+import { JourneyPinPreview, type JourneyPinPreviewData } from "@/components/biography/journey/JourneyPinPreview";
 import { hanoiJourneyPins } from "@/data/hanoiJourney";
-
-const EARTH_INTRO_ID: JourneyStageId = "earth-intro";
-const TODAY_AHEAD_ID: JourneyStageId = "today-ahead";
+import { usJourneyPins } from "@/data/usJourney";
 
 /** scroll distance dedicated to each stage while the stage is pinned, in viewport-heights */
 const STAGE_VH = 90;
 const TOTAL_VH = STAGE_VH * journeyStages.length;
-/** how far (in normalized progress) a stage fades in/out into its neighbors — the crossfade overlap */
-const MOTION_FADE = motionFade(journeyStages.length);
-const REDUCED_FADE = reducedMotionFade(journeyStages.length);
 
 export function GeographicJourney() {
   const rootRef = useRef<HTMLDivElement>(null);
   const todaySectionRef = useRef<HTMLDivElement>(null);
-  const stageElsRef = useRef(new Map<JourneyStageId, HTMLDivElement>());
-  const earthContainerRef = useRef<HTMLDivElement | null>(null);
-  const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const usMapContainerRef = useRef<HTMLDivElement | null>(null);
-  const travelLabelRef = useRef<HTMLDivElement | null>(null);
-  const globeHandleRef = useRef<SatelliteGlobeHandle | null>(null);
-  const hanoiMapHandleRef = useRef<HanoiMapStageHandle | null>(null);
-  const usMapHandleRef = useRef<UsMapStageHandle | null>(null);
+  const mapHandleRef = useRef<JourneyMapHandle | null>(null);
+  const storyLayerHandleRef = useRef<JourneyStoryLayerHandle | null>(null);
   const gsapRef = useRef<{ gsap: typeof import("gsap").gsap; trigger: import("gsap/ScrollTrigger").ScrollTrigger } | null>(
     null
   );
 
-  const [activeStageId, setActiveStageId] = useState<JourneyStageId>(journeyStages[0].id);
+  const [activeStageId, setActiveStageId] = useState(journeyStages[0].id);
   const activeStageIdRef = useRef(activeStageId);
-  // edge-triggered (only flips when the globe's own opacity crosses ~0), not a per-frame value —
-  // this is what lets the globe's Canvas pause its render loop instead of re-rendering every tick
-  const [earthVisible, setEarthVisible] = useState(true);
-  const earthVisibleRef = useRef(true);
-  // the very first applyProgress call (right after ScrollTrigger mounts) must never trigger an
-  // animated camera transition, even on a mid-journey refresh where activeStageIdRef's hardcoded
-  // default ("earth-intro") doesn't yet match the real stage — see applyProgress below
-  const initialSyncRef = useRef(true);
+  const [hoveredPinId, setHoveredPinId] = useState<string | null>(null);
 
   const reducedMotion = !!useReducedMotion();
-
-  const setStageRef = useCallback((id: JourneyStageId) => (el: HTMLDivElement | null) => {
-    if (el) stageElsRef.current.set(id, el);
-    else stageElsRef.current.delete(id);
-  }, []);
+  const { theme } = useTheme();
 
   const applyProgress = useCallback(
     (progress: number, gsapInstance?: typeof import("gsap").gsap) => {
-      const fade = reducedMotion ? REDUCED_FADE : MOTION_FADE;
+      void gsapInstance; // no generic per-stage DOM crossfade remains — every stage is now owned by
+      // either the persistent map or the story layer, both driven imperatively below
       const current = getStageAtProgress(progress);
       const previousStageId = activeStageIdRef.current;
 
-      // generic per-stage crossfade for every stage except the ones absorbed into the combined
-      // Earth → Vietnam → Hanoi map block below (that block needs to stay solid across several
-      // stage boundaries instead of fading at each one, so it can't use this per-stage weight)
-      for (const stage of journeyStages) {
-        if (
-          APPROACH_STAGE_IDS.has(stage.id) ||
-          HANOI_PIN_STAGE_IDS_SET.has(stage.id) ||
-          TRANSPACIFIC_STAGE_IDS.has(stage.id) ||
-          US_JOURNEY_STAGE_IDS.has(stage.id) ||
-          stage.id === TODAY_AHEAD_ID
-        )
-          continue;
-        const el = stageElsRef.current.get(stage.id);
-        if (!el) continue;
-        const weight = stageWeight(progress, stage.start, stage.end, fade);
-        if (gsapInstance) {
-          if (reducedMotion) {
-            gsapInstance.set(el, { opacity: weight, scale: 1, y: 0 });
-          } else {
-            gsapInstance.set(el, { opacity: weight, scale: 0.94 + 0.06 * weight, y: (1 - weight) * 28 });
-          }
-        } else {
-          el.style.opacity = String(weight);
-        }
-        el.style.pointerEvents = weight > 0.5 ? "auto" : "none";
-        el.setAttribute("aria-hidden", weight > 0.5 ? "false" : "true");
-      }
+      // the persistent map's whole camera choreography — one continuous progress→state function
+      // spanning Earth → Vietnam → Hanoi → back out → United States → Rivermont → Gainesville.
+      mapHandleRef.current?.setCamera(computeJourneyCameraState(progress, reducedMotion));
 
-      // combined approach: one continuous globe camera move, crossfading into the Hanoi map, then
-      // (Phase 7) back out into a Hanoi-facing globe, across the Pacific, and into the U.S. map.
-      // The two view-state functions hand off at HANOI_APPROACH.end, where they evaluate to the
-      // exact same keyframe (Hanoi, at the globe's zoomed distance) — no discontinuity at the seam.
-      const globeOpacity = computeGlobeOpacity(progress, fade);
-      const mapOpacity = computeMapOpacity(progress, fade);
-      const transpacificView = computeTranspacificGlobeView(progress, reducedMotion);
-      const viewState = progress < HANOI_APPROACH.end ? computeApproachViewState(progress, reducedMotion) : transpacificView;
-      const routeProgress = transpacificView.routeProgress ?? 0;
-      const usMapOpacity = computeUsMapOpacity(progress);
-      const planeLabelOpacity = computePlaneOpacity(routeProgress);
+      // Hanoi pins/route
+      const hanoiCursor = derivePinCursor(progress);
+      hanoiJourneyPins.forEach((pin, i) => {
+        mapHandleRef.current?.setPinStatus(pin.id, toMapPinStatus(derivePinStatus(i, hanoiCursor)));
+      });
+      mapHandleRef.current?.setHanoiRouteProgress(deriveRouteProgress(hanoiCursor));
 
-      const crossingEarthIntroBoundary =
-        !initialSyncRef.current &&
-        !reducedMotion &&
-        (previousStageId === EARTH_INTRO_ID) !== (current.id === EARTH_INTRO_ID);
-      // routine scroll frames are always scrubbed directly (animate:false) — the only animated
-      // transition anywhere in the journey is the one-off earth-intro interactive/scroll handoff
-      globeHandleRef.current?.setViewState(viewState, { animate: crossingEarthIntroBoundary });
-      hanoiMapHandleRef.current?.updateCamera(progress);
-      usMapHandleRef.current?.updateCamera(progress);
+      // U.S. pins/route
+      mapHandleRef.current?.setPinStatus(RIVERMONT_PIN_ID, toUsMapPinStatus(deriveRivermontStatus(progress)));
+      mapHandleRef.current?.setPinStatus(GAINESVILLE_PIN_ID, toUsMapPinStatus(deriveGainesvilleStatus(progress)));
+      mapHandleRef.current?.setDomesticRouteProgress(computeUsRouteProgress(progress));
+      // trans-Pacific route: visible only through the same reveal/retreat hump the globe crossing uses
+      mapHandleRef.current?.setTranspacificRouteOpacity(computeGlobeArrivalOpacity(progress));
 
-      const earthEl = earthContainerRef.current;
-      if (earthEl) {
-        if (gsapInstance) {
-          if (reducedMotion) gsapInstance.set(earthEl, { opacity: globeOpacity, scale: 1, y: 0 });
-          else gsapInstance.set(earthEl, { opacity: globeOpacity, scale: 0.97 + 0.03 * globeOpacity });
-        } else {
-          earthEl.style.opacity = String(globeOpacity);
-        }
-        earthEl.style.pointerEvents = globeOpacity > 0.5 ? "auto" : "none";
-        earthEl.setAttribute("aria-hidden", globeOpacity > 0.5 ? "false" : "true");
-      }
-
-      const mapEl = mapContainerRef.current;
-      if (mapEl) {
-        if (gsapInstance) {
-          if (reducedMotion) gsapInstance.set(mapEl, { opacity: mapOpacity, scale: 1, y: 0 });
-          else gsapInstance.set(mapEl, { opacity: mapOpacity, scale: 0.92 + 0.08 * mapOpacity });
-        } else {
-          mapEl.style.opacity = String(mapOpacity);
-        }
-        mapEl.style.pointerEvents = mapOpacity > 0.5 ? "auto" : "none";
-        mapEl.setAttribute("aria-hidden", mapOpacity > 0.5 ? "false" : "true");
-      }
-
-      const usMapEl = usMapContainerRef.current;
-      if (usMapEl) {
-        if (gsapInstance) {
-          if (reducedMotion) gsapInstance.set(usMapEl, { opacity: usMapOpacity, scale: 1, y: 0 });
-          else gsapInstance.set(usMapEl, { opacity: usMapOpacity, scale: 0.92 + 0.08 * usMapOpacity });
-        } else {
-          usMapEl.style.opacity = String(usMapOpacity);
-        }
-        usMapEl.style.pointerEvents = usMapOpacity > 0.5 ? "auto" : "none";
-        usMapEl.setAttribute("aria-hidden", usMapOpacity > 0.5 ? "false" : "true");
-      }
-
-      // minimal, purely decorative travel label — fades with the plane/route it accompanies
-      const labelEl = travelLabelRef.current;
-      if (labelEl) {
-        if (gsapInstance) gsapInstance.set(labelEl, { opacity: planeLabelOpacity });
-        else labelEl.style.opacity = String(planeLabelOpacity);
-      }
-
-      const nextEarthVisible = globeOpacity > 0.01;
-      if (nextEarthVisible !== earthVisibleRef.current) {
-        earthVisibleRef.current = nextEarthVisible;
-        setEarthVisible(nextEarthVisible);
-      }
+      // story panels — opacity/slide-in for whichever location is currently being read
+      storyLayerHandleRef.current?.update(progress);
 
       if (current.id !== previousStageId) {
         activeStageIdRef.current = current.id;
         setActiveStageId(current.id);
       }
-      initialSyncRef.current = false;
     },
     [reducedMotion]
   );
@@ -214,7 +110,6 @@ export function GeographicJourney() {
         });
         gsapRef.current = { gsap, trigger };
         // reflect whatever scroll position we already have (e.g. a mid-journey page refresh)
-        initialSyncRef.current = true;
         applyProgress(trigger.progress, gsap);
       }, rootRef);
 
@@ -239,7 +134,6 @@ export function GeographicJourney() {
 
   const activeStage = journeyStages.find((s) => s.id === activeStageId) ?? journeyStages[0];
   const activeChapterIndex = getChapterIndex(activeStage.chapter);
-  const earthInteractive = activeStageId === EARTH_INTRO_ID;
 
   // centralized boundary-safe scroll: converts a target progress (0–1) into a scrollY and scrolls
   // there — every programmatic navigation (chapter rail, pin clicks) goes through this one helper
@@ -259,7 +153,7 @@ export function GeographicJourney() {
   );
 
   const scrollToStageStart = useCallback(
-    (stageId: JourneyStageId) => {
+    (stageId: (typeof journeyStages)[number]["id"]) => {
       const stage = journeyStages.find((s) => s.id === stageId);
       if (!stage) return;
       // nudge a hair past the exact boundary — landing precisely on stage.start can round down a
@@ -288,8 +182,11 @@ export function GeographicJourney() {
     [scrollToStageStart, scrollToTodaySection]
   );
 
-  // pin clicks only ever request a scroll — the existing applyProgress/updateCamera engine is
-  // what actually recomputes camera, route, pin statuses, and story visibility as it animates
+  // pin clicks only ever request a scroll — the existing applyProgress engine is what actually
+  // recomputes camera, route, pin statuses, and story panel visibility as it animates there. This
+  // is the single source of truth the whole journey shares: scroll progress. A click never sets
+  // camera or pin state directly, so there's nothing for it to conflict with once the scroll
+  // settles — the guided flow just resumes from wherever the click landed.
   const scrollToPin = useCallback(
     (pinId: string) => {
       const index = hanoiJourneyPins.findIndex((p) => p.id === pinId);
@@ -299,8 +196,6 @@ export function GeographicJourney() {
     [scrollToProgress]
   );
 
-  // same pattern for the U.S. map's two real pins — lands inside each location's own stable story
-  // window, never touches camera/story/status state directly
   const scrollToUsPin = useCallback(
     (pinId: string) => {
       if (pinId === RIVERMONT_PIN_ID) scrollToProgress(computeRivermontClickTargetProgress());
@@ -309,70 +204,66 @@ export function GeographicJourney() {
     [scrollToProgress]
   );
 
+  const handlePinClick = useCallback(
+    (pinId: string) => {
+      if (pinId === RIVERMONT_PIN_ID || pinId === GAINESVILLE_PIN_ID) scrollToUsPin(pinId);
+      else scrollToPin(pinId);
+    },
+    [scrollToPin, scrollToUsPin]
+  );
+
+  // hover is purely a discovery/teaser affordance — it never touches scroll progress, camera, or
+  // pin status, so it can never compete with the guided scroll flow (see JourneyPinPreview)
+  const hoveredPin =
+    hanoiJourneyPins.find((p) => p.id === hoveredPinId) ?? usJourneyPins.find((p) => p.id === hoveredPinId) ?? null;
+  const hoverPreview: JourneyPinPreviewData | null = hoveredPin
+    ? {
+        id: hoveredPin.id,
+        number: hoveredPin.number,
+        title: hoveredPin.title,
+        subtitle: hoveredPin.subtitle,
+        description: hoveredPin.preview.description,
+      }
+    : null;
+
   return (
-    <div className="relative bg-navy">
+    <div className="relative bg-base dark:bg-navy">
+      <h1 className="sr-only">My Pham&apos;s journey — from Hanoi, Vietnam to Rivermont and Gainesville, United States</h1>
       <div ref={rootRef} className="relative" style={{ height: `${TOTAL_VH}vh` }}>
         <div className="sticky top-0 h-screen w-full overflow-hidden">
-          {journeyStages.map((stage, index) => {
-            if (stage.id === EARTH_INTRO_ID) {
-              return (
-                <Fragment key="earth-approach">
-                  <JourneyEarthStage
-                    ref={(el) => {
-                      earthContainerRef.current = el;
-                    }}
-                    handleRef={globeHandleRef}
-                    visible={earthVisible}
-                    interactive={earthInteractive}
-                  />
-                  <JourneyHanoiMapStage
-                    ref={(el) => {
-                      mapContainerRef.current = el;
-                    }}
-                    handleRef={hanoiMapHandleRef}
-                    reducedMotion={reducedMotion}
-                    onSelectPin={scrollToPin}
-                  />
-                  <JourneyUsMapStage
-                    ref={(el) => {
-                      usMapContainerRef.current = el;
-                    }}
-                    handleRef={usMapHandleRef}
-                    reducedMotion={reducedMotion}
-                    onSelectPin={scrollToUsPin}
-                  />
-                  <div
-                    ref={travelLabelRef}
-                    aria-hidden="true"
-                    style={{ opacity: 0 }}
-                    className="pointer-events-none absolute left-1/2 top-[10%] z-10 -translate-x-1/2 whitespace-nowrap text-center font-mono text-[11px] uppercase tracking-[0.3em] text-white/45"
-                  >
-                    Hanoi, Vietnam <span aria-hidden="true">→</span> United States
-                  </div>
-                </Fragment>
-              );
-            }
-            if (
-              APPROACH_STAGE_IDS.has(stage.id) ||
-              HANOI_PIN_STAGE_IDS_SET.has(stage.id) ||
-              TRANSPACIFIC_STAGE_IDS.has(stage.id) ||
-              US_JOURNEY_STAGE_IDS.has(stage.id) ||
-              stage.id === TODAY_AHEAD_ID
-            )
-              return null; // absorbed above / rendered in the real closing <section> below
-            return (
-              <JourneyStage
-                key={stage.id}
-                ref={setStageRef(stage.id)}
-                stage={stage}
-                index={index}
-                total={journeyStages.length}
-                initiallyActive={index === 0}
-              />
-            );
-          })}
+          <JourneyMapStage
+            theme={theme}
+            reducedMotion={reducedMotion}
+            handleRef={mapHandleRef}
+            onPinClick={handlePinClick}
+            onPinHover={setHoveredPinId}
+          />
+          <JourneyStoryLayer handleRef={storyLayerHandleRef} reducedMotion={reducedMotion} />
         </div>
       </div>
+
+      <JourneyPinPreview pin={hoverPreview} onLearnMore={handlePinClick} />
+
+      {/* Visually-hidden keyboard path to every pin — canvas-rendered map markers can't hold DOM
+          focus themselves, so this list is the accessible equivalent of clicking a pin. */}
+      <nav aria-label="Jump to a journey location" className="sr-only">
+        <ul>
+          {hanoiJourneyPins.map((pin) => (
+            <li key={pin.id}>
+              <button type="button" onClick={() => handlePinClick(pin.id)}>
+                {pin.title} — {pin.subtitle}
+              </button>
+            </li>
+          ))}
+          {usJourneyPins.map((pin) => (
+            <li key={pin.id}>
+              <button type="button" onClick={() => handlePinClick(pin.id)}>
+                {pin.title} — {pin.subtitle}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </nav>
 
       <JourneyProgressRail
         chapters={journeyChapters}
@@ -385,7 +276,7 @@ export function GeographicJourney() {
         <button
           type="button"
           onClick={scrollToTodaySection}
-          className="fixed right-4 top-20 z-40 rounded-full border border-white/20 bg-navy-deep/80 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.2em] text-white/70 backdrop-blur-sm transition-colors hover:border-accent-lavender/60 hover:text-white md:right-8"
+          className="fixed right-4 top-20 z-40 rounded-full border border-border bg-white/80 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.2em] text-muted backdrop-blur-sm transition-colors hover:border-accent/60 hover:text-surface dark:border-white/20 dark:bg-navy-deep/80 dark:text-white/70 dark:hover:border-accent-lavender/60 dark:hover:text-white md:right-8"
         >
           Skip Journey →
         </button>
@@ -394,11 +285,13 @@ export function GeographicJourney() {
       <section
         ref={todaySectionRef}
         aria-label="Today & Ahead"
-        className="relative z-10 flex min-h-screen flex-col items-center justify-center gap-6 bg-navy px-6 py-24 text-center"
+        className="relative z-10 flex min-h-screen flex-col items-center justify-center gap-6 bg-base px-6 py-24 text-center dark:bg-navy"
       >
-        <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent-lavender">Today &amp; Ahead</p>
-        <h2 className="max-w-2xl font-display text-4xl text-white md:text-5xl">This is where the story catches up to today.</h2>
-        <p className="max-w-xl font-body text-base leading-relaxed text-white/60">
+        <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent dark:text-accent-lavender">Today &amp; Ahead</p>
+        <h2 className="max-w-2xl font-display text-4xl text-surface dark:text-white md:text-5xl">
+          This is where the story catches up to today.
+        </h2>
+        <p className="max-w-xl font-body text-base leading-relaxed text-muted dark:text-white/60">
           Hanoi, Rivermont, Gainesville — that&apos;s the journey so far. If any of it resonated, I&apos;d love to hear from
           you and see where our paths cross next.
         </p>

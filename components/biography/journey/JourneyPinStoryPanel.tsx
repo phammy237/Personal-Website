@@ -1,26 +1,24 @@
 "use client";
 import { forwardRef } from "react";
+import { StoryMedia } from "@/components/biography/StoryMedia";
 import type { HanoiJourneyPin } from "@/data/hanoiJourney";
-
-const isVideo = (src: string) => /\.(mp4|webm|mov)$/i.test(src);
 
 /**
  * One pin's story, in the same purple/white visual language as PinPreviewCard/ChapterStoryModal
  * but shaped for a persistent, non-modal, scroll-driven panel: the full existing backstory (not
- * the short "Learn more" teaser), reused verbatim. GeographicJourney/JourneyHanoiMapStage own
- * this element's opacity/transform via the forwarded ref — nothing here animates on its own.
+ * the short "Learn more" teaser), reused verbatim. JourneyStoryLayer owns this element's
+ * opacity/transform via the forwarded ref — nothing here animates on its own.
  *
- * Aria-hidden/inert are applied imperatively by JourneyHanoiMapStage's scroll-tick loop (the same
+ * Aria-hidden/inert are applied imperatively by JourneyStoryLayer's scroll-tick loop (the same
  * place opacity/pointer-events are set) rather than as a React prop here — React 18 doesn't treat
  * `inert` as a recognized boolean attribute, so setting it via `element.inert = …` directly on the
  * forwarded ref is both simpler and avoids a console warning for a value that's functionally fine
- * either way. `loadMedia` gates whether the image src is actually set — only the current and
- * immediately adjacent stories load media, per Phase 6's "don't eagerly load every image" rule.
+ * either way. `loadMedia` gates whether real media actually loads — only the current and
+ * immediately adjacent stories load media, matching the "don't eagerly load every image" rule.
  */
 export const JourneyPinStoryPanel = forwardRef<HTMLDivElement, { pin: HanoiJourneyPin; loadMedia: boolean }>(
   function JourneyPinStoryPanel({ pin, loadMedia }, ref) {
     const gallery = pin.gallery && pin.gallery.length > 0 ? pin.gallery : pin.image ? [pin.image] : [];
-    const extraGallery = gallery.slice(1, 5); // primary image is shown large; a few more as a small strip
 
     return (
       // Outer wrapper handles ALL layout positioning via flexbox (mobile: bottom-anchored;
@@ -55,7 +53,7 @@ export const JourneyPinStoryPanel = forwardRef<HTMLDivElement, { pin: HanoiJourn
               {String(pin.number).padStart(2, "0")}
             </span>
             <div className="min-w-0">
-              <h3 className="font-display text-lg leading-tight text-surface dark:text-white">{pin.preview.title}</h3>
+              <h2 className="font-display text-lg leading-tight text-surface dark:text-white">{pin.preview.title}</h2>
               <p className="mt-0.5 truncate font-mono text-[10px] uppercase tracking-wider text-accent">
                 Hanoi · Ages {pin.ageRange}
               </p>
@@ -71,18 +69,12 @@ export const JourneyPinStoryPanel = forwardRef<HTMLDivElement, { pin: HanoiJourn
             className="min-h-0 flex-1 overflow-y-auto px-5 py-4"
             style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
           >
-            {gallery.length > 0 && (
-              <div className="relative mb-4 aspect-[4/3] w-full overflow-hidden rounded-xl bg-accent-light dark:bg-white/5">
-                {loadMedia ? (
-                  isVideo(gallery[0]) ? (
-                    <video src={gallery[0]} className="h-full w-full object-cover" muted loop playsInline />
-                  ) : (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={gallery[0]} alt={pin.preview.title} loading="lazy" className="h-full w-full object-cover" />
-                  )
-                ) : null}
-              </div>
-            )}
+            <div className="mb-4">
+              {/* "gallery" (not hero-two-row) — this represents the whole location's photo set, not
+                  one narrative beat, so a richer capped grid serves pins with many real photos
+                  (e.g. Nguyễn Huệ's 20) better than a single dominant hero shot would. */}
+              <StoryMedia images={gallery} alt={pin.preview.title} variant="gallery" loadMedia={loadMedia} />
+            </div>
 
             <div className="flex flex-col gap-3">
               {pin.backstory.map((paragraph, i) => (
@@ -100,23 +92,6 @@ export const JourneyPinStoryPanel = forwardRef<HTMLDivElement, { pin: HanoiJourn
                     <p className="mt-1 font-body text-xs leading-relaxed text-muted dark:text-white/50">{s.description}</p>
                   </div>
                 ))}
-              </div>
-            )}
-
-            {extraGallery.length > 0 && (
-              <div className="mt-5 grid grid-cols-4 gap-1.5 border-t border-border pt-4 dark:border-white/10">
-                {extraGallery.map((src) =>
-                  loadMedia ? (
-                    isVideo(src) ? (
-                      <video key={src} src={src} className="aspect-square w-full rounded-md object-cover" muted playsInline />
-                    ) : (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img key={src} src={src} alt="" loading="lazy" className="aspect-square w-full rounded-md object-cover" />
-                    )
-                  ) : (
-                    <div key={src} className="aspect-square w-full rounded-md bg-accent-light/40 dark:bg-white/[0.03]" />
-                  )
-                )}
               </div>
             )}
           </div>

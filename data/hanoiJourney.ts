@@ -16,7 +16,8 @@ export type HanoiJourneyPin = {
   /** age range during this chapter, e.g. "6–8" */
   ageRange: string;
   coordinates: GeoPoint;
-  image: string;
+  /** optional — omit until a real photo of this specific place exists; never a generic stand-in */
+  image?: string;
   preview: {
     /** full official name, shown in the preview card */
     title: string;
@@ -154,7 +155,8 @@ export const hanoiJourneyPins: HanoiJourneyPin[] = [
     subtitle: "A bigger canvas",
     ageRange: "10–14",
     coordinates: { lat: 21.03, lon: 105.798 },
-    image: "/IMG_7605.JPG",
+    // No real photo of Cầu Giấy exists yet — deliberately omitted rather than reusing the generic
+    // stock photo (/IMG_7605.JPG) other pages use as decoration. Add a real path here once available.
     preview: {
       title: "Cầu Giấy Secondary School",
       description: "Where art, music, languages, friendship, and learning began blending together.",

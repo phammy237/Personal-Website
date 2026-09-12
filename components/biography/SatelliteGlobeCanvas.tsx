@@ -154,8 +154,8 @@ function Atmosphere() {
     <mesh scale={1.035}>
       <sphereGeometry args={[RADIUS, 64, 64]} />
       <atmosphereMaterial
-        glowColor={new THREE.Color("#7C8CE0")}
-        intensity={1.1}
+        glowColor={new THREE.Color("#9B8BB5")}
+        intensity={1.3}
         side={THREE.BackSide}
         transparent
         depthWrite={false}
