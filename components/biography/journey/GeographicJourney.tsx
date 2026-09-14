@@ -31,7 +31,8 @@ import { JourneyProgressRail } from "@/components/biography/journey/JourneyProgr
 import { JourneyPinPreview, type JourneyPinPreviewData } from "@/components/biography/journey/JourneyPinPreview";
 import { JourneyHeroContent, type JourneyHeroContentHandle } from "@/components/biography/journey/JourneyHeroContent";
 import { JourneyHanoiIntroPanel, type JourneyHanoiIntroPanelHandle } from "@/components/biography/journey/JourneyHanoiIntroPanel";
-import { rampDownTo, easeOutCubic, lerp } from "@/lib/biography/journeyMotion";
+import { JourneyEarthGlow, type JourneyEarthGlowHandle } from "@/components/biography/journey/JourneyEarthGlow";
+import { rampDownTo, easeOutCubic, lerp, stageWeight } from "@/lib/biography/journeyMotion";
 import { hanoiJourneyPins } from "@/data/hanoiJourney";
 import { usJourneyPins } from "@/data/usJourney";
 
@@ -39,6 +40,8 @@ const HERO_FADE_COMPLETE_AT = getStageById("hanoi-approach").start;
 // Begin Journey's landing target: just inside hanoi-overview (city-wide Hanoi framing, before any
 // pin has been visited) — matches scrollToStageStart's own boundary-rounding nudge.
 const BEGIN_JOURNEY_TARGET_PROGRESS = getStageById("hanoi-overview").start + 1 / journeyStages.length / 4;
+const HANOI_OVERVIEW_STAGE = getStageById("hanoi-overview");
+const HANOI_OVERVIEW_EDGE_FADE = 0.02; // matches JourneyHanoiIntroPanel's own EDGE_FADE
 
 /** scroll distance dedicated to each stage while the stage is pinned, in viewport-heights */
 const STAGE_VH = 90;
@@ -51,7 +54,9 @@ export function GeographicJourney() {
   const storyLayerHandleRef = useRef<JourneyStoryLayerHandle | null>(null);
   const heroHandleRef = useRef<JourneyHeroContentHandle | null>(null);
   const hanoiIntroHandleRef = useRef<JourneyHanoiIntroPanelHandle | null>(null);
+  const earthGlowHandleRef = useRef<JourneyEarthGlowHandle | null>(null);
   const isBeginningJourneyRef = useRef(false);
+  const pulseActiveRef = useRef(false);
   const gsapRef = useRef<{ gsap: typeof import("gsap").gsap; trigger: import("gsap/ScrollTrigger").ScrollTrigger } | null>(
     null
   );
@@ -77,7 +82,7 @@ export function GeographicJourney() {
 
       // the persistent map's whole camera choreography — one continuous progress→state function
       // spanning Earth → Vietnam → Hanoi → back out → United States → Rivermont → Gainesville.
-      mapHandleRef.current?.setCamera(computeJourneyCameraState(progress, reducedMotion));
+      mapHandleRef.current?.setCamera(computeJourneyCameraState(progress, reducedMotion), progress);
 
       // Hanoi pins/route
       const hanoiCursor = derivePinCursor(progress);
@@ -96,12 +101,26 @@ export function GeographicJourney() {
       // story panels — opacity/slide-in for whichever location is currently being read
       storyLayerHandleRef.current?.update(progress);
 
-      // Earth-hero title/CTA block and the map's own "glowing Hanoi" marker share one fade window
-      // (see JourneyHeroContent/JourneyMapCanvas) so they resolve together, not independently.
+      // Earth-hero title/CTA block, the map's own "glowing Hanoi" marker, and the decorative space
+      // atmosphere all share one fade window (see JourneyHeroContent/JourneyMapCanvas/
+      // JourneyEarthGlow) so they resolve together, not independently — "no hard cut" between the
+      // Earth and Hanoi visual modes.
       const heroWeight = rampDownTo(progress, HERO_FADE_COMPLETE_AT, HERO_FADE_COMPLETE_AT);
       heroHandleRef.current?.update(progress);
+      earthGlowHandleRef.current?.update(progress);
       mapHandleRef.current?.setHanoiAnchorGlowOpacity(heroWeight);
       hanoiIntroHandleRef.current?.update(progress);
+
+      // Hanoi chapter label + Pin-01 overview hint: both tied to the same hanoi-overview window the
+      // intro panel itself fades over. The pulse is a standalone time-based loop (see
+      // JourneyMapCanvas) — only toggled here on actual enter/exit, never re-triggered every tick.
+      const hanoiOverviewWeight = stageWeight(progress, HANOI_OVERVIEW_STAGE.start, HANOI_OVERVIEW_STAGE.end, HANOI_OVERVIEW_EDGE_FADE);
+      mapHandleRef.current?.setHanoiChapterLabelOpacity(hanoiOverviewWeight);
+      const shouldPulse = hanoiOverviewWeight > 0.5;
+      if (shouldPulse !== pulseActiveRef.current) {
+        pulseActiveRef.current = shouldPulse;
+        mapHandleRef.current?.setHanoiOverviewPulseActive(shouldPulse);
+      }
 
       if (current.id !== previousStageId) {
         activeStageIdRef.current = current.id;
@@ -318,12 +337,14 @@ export function GeographicJourney() {
             onPinHover={setHoveredPinId}
             onReady={handleMapReady}
           />
+          <JourneyEarthGlow handleRef={earthGlowHandleRef} />
           <JourneyStoryLayer handleRef={storyLayerHandleRef} reducedMotion={reducedMotion} />
           <JourneyHeroContent handleRef={heroHandleRef} reducedMotion={reducedMotion} onBeginJourney={beginJourneyTransition} />
           <JourneyHanoiIntroPanel
             handleRef={hanoiIntroHandleRef}
             reducedMotion={reducedMotion}
             onStart={() => scrollToPin(hanoiJourneyPins[0].id)}
+            onSkip={() => navigateToChapter("us")}
           />
         </div>
       </div>
@@ -367,7 +388,7 @@ export function GeographicJourney() {
         <button
           type="button"
           onClick={scrollToTodaySection}
-          className="fixed right-4 top-20 z-40 rounded-full border border-border bg-white/80 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.2em] text-muted backdrop-blur-sm transition-colors hover:border-accent/60 hover:text-surface dark:border-white/20 dark:bg-navy-deep/80 dark:text-white/70 dark:hover:border-accent-lavender/60 dark:hover:text-white md:right-8"
+          className="fixed right-4 top-[76px] z-40 flex h-10 items-center rounded-full border border-[rgba(255,255,255,0.14)] bg-transparent px-[18px] font-mono text-[11px] uppercase tracking-[0.14em] text-[rgba(205,200,225,0.46)] transition-colors hover:text-[rgba(238,236,246,0.8)] md:right-8"
         >
           Skip Journey →
         </button>

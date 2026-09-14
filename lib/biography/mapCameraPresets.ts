@@ -32,7 +32,7 @@ const GAINESVILLE_PIN = usJourneyPins[1];
  *  than a true "whole Earth" framing (was 1.1) so the globe reads as the dominant hero visual
  *  rather than a small isolated sphere in empty space — see JourneyMapCanvas's hero padding, which
  *  also nudges the visual fit slightly left of center to leave room for the chapter rail. */
-export const EARTH_PRESET: JourneyCameraPreset = { center: [105, 18], zoom: 2.3 };
+export const EARTH_PRESET: JourneyCameraPreset = { center: [105, 18], zoom: 2.0 };
 
 /** country-level Vietnam framing, on the way in from the globe */
 export const VIETNAM_PRESET: JourneyCameraPreset = { center: [105.85, 17.5], zoom: 4.6 };

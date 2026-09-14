@@ -4,6 +4,7 @@ import { hanoiJourneyPins } from "@/data/hanoiJourney";
 import { usJourneyPins } from "@/data/usJourney";
 import { DOMESTIC_ROUTE_WAYPOINTS } from "@/lib/biography/usCamera";
 import { FLIGHT_ORIGIN, FLIGHT_DESTINATION } from "@/lib/biography/transpacificCamera";
+import { HANOI_PRESET } from "@/lib/biography/mapCameraPresets";
 
 export type JourneyPinProperties = {
   id: string;
@@ -60,6 +61,15 @@ export const hanoiAnchorGeoJSON: Feature<Point, { title: string }> = {
     type: "Point",
     coordinates: [hanoiJourneyPins[0].coordinates.lon, hanoiJourneyPins[0].coordinates.lat],
   },
+};
+
+/** understated "HANOI" chapter label shown near the center of the hanoi-overview framing —
+ *  HANOI_PRESET.center is the same real coordinate the overview camera itself frames around, not a
+ *  new/independent point. */
+export const hanoiChapterLabelGeoJSON: Feature<Point, { title: string }> = {
+  type: "Feature",
+  properties: { title: "Hanoi" },
+  geometry: { type: "Point", coordinates: HANOI_PRESET.center },
 };
 
 /** the 5 Hanoi pins in order — a narrative connection, not a real street route */

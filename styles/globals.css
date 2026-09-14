@@ -56,6 +56,14 @@ body {
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
+/* Thin, quiet scrollbar for the journey story panels — a visible-but-unobtrusive rail rather than
+   the browser's default wide gray bar, which read as too "dashboard" against the editorial panels. */
+.journey-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(155,139,181,0.35) transparent; }
+.journey-scrollbar::-webkit-scrollbar { width: 5px; }
+.journey-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.journey-scrollbar::-webkit-scrollbar-thumb { background-color: rgba(155,139,181,0.35); border-radius: 999px; }
+.journey-scrollbar::-webkit-scrollbar-thumb:hover { background-color: rgba(155,139,181,0.55); }
+
 /* Print stylesheet for CV */
 @media print {
   .no-print { display: none !important; }

@@ -46,9 +46,9 @@ export const JourneyPinStoryPanel = forwardRef<HTMLDivElement, { pin: HanoiJourn
           // pb-36 rail clearance above, this keeps the sheet's top edge below the active pin's
           // rendered bottom edge at Phase 5's mobile focus point (y: 0.36) AND its own bottom edge
           // above the mobile rail — verified by measuring all three rects directly, not eyeballing
-          className="flex max-h-[32vh] w-full flex-col overflow-hidden rounded-t-2xl border border-border bg-white/97 shadow-2xl backdrop-blur dark:border-white/10 dark:bg-navy-mid/97 md:max-h-[70vh] md:w-[min(340px,30vw)] md:rounded-2xl"
+          className="flex max-h-[32vh] w-full flex-col overflow-hidden rounded-t-2xl border border-border bg-white/97 shadow-lg backdrop-blur dark:border-white/[0.08] dark:bg-navy-mid/88 dark:shadow-black/30 md:max-h-[70vh] md:w-[min(340px,30vw)] md:rounded-2xl"
         >
-          <div className="flex shrink-0 items-start gap-3 border-b border-border px-5 pb-3 pt-4 dark:border-white/10 md:px-5 md:pt-5">
+          <div className="flex shrink-0 items-start gap-3 border-b border-border/70 px-6 pb-4 pt-5 dark:border-white/[0.08]">
             <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent font-mono text-xs font-medium text-white">
               {String(pin.number).padStart(2, "0")}
             </span>
@@ -66,17 +66,18 @@ export const JourneyPinStoryPanel = forwardRef<HTMLDivElement, { pin: HanoiJourn
               chaining (the browser default) is what lets scrolling over the story keep advancing
               the page once the story text itself can't scroll any further. */}
           <div
-            className="min-h-0 flex-1 overflow-y-auto px-5 py-4"
-            style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
+            className="journey-scrollbar min-h-0 flex-1 overflow-y-auto px-6 py-5"
+            style={{ paddingBottom: "max(1.25rem, env(safe-area-inset-bottom))" }}
           >
-            <div className="mb-4">
+            {/* photo area clearly separated from text — its own bottom border, not just a margin */}
+            <div className="mb-5 border-b border-border/50 pb-5 dark:border-white/[0.06]">
               {/* "gallery" (not hero-two-row) — this represents the whole location's photo set, not
                   one narrative beat, so a richer capped grid serves pins with many real photos
                   (e.g. Nguyễn Huệ's 20) better than a single dominant hero shot would. */}
               <StoryMedia images={gallery} alt={pin.preview.title} variant="gallery" loadMedia={loadMedia} />
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-4">
               {pin.backstory.map((paragraph, i) => (
                 <p key={i} className="font-body text-sm leading-relaxed text-muted dark:text-white/65">
                   {paragraph}
@@ -85,7 +86,7 @@ export const JourneyPinStoryPanel = forwardRef<HTMLDivElement, { pin: HanoiJourn
             </div>
 
             {pin.subsections && (
-              <div className="mt-5 grid grid-cols-2 gap-3 border-t border-border pt-4 dark:border-white/10">
+              <div className="mt-6 grid grid-cols-2 gap-4 border-t border-border/50 pt-5 dark:border-white/[0.06]">
                 {pin.subsections.map((s) => (
                   <div key={s.title}>
                     <p className="font-mono text-[11px] uppercase tracking-wider text-accent">{s.title}</p>

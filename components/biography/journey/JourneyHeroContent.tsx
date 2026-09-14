@@ -63,27 +63,29 @@ export function JourneyHeroContent({
   return (
     <div
       ref={rootRef}
-      className="pointer-events-none absolute inset-y-0 left-0 z-20 flex w-full max-w-md flex-col justify-center gap-6 px-6 md:px-12 lg:px-16"
+      className="pointer-events-none absolute left-0 right-0 top-1/2 -translate-y-1/2 px-6 md:left-[clamp(48px,4.5vw,76px)] md:right-auto md:top-[28vh] md:w-[340px] md:translate-y-0 md:px-0"
     >
-      <p className="font-mono text-[11px] uppercase leading-relaxed tracking-[0.25em] text-muted dark:text-white/50">
+      <p className="mb-[28px] font-mono text-[11px] uppercase leading-relaxed tracking-[0.14em] text-[rgba(205,200,225,0.46)]">
         {journeyHeroContent.eyebrow}
       </p>
-      <h2 className="font-display text-5xl leading-[1.05] text-surface dark:text-white md:text-6xl">
+      <h2 className="mb-[28px] font-display text-[56px] leading-[0.96] text-[#F4F1FB] md:text-[72px]">
         {journeyHeroContent.headingLines.map((line) => (
           <span key={line} className="block">
             {line}
           </span>
         ))}
       </h2>
-      <p className="max-w-sm font-body text-sm leading-relaxed text-muted dark:text-white/60">{journeyHeroContent.body}</p>
+      <p className="mb-[30px] max-w-[300px] font-body text-[16px] leading-[1.6] text-[rgba(238,236,246,0.80)]">
+        {journeyHeroContent.body}
+      </p>
       <button
         type="button"
         onClick={handleClick}
         disabled={isBeginning}
-        className="group flex w-fit items-center gap-3 font-mono text-xs uppercase tracking-[0.2em] text-surface transition-colors hover:text-accent disabled:cursor-default disabled:opacity-60 disabled:hover:text-surface dark:text-white/80 dark:hover:text-white dark:disabled:hover:text-white/80"
+        className="group flex w-fit items-center gap-3 font-mono text-[11px] uppercase tracking-[0.16em] text-[#F4F1FB] transition-colors disabled:cursor-default disabled:opacity-60"
       >
         {journeyHeroContent.ctaLabel}
-        <span className="flex h-8 w-8 items-center justify-center rounded-full border border-accent/50 transition-colors group-hover:border-accent dark:border-accent-lavender/50 dark:group-hover:border-accent-lavender">
+        <span className="flex h-11 w-11 items-center justify-center rounded-full border border-[rgba(180,160,255,0.35)] text-[rgba(180,160,255,0.9)] transition-all duration-200 group-hover:border-[#A98CFF] group-hover:text-[#A98CFF] group-hover:shadow-[0_0_16px_rgba(142,107,255,0.35)]">
           →
         </span>
       </button>

@@ -48,7 +48,11 @@ export function Navbar() {
     };
   }, [mobileOpen]);
 
-  const isDark = isHome && !scrolled;
+  // The journey page is one continuous full-bleed map background for its whole length (not just an
+  // above-the-fold hero like the home page), so it keeps the transparent/subtle treatment
+  // regardless of scroll position rather than switching to a solid bar once scrolled.
+  const isJourneyPage = pathname === "/biography/journey";
+  const isDark = (isHome && !scrolled) || isJourneyPage;
   const solidBg = scrolled && isHome;
   const lightText = isDark && !solidBg;
 
@@ -56,7 +60,9 @@ export function Navbar() {
     <>
       <motion.header
         className={`fixed top-0 left-0 right-0 z-50 py-3 transition-all duration-300 ${
-          solidBg
+          isJourneyPage
+            ? "bg-transparent border-b border-[rgba(255,255,255,0.05)]"
+            : solidBg
             ? "bg-white/90 dark:bg-navy/90 backdrop-blur-sm border-b border-border dark:border-white/10 shadow-sm"
             : isDark
             ? "bg-transparent"
