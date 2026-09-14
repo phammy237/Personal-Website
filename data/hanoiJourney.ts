@@ -62,7 +62,11 @@ export const hanoiJourneyPins: HanoiJourneyPin[] = [
     title: "Home",
     subtitle: "Where curiosity began",
     ageRange: "0–6",
-    coordinates: { lat: 21.0107, lon: 105.8182 },
+    // Deliberately approximate (neighborhood-level, ~1km, rounded to 2 decimal places) — the
+    // previous 4-decimal value had street-level precision, precise enough to identify a specific
+    // residence. Rounded in place, not re-geocoded, so it stays truthfully in the same part of
+    // Hanoi without pinpointing a home address. Do not increase this coordinate's precision.
+    coordinates: { lat: 21.01, lon: 105.82 },
     image: "/biography/home/home-1.jpg",
     preview: {
       title: "Home & Early Childhood",
@@ -156,7 +160,11 @@ export const hanoiJourneyPins: HanoiJourneyPin[] = [
     ageRange: "10–14",
     coordinates: { lat: 21.03, lon: 105.798 },
     // No real photo of Cầu Giấy exists yet — deliberately omitted rather than reusing the generic
-    // stock photo (/IMG_7605.JPG) other pages use as decoration. Add a real path here once available.
+    // stock photo (/IMG_7605.JPG) other pages use as decoration. To add real photos later: drop
+    // files in public/biography/cau-giay/ (matching the flat convention every other Hanoi pin
+    // already uses — home/, nam-thanh-cong/, ngoi-sao-ha-noi/, nguyen-hue/) and set `image` to the
+    // hero shot plus a `gallery: [...]` array here, same shape as the other pins. No component
+    // changes needed — StoryMedia/JourneyPinStoryPanel already render whatever this array contains.
     preview: {
       title: "Cầu Giấy Secondary School",
       description: "Where art, music, languages, friendship, and learning began blending together.",

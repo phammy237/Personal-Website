@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useReducedMotion } from "framer-motion";
-import { journeyChapters, journeyStages, getChapterIndex, getStageAtProgress } from "@/lib/biography/journeyStages";
+import { journeyChapters, journeyStages, getChapterIndex, getStageAtProgress, getStageById } from "@/lib/biography/journeyStages";
 import {
   derivePinCursor,
   derivePinStatus,
@@ -29,8 +29,16 @@ import type { JourneyMapHandle } from "@/components/biography/journey/JourneyMap
 import { JourneyStoryLayer, type JourneyStoryLayerHandle } from "@/components/biography/journey/JourneyStoryLayer";
 import { JourneyProgressRail } from "@/components/biography/journey/JourneyProgressRail";
 import { JourneyPinPreview, type JourneyPinPreviewData } from "@/components/biography/journey/JourneyPinPreview";
+import { JourneyHeroContent, type JourneyHeroContentHandle } from "@/components/biography/journey/JourneyHeroContent";
+import { JourneyHanoiIntroPanel, type JourneyHanoiIntroPanelHandle } from "@/components/biography/journey/JourneyHanoiIntroPanel";
+import { rampDownTo, easeOutCubic, lerp } from "@/lib/biography/journeyMotion";
 import { hanoiJourneyPins } from "@/data/hanoiJourney";
 import { usJourneyPins } from "@/data/usJourney";
+
+const HERO_FADE_COMPLETE_AT = getStageById("hanoi-approach").start;
+// Begin Journey's landing target: just inside hanoi-overview (city-wide Hanoi framing, before any
+// pin has been visited) — matches scrollToStageStart's own boundary-rounding nudge.
+const BEGIN_JOURNEY_TARGET_PROGRESS = getStageById("hanoi-overview").start + 1 / journeyStages.length / 4;
 
 /** scroll distance dedicated to each stage while the stage is pinned, in viewport-heights */
 const STAGE_VH = 90;
@@ -41,9 +49,16 @@ export function GeographicJourney() {
   const todaySectionRef = useRef<HTMLDivElement>(null);
   const mapHandleRef = useRef<JourneyMapHandle | null>(null);
   const storyLayerHandleRef = useRef<JourneyStoryLayerHandle | null>(null);
+  const heroHandleRef = useRef<JourneyHeroContentHandle | null>(null);
+  const hanoiIntroHandleRef = useRef<JourneyHanoiIntroPanelHandle | null>(null);
+  const isBeginningJourneyRef = useRef(false);
   const gsapRef = useRef<{ gsap: typeof import("gsap").gsap; trigger: import("gsap/ScrollTrigger").ScrollTrigger } | null>(
     null
   );
+  // last progress applyProgress actually ran with — replayed once the map's handle becomes ready
+  // (see handleMapReady) so a page load with zero scroll doesn't leave the very first paint stuck
+  // mid-setup, silently no-op'd because the map's dynamic import hadn't resolved yet.
+  const lastProgressRef = useRef(0);
 
   const [activeStageId, setActiveStageId] = useState(journeyStages[0].id);
   const activeStageIdRef = useRef(activeStageId);
@@ -56,6 +71,7 @@ export function GeographicJourney() {
     (progress: number, gsapInstance?: typeof import("gsap").gsap) => {
       void gsapInstance; // no generic per-stage DOM crossfade remains — every stage is now owned by
       // either the persistent map or the story layer, both driven imperatively below
+      lastProgressRef.current = progress;
       const current = getStageAtProgress(progress);
       const previousStageId = activeStageIdRef.current;
 
@@ -80,6 +96,13 @@ export function GeographicJourney() {
       // story panels — opacity/slide-in for whichever location is currently being read
       storyLayerHandleRef.current?.update(progress);
 
+      // Earth-hero title/CTA block and the map's own "glowing Hanoi" marker share one fade window
+      // (see JourneyHeroContent/JourneyMapCanvas) so they resolve together, not independently.
+      const heroWeight = rampDownTo(progress, HERO_FADE_COMPLETE_AT, HERO_FADE_COMPLETE_AT);
+      heroHandleRef.current?.update(progress);
+      mapHandleRef.current?.setHanoiAnchorGlowOpacity(heroWeight);
+      hanoiIntroHandleRef.current?.update(progress);
+
       if (current.id !== previousStageId) {
         activeStageIdRef.current = current.id;
         setActiveStageId(current.id);
@@ -87,6 +110,13 @@ export function GeographicJourney() {
     },
     [reducedMotion]
   );
+
+  // The map canvas loads via next/dynamic (code-split, client-only) and can resolve after GSAP's
+  // own dynamic import already fired the very first applyProgress call — on a page load with no
+  // scroll yet (progress stuck at 0), that first call's setCamera/setPinStatus/etc. would silently
+  // no-op against a still-null handle and never get replayed. Re-running once the handle is ready
+  // fixes the map's initial paint without touching the scroll-driven update path itself.
+  const handleMapReady = useCallback(() => applyProgress(lastProgressRef.current), [applyProgress]);
 
   useEffect(() => {
     let cancelled = false;
@@ -135,21 +165,27 @@ export function GeographicJourney() {
   const activeStage = journeyStages.find((s) => s.id === activeStageId) ?? journeyStages[0];
   const activeChapterIndex = getChapterIndex(activeStage.chapter);
 
-  // centralized boundary-safe scroll: converts a target progress (0–1) into a scrollY and scrolls
-  // there — every programmatic navigation (chapter rail, pin clicks) goes through this one helper
-  // instead of each computing its own scrollY math
+  // shared by every scroll-position computation below (smooth nav, the instant Begin Journey snap)
+  // so there's exactly one place that converts a target progress (0–1) into a real scrollY
+  const computeScrollYForProgress = useCallback((targetProgress: number) => {
+    const root = rootRef.current;
+    if (!root) return null;
+    const rect = root.getBoundingClientRect();
+    const wrapperTop = rect.top + window.scrollY;
+    const scrollableRange = root.offsetHeight - window.innerHeight;
+    const clamped = Math.min(1, Math.max(0, targetProgress));
+    return wrapperTop + Math.max(0, scrollableRange) * clamped;
+  }, []);
+
+  // centralized boundary-safe scroll — every programmatic navigation (chapter rail, pin clicks)
+  // goes through this one helper instead of each computing its own scrollY math
   const scrollToProgress = useCallback(
     (targetProgress: number) => {
-      const root = rootRef.current;
-      if (!root) return;
-      const rect = root.getBoundingClientRect();
-      const wrapperTop = rect.top + window.scrollY;
-      const scrollableRange = root.offsetHeight - window.innerHeight;
-      const clamped = Math.min(1, Math.max(0, targetProgress));
-      const targetY = wrapperTop + Math.max(0, scrollableRange) * clamped;
+      const targetY = computeScrollYForProgress(targetProgress);
+      if (targetY === null) return;
       window.scrollTo({ top: targetY, behavior: reducedMotion ? "auto" : "smooth" });
     },
-    [reducedMotion]
+    [computeScrollYForProgress, reducedMotion]
   );
 
   const scrollToStageStart = useCallback(
@@ -162,6 +198,49 @@ export function GeographicJourney() {
     },
     [scrollToProgress]
   );
+
+  // Begin Journey's one cinematic, non-scroll-driven camera move — Earth pivots/zooms straight
+  // into the Hanoi overview in one eased tween. It still goes through applyProgress (the same
+  // single camera controller the scroll path uses) every frame, so nothing about camera/pin/rail
+  // state is computed twice: this just drives *how fast progress changes* for ~1.7s, exactly like
+  // an unusually fast, precisely-eased scroll. ScrollTrigger is disabled for the duration (not
+  // killed) so its own scrub smoothing can't fight these direct calls, then re-enabled after the
+  // real scroll position is snapped to match — scrolling forward/back afterward resumes normally,
+  // no separate "CTA state" left behind.
+  const beginJourneyTransition = useCallback(() => {
+    if (isBeginningJourneyRef.current) return;
+    isBeginningJourneyRef.current = true;
+
+    const trigger = gsapRef.current?.trigger;
+    const gsap = gsapRef.current?.gsap;
+    const startProgress = lastProgressRef.current;
+
+    // prevents the "manual interruption" scroll-fighting case: real scroll position can't drift
+    // out from under the tween while ScrollTrigger isn't listening for it
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const finish = () => {
+      const targetY = computeScrollYForProgress(BEGIN_JOURNEY_TARGET_PROGRESS);
+      if (targetY !== null) window.scrollTo(0, targetY);
+      trigger?.enable(false); // reset:false — pick up progress from the just-snapped scroll position
+      document.body.style.overflow = previousOverflow;
+      isBeginningJourneyRef.current = false;
+    };
+
+    trigger?.disable(false, false); // reset:false keeps current state; allowAnimation:false pauses any in-flight scrub
+
+    const duration = reducedMotion ? 200 : 1700;
+    const start = typeof performance !== "undefined" ? performance.now() : Date.now();
+
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      applyProgress(lerp(startProgress, BEGIN_JOURNEY_TARGET_PROGRESS, easeOutCubic(t)), gsap);
+      if (t < 1) requestAnimationFrame(tick);
+      else finish();
+    };
+    requestAnimationFrame(tick);
+  }, [applyProgress, computeScrollYForProgress, reducedMotion]);
 
   const scrollToTodaySection = useCallback(() => {
     const el = todaySectionRef.current;
@@ -237,8 +316,15 @@ export function GeographicJourney() {
             handleRef={mapHandleRef}
             onPinClick={handlePinClick}
             onPinHover={setHoveredPinId}
+            onReady={handleMapReady}
           />
           <JourneyStoryLayer handleRef={storyLayerHandleRef} reducedMotion={reducedMotion} />
+          <JourneyHeroContent handleRef={heroHandleRef} reducedMotion={reducedMotion} onBeginJourney={beginJourneyTransition} />
+          <JourneyHanoiIntroPanel
+            handleRef={hanoiIntroHandleRef}
+            reducedMotion={reducedMotion}
+            onStart={() => scrollToPin(hanoiJourneyPins[0].id)}
+          />
         </div>
       </div>
 
@@ -265,12 +351,17 @@ export function GeographicJourney() {
         </ul>
       </nav>
 
-      <JourneyProgressRail
-        chapters={journeyChapters}
-        activeChapterId={activeStage.chapter}
-        activeChapterIndex={activeChapterIndex}
-        onNavigate={navigateToChapter}
-      />
+      {/* Hides once the journey resolves into "Today & Ahead" — past that point there's no more
+          chapter to navigate to, and leaving it up would float the rail over the site's own
+          footer for the rest of the page. */}
+      {activeStage.id !== "today-ahead" && (
+        <JourneyProgressRail
+          chapters={journeyChapters}
+          activeChapterId={activeStage.chapter}
+          activeChapterIndex={activeChapterIndex}
+          onNavigate={navigateToChapter}
+        />
+      )}
 
       {activeStage.id !== "today-ahead" && (
         <button

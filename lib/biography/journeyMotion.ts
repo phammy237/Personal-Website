@@ -18,6 +18,13 @@ export function smoothstep(t: number): number {
   return c * c * (3 - 2 * c);
 }
 
+/** fast start, decelerating to a stop — the "fly somewhere and settle" curve used for the one
+ *  programmatic (non-scroll) camera transition in the journey, Begin Journey's Earth→Hanoi jump. */
+export function easeOutCubic(t: number): number {
+  const c = clamp01(t);
+  return 1 - Math.pow(1 - c, 3);
+}
+
 /** progress (0–1) local to a [start, end) window, clamped to 0–1 outside it */
 export function localProgress(progress: number, stage: { start: number; end: number }): number {
   return clamp01((progress - stage.start) / (stage.end - stage.start));

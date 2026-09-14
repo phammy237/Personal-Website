@@ -12,7 +12,6 @@ const STEPS = 400;
 let prev = computeJourneyCameraState(0, false);
 let maxZoomJumpPerStep = 0;
 let maxCenterJumpPerStep = 0;
-const stageAtBoundary: Record<string, { start: ReturnType<typeof computeJourneyCameraState>; end: ReturnType<typeof computeJourneyCameraState> }> = {};
 
 for (let i = 0; i <= STEPS; i++) {
   const progress = i / STEPS;

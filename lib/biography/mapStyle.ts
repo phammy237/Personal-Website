@@ -22,6 +22,8 @@ type ThemeColors = {
   roadMajor: string;
   label: string;
   labelHalo: string;
+  skyColor: string;
+  horizonColor: string;
 };
 
 const DARK: ThemeColors = {
@@ -34,6 +36,11 @@ const DARK: ThemeColors = {
   roadMajor: "rgba(155,139,181,0.35)",
   label: "#9B8BB5",
   labelHalo: "#18233F",
+  // Deliberately darker than `background` — the globe's sphere and the void around it
+  // (MapLibre's "sky" in globe projection) must never share a color, or the sphere's
+  // edge disappears against it. See mapStyle.ts fog/sky regression notes.
+  skyColor: "#0A0E1C",
+  horizonColor: "#3A2A5C",
 };
 
 const LIGHT: ThemeColors = {
@@ -46,6 +53,8 @@ const LIGHT: ThemeColors = {
   roadMajor: "rgba(91,58,142,0.28)",
   label: "#676186",
   labelHalo: "#F7F3FA",
+  skyColor: "#DCD3EA",
+  horizonColor: "#B9A8D6",
 };
 
 /**
@@ -60,6 +69,18 @@ export function getJourneyMapStyle(theme: "light" | "dark"): StyleSpecification 
     version: 8,
     glyphs: "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf",
     projection: { type: "globe" },
+    // Without an explicit `sky`, MapLibre's globe projection leaves the space around the
+    // sphere unpainted, so whatever sits behind the canvas (the page background) shows through
+    // instead. If that happens to match `background` above, the sphere becomes indistinguishable
+    // from its surroundings even though it's rendering correctly — this is what "the globe doesn't
+    // render at all" turned out to be. `atmosphere-blend` fades the horizon glow out once zoomed
+    // past the globe stage so it doesn't tint the flat Hanoi/U.S. mercator views.
+    sky: {
+      "sky-color": c.skyColor,
+      "horizon-color": c.horizonColor,
+      "sky-horizon-blend": 0.5,
+      "atmosphere-blend": ["interpolate", ["linear"], ["zoom"], 0, 1, 3, 1, 6, 0],
+    },
     sources: {
       openmaptiles: { type: "vector", url: OPENFREEMAP_TILEJSON_URL },
     },

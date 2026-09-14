@@ -18,8 +18,10 @@ export function JourneyProgressRail({ chapters, activeChapterId, activeChapterIn
     <>
       <nav
         aria-label="Journey chapters"
-        className="fixed right-0 top-1/2 z-40 hidden -translate-y-1/2 flex-col items-end gap-3 bg-gradient-to-l from-black/5 to-transparent py-8 pl-10 pr-4 dark:from-navy-deep/40 md:flex lg:pr-8"
+        className="fixed right-0 top-1/2 z-40 hidden -translate-y-1/2 flex-col items-end gap-5 py-8 pl-10 pr-6 md:flex lg:pr-10"
       >
+        {/* faint vertical connector spanning all four stops — sits behind the dots, not a card */}
+        <div className="pointer-events-none absolute right-[9px] top-8 bottom-8 w-px bg-border dark:bg-white/15" aria-hidden="true" />
         {chapters.map((chapter, i) => {
           const isActive = chapter.id === activeChapterId;
           const isCompleted = i < activeChapterIndex;
@@ -29,28 +31,37 @@ export function JourneyProgressRail({ chapters, activeChapterId, activeChapterIn
               type="button"
               onClick={() => onNavigate(chapter.id)}
               aria-current={isActive ? "step" : undefined}
-              className="group flex items-center gap-2.5"
+              className="group relative flex items-center gap-3"
             >
               <span
-                className={`font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
+                className={`font-mono text-[10px] uppercase tracking-[0.15em] transition-colors ${
                   isActive
                     ? "text-surface dark:text-white"
                     : isCompleted
-                      ? "text-accent/70 dark:text-accent-lavender/70"
+                      ? "text-accent/70 dark:text-accent-lavender/80"
                       : "text-muted/50 dark:text-white/30"
                 }`}
               >
                 {chapter.label}
               </span>
-              <span
-                className={`h-2.5 w-2.5 rounded-full border transition-all ${
-                  isActive
-                    ? "scale-125 border-accent bg-accent dark:border-accent-lavender dark:bg-accent-lavender"
-                    : isCompleted
-                      ? "border-accent/70 bg-accent/70 dark:border-accent-lavender/70 dark:bg-accent-lavender/70"
-                      : "border-border bg-transparent group-hover:border-accent/60 dark:border-white/30 dark:group-hover:border-white/60"
-                }`}
-              />
+              <span className="relative flex h-4 w-4 items-center justify-center">
+                {isActive && (
+                  <span
+                    className="absolute h-4 w-4 rounded-full bg-accent/25 dark:bg-accent-lavender/30"
+                    style={{ filter: "blur(4px)" }}
+                    aria-hidden="true"
+                  />
+                )}
+                <span
+                  className={`relative rounded-full border transition-all ${
+                    isActive
+                      ? "h-3 w-3 border-accent bg-accent dark:border-accent-lavender dark:bg-accent-lavender"
+                      : isCompleted
+                        ? "h-2 w-2 border-accent/70 bg-accent/70 dark:border-accent-lavender/70 dark:bg-accent-lavender/70"
+                        : "h-2 w-2 border-border bg-base group-hover:border-accent/60 dark:border-white/30 dark:bg-navy dark:group-hover:border-white/60"
+                  }`}
+                />
+              </span>
             </button>
           );
         })}

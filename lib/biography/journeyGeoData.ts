@@ -50,6 +50,18 @@ export const usPinsGeoJSON: FeatureCollection<Point, JourneyPinProperties> = {
   })),
 };
 
+/** single-point marker at the real Home pin's coordinate, used only for the Earth-hero-stage
+ *  "glowing Hanoi" emphasis — not a new/fake location, just an earlier, simplified representation
+ *  of the same real Hanoi data before the full pin set comes into view. */
+export const hanoiAnchorGeoJSON: Feature<Point, { title: string }> = {
+  type: "Feature",
+  properties: { title: "Hanoi" },
+  geometry: {
+    type: "Point",
+    coordinates: [hanoiJourneyPins[0].coordinates.lon, hanoiJourneyPins[0].coordinates.lat],
+  },
+};
+
 /** the 5 Hanoi pins in order — a narrative connection, not a real street route */
 export const hanoiRouteGeoJSON: Feature<LineString> = {
   type: "Feature",

@@ -44,7 +44,14 @@ export const JourneyUsMemoriesPanel = forwardRef<HTMLDivElement, { markers: Memo
                       <StoryMedia images={[marker.image]} alt={marker.title} loadMedia={loadMedia} />
                     </div>
                   )}
-                  <p className="font-display text-sm text-surface dark:text-white">{marker.title}</p>
+                  <div className="flex items-baseline gap-2">
+                    <p className="font-display text-sm text-surface dark:text-white">{marker.title}</p>
+                    {marker.year && (
+                      <span className="font-mono text-[10px] uppercase tracking-wider text-accent/70 dark:text-accent-lavender/70">
+                        {marker.year}
+                      </span>
+                    )}
+                  </div>
                   <p className="mt-0.5 font-body text-xs leading-relaxed text-muted dark:text-white/60">{marker.caption}</p>
                 </div>
               ))}

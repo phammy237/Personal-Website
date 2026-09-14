@@ -61,6 +61,9 @@ export const usJourneyPins: USJourneyPin[] = [
       description:
         "My first home in the United States, where a small boarding school in Iowa became the place I learned how to start over, build community, and find a sense of belonging far from home.",
     },
+    // To add real photos later: drop files in public/biography/rivermont/ and list them in the
+    // relevant section's `images` array (plus `captions` if you want specific alt text) — no
+    // component changes needed, StoryMedia already renders whatever each array contains.
     storySections: [
       {
         id: "new-beginning",
@@ -108,6 +111,8 @@ export const usJourneyPins: USJourneyPin[] = [
       description:
         "A much bigger campus, a much wider world, and the chapter where I began turning curiosity into projects, research, leadership, and a clearer idea of the person I want to become.",
     },
+    // Same convention as Rivermont above — drop real photos in public/biography/gainesville/ and
+    // list them per section; no component changes needed.
     storySections: [
       {
         id: "starting-over-again",
@@ -161,13 +166,22 @@ export const usJourneyPins: USJourneyPin[] = [
   },
 ];
 
-/** Secondary, non-numbered travel markers — populated later, none hardcoded yet. */
+/**
+ * Secondary, non-numbered travel markers — populated later, none hardcoded yet. Lighter than a
+ * full USJourneyPin on purpose: a photo, a short caption, and an optional year/date label — never
+ * promoted into a numbered geographic chapter of their own.
+ *
+ * To add real memories later: drop photos in public/biography/memories/ and add entries here —
+ * no component changes needed, JourneyUsMemoriesPanel already renders whatever this array contains.
+ */
 export type MemoryMarker = {
   id: string;
   coordinates: GeoPoint;
   image?: string;
   title: string;
   caption: string;
+  /** optional short label, e.g. "2024" or "Spring 2025" — omit if not meaningful for a given memory */
+  year?: string;
 };
 
 export const usMemoryMarkers: MemoryMarker[] = [];

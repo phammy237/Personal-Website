@@ -16,7 +16,9 @@ import { chapters, routeArc } from "../data/biography";
 type Snapshot = { id: string; number: number; lat: number; lon: number };
 
 const EXPECTED_HANOI: Snapshot[] = [
-  { id: "home-early-childhood", number: 1, lat: 21.0107, lon: 105.8182 },
+  // Deliberately rounded to neighborhood-level precision (Phase 5 privacy pass) — was
+  // { lat: 21.0107, lon: 105.8182 }, street-level precise enough to identify a specific residence.
+  { id: "home-early-childhood", number: 1, lat: 21.01, lon: 105.82 },
   { id: "nam-thanh-cong", number: 2, lat: 21.0168, lon: 105.8112 },
   { id: "ngoi-sao-ha-noi", number: 3, lat: 21.0098, lon: 105.8003 },
   { id: "cau-giay-secondary", number: 4, lat: 21.03, lon: 105.798 },

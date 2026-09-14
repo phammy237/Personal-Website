@@ -1,16 +1,31 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { Map as MapLibreMap, AttributionControl, type MapGeoJSONFeature } from "maplibre-gl";
+import { Map as MapLibreMap, AttributionControl, setWorkerUrl, type MapGeoJSONFeature } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { getJourneyMapStyle } from "@/lib/biography/mapStyle";
-import { EARTH_PRESET, type JourneyCameraState } from "@/lib/biography/mapCameraPresets";
+import { EARTH_PRESET, VIETNAM_PRESET, type JourneyCameraState } from "@/lib/biography/mapCameraPresets";
+import { clamp01, lerp } from "@/lib/biography/journeyMotion";
 import {
   hanoiPinsGeoJSON,
   usPinsGeoJSON,
   hanoiRouteGeoJSON,
   domesticRouteGeoJSON,
   transpacificRouteGeoJSON,
+  hanoiAnchorGeoJSON,
 } from "@/lib/biography/journeyGeoData";
+
+// MapLibre derives its worker script URL from `import.meta.url` at runtime (see
+// maplibre-gl-dev.mjs's `defaultWorkerUrl()`), expecting a sibling `maplibre-gl-worker.mjs` next
+// to wherever its own module ends up being served. Under Next.js's webpack bundling that module
+// lives inside an app chunk with no such sibling, so the derived URL isn't a usable script — the
+// worker silently never runs any real code (no parse error surfaces on `map.on("error")`), and the
+// map is left permanently retrying tile loads with zero actual network requests ever going out.
+// This was the actual cause of "the globe/map doesn't render" — not a style, color, or camera bug.
+// Fix: point MapLibre at real, statically-served copies of the worker + its shared chunk (vendored
+// into public/ from node_modules/maplibre-gl/dist — re-copy both if maplibre-gl is ever upgraded).
+if (typeof window !== "undefined") {
+  setWorkerUrl("/maplibre-gl-worker.mjs");
+}
 
 export type JourneyPinStatus = "unvisited" | "active" | "completed";
 
@@ -21,6 +36,9 @@ export type JourneyMapHandle = {
   setHanoiRouteProgress: (fraction: number) => void;
   setDomesticRouteProgress: (fraction: number) => void;
   setTranspacificRouteOpacity: (opacity: number) => void;
+  /** the Earth-hero-stage "glowing Hanoi" marker — fades out well before the real Hanoi pins take
+   *  over, see GeographicJourney's hero-weight fade. */
+  setHanoiAnchorGlowOpacity: (opacity: number) => void;
 };
 
 export type JourneyMapCanvasProps = {
@@ -31,6 +49,12 @@ export type JourneyMapCanvasProps = {
   /** fired on pointer enter/leave of any pin — null on leave. Drives the compact hover preview;
    *  has no effect on journey/camera state (see JourneyPinPreview). */
   onPinHover: (pinId: string | null) => void;
+  /** fired once handleRef.current is assigned and safe to call. GeographicJourney's own scroll
+   *  effect and this component's dynamic import (next/dynamic) both load asynchronously and race —
+   *  without this, a page load with zero scroll (progress stuck at 0) can call setCamera/setPinStatus/
+   *  etc. before the handle exists, silently no-op the very first paint, and never get a second
+   *  chance until the user's first scroll tick "self-heals" it. */
+  onReady?: () => void;
   ariaLabel?: string;
 };
 
@@ -82,8 +106,11 @@ function labelOpacityExpression(isMobile: boolean) {
     "case",
     ["==", ["feature-state", "status"], "active"],
     1,
+    // Adjacent Hanoi pins can be as close as ~150px apart at pin zoom, and labels use
+    // text-allow-overlap (no automatic collision avoidance) — a lower completed-label opacity
+    // keeps a still-visible "trail" without it visually competing with the active pin's label.
     ["==", ["feature-state", "status"], "completed"],
-    0.55,
+    0.4,
     ["boolean", ["feature-state", "hover"], false],
     0.85,
     0,
@@ -109,6 +136,26 @@ function routeGradient(fraction: number) {
 }
 
 const INITIAL_DIM_GRADIENT = routeGradient(0);
+
+function applyHanoiAnchorOpacity(map: MapLibreMap, opacity: number) {
+  if (!map.getLayer("hanoi-anchor-glow")) return;
+  map.setPaintProperty("hanoi-anchor-glow", "circle-opacity", opacity * 0.4);
+  map.setPaintProperty("hanoi-anchor-ring", "circle-stroke-opacity", opacity * 0.8);
+  map.setPaintProperty("hanoi-anchor-dot", "circle-opacity", opacity);
+  map.setPaintProperty("hanoi-anchor-dot", "circle-stroke-opacity", opacity);
+  map.setPaintProperty("hanoi-anchor-label", "text-opacity", opacity);
+}
+
+/** Reserves screen space on the right for the chapter rail while the camera is still near the
+ *  globe (Earth hero → Vietnam approach), so the sphere's visual fit sits slightly left of true
+ *  canvas-center instead of dead-center behind the rail. Fades to zero by the time the camera
+ *  reaches Vietnam zoom — desktop only; mobile has no persistent right-side rail to clear. */
+const HERO_PADDING_RIGHT = 70;
+function computeHeroPadding(zoom: number, isMobile: boolean): { top: number; bottom: number; left: number; right: number } {
+  if (isMobile) return { top: 0, bottom: 0, left: 0, right: 0 };
+  const t = clamp01((zoom - EARTH_PRESET.zoom) / (VIETNAM_PRESET.zoom - EARTH_PRESET.zoom));
+  return { top: 0, bottom: 0, left: 0, right: lerp(HERO_PADDING_RIGHT, 0, t) };
+}
 
 /**
  * Adds every biography-specific source/layer (routes + pins) on top of the current base style, and
@@ -162,6 +209,55 @@ function setupJourneyLayers(
     source: "transpacific-route",
     layout: { "line-cap": "round", "line-join": "round" },
     paint: { "line-color": "#9B8BB5", "line-width": 1, "line-opacity": 0 },
+  });
+
+  // Earth-hero-stage "glowing Hanoi" marker — visible only while zoomed out near the globe, before
+  // the real Hanoi pins (below) take over. Starts fully transparent; GeographicJourney drives its
+  // opacity every scroll tick via setHanoiAnchorGlowOpacity, same pattern as the routes above.
+  map.addSource("hanoi-anchor", { type: "geojson", data: hanoiAnchorGeoJSON });
+  map.addLayer({
+    id: "hanoi-anchor-glow",
+    type: "circle",
+    source: "hanoi-anchor",
+    paint: { "circle-radius": 22, "circle-color": "#9B8BB5", "circle-blur": 1.2, "circle-opacity": 0 },
+  });
+  map.addLayer({
+    id: "hanoi-anchor-ring",
+    type: "circle",
+    source: "hanoi-anchor",
+    paint: {
+      "circle-radius": 9,
+      "circle-color": "transparent",
+      "circle-stroke-color": "#C9BAD9",
+      "circle-stroke-width": 1.5,
+      "circle-stroke-opacity": 0,
+    },
+  });
+  map.addLayer({
+    id: "hanoi-anchor-dot",
+    type: "circle",
+    source: "hanoi-anchor",
+    paint: { "circle-radius": 4, "circle-color": "#5B3A8E", "circle-stroke-color": "#F1EAF7", "circle-stroke-width": 1.5, "circle-opacity": 0, "circle-stroke-opacity": 0 },
+  });
+  map.addLayer({
+    id: "hanoi-anchor-label",
+    type: "symbol",
+    source: "hanoi-anchor",
+    layout: {
+      "text-field": ["get", "title"],
+      "text-font": ["Noto Sans Regular"],
+      "text-size": 14,
+      "text-anchor": "left",
+      "text-offset": [1.1, 0],
+      "text-allow-overlap": true,
+      "text-ignore-placement": true,
+    },
+    paint: {
+      "text-color": theme === "dark" ? "#F1EAF7" : "#18233F",
+      "text-halo-color": theme === "dark" ? "#18233F" : "#F7F3FA",
+      "text-halo-width": 1.4,
+      "text-opacity": 0,
+    },
   });
 
   for (const group of PIN_LAYER_GROUPS) {
@@ -272,11 +368,14 @@ export function JourneyMapCanvas({
   handleRef,
   onPinClick,
   onPinHover,
+  onReady,
   ariaLabel = "Interactive map of the journey",
 }: JourneyMapCanvasProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const constructedThemeRef = useRef(theme);
+  const onReadyRef = useRef(onReady);
+  onReadyRef.current = onReady;
   const onPinClickRef = useRef(onPinClick);
   onPinClickRef.current = onPinClick;
   const onPinHoverRef = useRef(onPinHover);
@@ -289,6 +388,7 @@ export function JourneyMapCanvas({
   const hanoiRouteProgressRef = useRef(0);
   const domesticRouteProgressRef = useRef(0);
   const transpacificOpacityRef = useRef(0);
+  const hanoiAnchorOpacityRef = useRef(0);
 
   const applyPersistedState = (map: MapLibreMap) => {
     for (const [pinId, status] of Array.from(pinStatusesRef.current.entries())) {
@@ -305,6 +405,7 @@ export function JourneyMapCanvas({
     map.setPaintProperty("domestic-route", "line-gradient", domesticGradient as never);
     map.setPaintProperty("domestic-route-glow", "line-gradient", domesticGradient as never);
     map.setPaintProperty("transpacific-route", "line-opacity", transpacificOpacityRef.current * 0.55);
+    applyHanoiAnchorOpacity(map, hanoiAnchorOpacityRef.current);
   };
 
   useEffect(() => {
@@ -332,7 +433,14 @@ export function JourneyMapCanvas({
     });
     mapRef.current = map;
 
-    map.on("load", () => {
+    // "style.load" (style/sources resolved) — NOT "load" (requires the currently-visible tiles to
+    // have actually finished fetching/rendering first). Gating setup on "load" left every pin,
+    // route, and label permanently unadded whenever tile rendering was slow or incomplete, which
+    // could make the whole map appear broken even though the base style/canvas were fine. Adding
+    // sources/layers only needs the style to be ready, not a fully-painted frame.
+    // `.once`, not `.on` — the theme-swap effect below registers its own `.once("style.load", ...)`
+    // for every later swap; a persistent listener here would double-run setup on every swap too.
+    map.once("style.load", () => {
       setupJourneyLayers(map, constructedThemeRef.current, isMobileRef.current, onPinClickRef, onPinHoverRef, hoveredPinRef);
       applyPersistedState(map);
     });
@@ -344,6 +452,7 @@ export function JourneyMapCanvas({
           zoom: state.zoom,
           pitch: state.pitch ?? 0,
           bearing: state.bearing ?? 0,
+          padding: computeHeroPadding(state.zoom, isMobileRef.current),
         });
       },
       setPinStatus: (pinId, status) => {
@@ -379,7 +488,14 @@ export function JourneyMapCanvas({
         if (!m || !m.getLayer("transpacific-route")) return;
         m.setPaintProperty("transpacific-route", "line-opacity", opacity * 0.55);
       },
+      setHanoiAnchorGlowOpacity: (opacity) => {
+        hanoiAnchorOpacityRef.current = opacity;
+        const m = mapRef.current;
+        if (!m) return;
+        applyHanoiAnchorOpacity(m, opacity);
+      },
     };
+    onReadyRef.current?.();
 
     const onCanvasResize = () => map.resize();
     window.addEventListener("resize", onCanvasResize);
