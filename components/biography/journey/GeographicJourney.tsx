@@ -347,15 +347,11 @@ export function GeographicJourney() {
     requestAnimationFrame(tick);
   }, [applyProgress, computeScrollYForProgress, reducedMotion]);
 
-  // Phase 6 — Hanoi/U.S. chapter-complete + interlude navigation. All of these are scroll requests
-  // only, through the same scrollToProgress/scrollToStageStart helpers every other navigation in
-  // this page already goes through — never a direct camera/pin-state write.
-  const handleContinueFromHanoi = useCallback(() => scrollToStageStart("hanoi-interlude-not-yet"), [scrollToStageStart]);
-  const handleExploreHanoiAgain = useCallback(() => scrollToStageStart("hanoi-overview"), [scrollToStageStart]);
-  const handleReturnToHanoiSummary = useCallback(() => scrollToStageStart("hanoi-complete"), [scrollToStageStart]);
-  const handleContinueFromUs = useCallback(() => scrollToStageStart("today-transition"), [scrollToStageStart]);
-  const handleExploreUsAgain = useCallback(() => scrollToStageStart("us-overview"), [scrollToStageStart]);
-  const handleReturnToUsSummary = useCallback(() => scrollToStageStart("us-complete"), [scrollToStageStart]);
+  // Phase 6 — Hanoi/U.S. chapter-complete + interlude navigation. Every one of these is just
+  // "jump to this named stage's start," through the same scrollToStageStart helper every other
+  // navigation in this page already goes through — never a direct camera/pin-state write. One
+  // factory instead of a named useCallback per destination.
+  const goToStage = useCallback((stageId: (typeof journeyStages)[number]["id"]) => () => scrollToStageStart(stageId), [scrollToStageStart]);
   const handleExploreUsFreely = useCallback(() => scrollToStageStart("rivermont-approach"), [scrollToStageStart]);
 
   // "Cross the Ocean" — the interlude's own cinematic, non-scroll-driven camera move (interlude-now
@@ -483,8 +479,8 @@ export function GeographicJourney() {
             reducedMotion={reducedMotion}
             onNavigatePin={handlePinClick}
             onModalOpenChange={setIsStoryModalOpen}
-            onFinishHanoiChapter={handleReturnToHanoiSummary}
-            onFinishUsChapter={handleReturnToUsSummary}
+            onFinishHanoiChapter={goToStage("hanoi-complete")}
+            onFinishUsChapter={goToStage("us-complete")}
           />
           <JourneyHeroContent handleRef={heroHandleRef} reducedMotion={reducedMotion} onBeginJourney={beginJourneyTransition} />
           <JourneyHanoiIntroPanel
@@ -493,7 +489,7 @@ export function GeographicJourney() {
             onStart={() => scrollToPin(hanoiJourneyPins[0].id)}
             onSkip={() => navigateToChapter("us")}
             showReturnLink={hasReachedHanoiComplete}
-            onReturnToSummary={handleReturnToHanoiSummary}
+            onReturnToSummary={goToStage("hanoi-complete")}
           />
           <JourneyChapterComplete
             handleRef={hanoiCompleteHandleRef}
@@ -503,9 +499,9 @@ export function GeographicJourney() {
             heading={hanoiCheckpointCopy.heading}
             paragraph={hanoiCheckpointCopy.paragraph}
             primaryLabel={hanoiCheckpointCopy.continueCta}
-            onPrimary={handleContinueFromHanoi}
+            onPrimary={goToStage("hanoi-interlude-not-yet")}
             secondaryLabel={hanoiCheckpointCopy.stayCta}
-            onSecondary={handleExploreHanoiAgain}
+            onSecondary={goToStage("hanoi-overview")}
           />
           <JourneyInterlude handleRef={interludeHandleRef} reducedMotion={reducedMotion} onCrossOcean={crossOceanTransition} />
           <JourneyUsIntroPanel
@@ -514,7 +510,7 @@ export function GeographicJourney() {
             onStartChapter={handleStartUsChapter}
             onExploreFreely={handleExploreUsFreely}
             showReturnLink={hasReachedUsComplete}
-            onReturnToSummary={handleReturnToUsSummary}
+            onReturnToSummary={goToStage("us-complete")}
           />
           <JourneyChapterComplete
             handleRef={usCompleteHandleRef}
@@ -524,9 +520,9 @@ export function GeographicJourney() {
             heading={usCheckpointCopy.heading}
             paragraph={usCheckpointCopy.paragraph}
             primaryLabel={usCheckpointCopy.continueCta}
-            onPrimary={handleContinueFromUs}
+            onPrimary={goToStage("today-transition")}
             secondaryLabel={usCheckpointCopy.stayCta}
-            onSecondary={handleExploreUsAgain}
+            onSecondary={goToStage("us-overview")}
           />
         </div>
       </div>

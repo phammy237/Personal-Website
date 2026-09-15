@@ -71,8 +71,11 @@ const US_APPROACH_EARLY_SPLIT = 0.3; // fraction of the usa->rivermont distance 
 
 /** Phase 6 — fraction of hanoi-complete's own window spent easing the camera back from the last
  *  pin to the Hanoi overview; the remainder holds there so the chapter-complete overlay has a
- *  stable, readable backdrop (the same "settle, then hold" shape as HANOI_PIN_SETTLE_FRACTION). */
-const HANOI_COMPLETE_SETTLE_FRACTION = 0.45;
+ *  stable, readable backdrop (the same "settle, then hold" shape as HANOI_PIN_SETTLE_FRACTION).
+ *  Exported: hanoiCamera.ts's own Pin-5 story-panel retract timing mirrors this exact fraction so
+ *  the panel finishes closing right as the camera settles, not before or after it — a single
+ *  shared constant instead of two independently-declared copies. */
+export const HANOI_COMPLETE_SETTLE_FRACTION = 0.45;
 /** mirrors HANOI_COMPLETE_SETTLE_FRACTION for us-complete's own Gainesville -> USA_PRESET ease */
 const US_COMPLETE_SETTLE_FRACTION = 0.45;
 /** fraction of today-transition's own window spent pulling back to TODAY_PRESET — kept long so the

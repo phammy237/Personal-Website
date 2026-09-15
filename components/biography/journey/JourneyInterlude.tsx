@@ -2,6 +2,7 @@
 import { useEffect, useRef } from "react";
 import { getStageById } from "@/lib/biography/journeyStages";
 import { stageWeight } from "@/lib/biography/journeyMotion";
+import { applyStageWeightStyle } from "@/components/biography/journey/journeyPanelStyle";
 import { notYetInterludeCopy } from "@/data/hanoiJourney";
 
 export type JourneyInterludeHandle = {
@@ -37,11 +38,7 @@ export function JourneyInterlude({
   useEffect(() => {
     const apply = (el: HTMLDivElement | null, weight: number) => {
       if (!el) return;
-      const visible = weight > 0.05;
-      el.style.opacity = String(weight);
-      el.style.transform = reducedMotion ? "none" : `translateY(${(1 - weight) * 16}px)`;
-      el.style.pointerEvents = visible ? "auto" : "none";
-      el.inert = !visible;
+      applyStageWeightStyle(el, weight, reducedMotion);
     };
     handleRef.current = {
       update: (progress) => {

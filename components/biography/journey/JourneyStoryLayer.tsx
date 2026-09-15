@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { computeHanoiCameraFrame, deriveStoryWeights } from "@/lib/biography/hanoiCamera";
 import { deriveRivermontStoryWeight, deriveGainesvilleStoryWeight, deriveUsMemoriesWeight } from "@/lib/biography/usCamera";
 import { hanoiJourneyPins } from "@/data/hanoiJourney";
@@ -8,6 +8,7 @@ import { JourneyPinStoryPanel } from "@/components/biography/journey/JourneyPinS
 import { JourneyUsStoryPanel } from "@/components/biography/journey/JourneyUsStoryPanel";
 import { JourneyUsMemoriesPanel } from "@/components/biography/journey/JourneyUsMemoriesPanel";
 import { JourneyStoryModal, type JourneyStoryModalData } from "@/components/biography/journey/JourneyStoryModal";
+import { isVideo } from "@/components/biography/StoryMedia";
 
 export type JourneyStoryLayerHandle = {
   /** ref-driven, safe to call every scroll tick — no React state involved */
@@ -30,11 +31,11 @@ const GAINESVILLE_PIN_DATA = usJourneyPins[1];
 /** The story modal's carousel/thumbnail strip only ever renders `<img>` tags — a handful of pins'
  *  `gallery` arrays (see data/hanoiJourney.ts) mix in real .mp4 clips alongside photos, which is
  *  fine for a future video-aware viewer but renders as a broken-image icon through a plain <img>
- *  today. Filtering to known image extensions here (not a runtime <img>-failure workaround) keeps
- *  the modal only ever showing "actual valid media entries," per the polish pass's own rule. */
-const IMAGE_EXTENSION_RE = /\.(jpe?g|png|gif|webp|avif|svg)$/i;
+ *  today. Filtering out videos here (reusing StoryMedia's own isVideo check, not a second/inverse
+ *  extension list that could drift out of sync with it) keeps the modal only ever showing "actual
+ *  valid media entries," per the polish pass's own rule. */
 function onlyImages(paths: string[]): string[] {
-  return paths.filter((p) => IMAGE_EXTENSION_RE.test(p));
+  return paths.filter((p) => !isVideo(p));
 }
 
 function hanoiPinToModalData(index: number): JourneyStoryModalData {
@@ -232,7 +233,10 @@ export function JourneyStoryLayer({
     [onNavigatePin]
   );
 
-  const modalData = modalDataForActiveIndex(loadMediaIndex);
+  // rebuilds gallery/overviewSections arrays each call — only worth doing when the active location
+  // actually changes, not on every re-render this component gets from unrelated parent state
+  // (hoveredPinId, activeStageId, isStoryModalOpen, ...)
+  const modalData = useMemo(() => modalDataForActiveIndex(loadMediaIndex), [loadMediaIndex]);
 
   return (
     <>

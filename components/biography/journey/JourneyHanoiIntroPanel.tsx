@@ -2,6 +2,7 @@
 import { useEffect, useRef } from "react";
 import { getStageById } from "@/lib/biography/journeyStages";
 import { stageWeight } from "@/lib/biography/journeyMotion";
+import { applyStageWeightStyle } from "@/components/biography/journey/journeyPanelStyle";
 import { journeyHanoiIntroContent } from "@/lib/biography/journeyHanoiIntroContent";
 
 export type JourneyHanoiIntroPanelHandle = {
@@ -47,11 +48,7 @@ export function JourneyHanoiIntroPanel({
         const el = rootRef.current;
         if (!el) return;
         const weight = stageWeight(progress, HANOI_OVERVIEW.start, HANOI_OVERVIEW.end, EDGE_FADE);
-        const visible = weight > 0.05;
-        el.style.opacity = String(weight);
-        el.style.transform = reducedMotion ? "none" : `translateY(${(1 - weight) * 16}px)`;
-        el.style.pointerEvents = visible ? "auto" : "none";
-        el.inert = !visible;
+        applyStageWeightStyle(el, weight, reducedMotion);
       },
     };
     return () => {

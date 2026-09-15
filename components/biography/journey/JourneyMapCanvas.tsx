@@ -151,7 +151,11 @@ function routeGradient(fraction: number) {
     ROUTE_COMPLETED,
     f,
     ROUTE_CURRENT,
-    Math.min(1, f + 0.001),
+    // strictly less than the trailing "1" breakpoint below — the mirror-image of bandStart's own
+    // fix above: at f close to 1 (route fully/near-complete), f + 0.001 clamped to exactly 1
+    // collided with that last breakpoint the same way. Only actually reachable once a route
+    // finishes paging through every pin (fraction -> 1), which no earlier test happened to drive.
+    Math.min(0.99995, f + 0.001),
     ROUTE_FUTURE,
     1,
     ROUTE_FUTURE,
@@ -494,6 +498,12 @@ export function JourneyMapCanvas({
   // rebuilds the whole style (image sources included), same "persist across setStyle" pattern the
   // existing pin/route/anchor refs already use.
   const lastEarthRasterStateRef = useRef<EarthRasterCrossfadeState>({ dayOpacity: 0, nightOpacity: 0, vectorOpacity: 1 });
+  // last state actually written to the map (post-fallback-resolution) — lets applyEarthRasterCrossfade
+  // skip its ~8 getLayer/setPaintProperty calls once the crossfade has settled (e.g. every tick for
+  // the whole Hanoi/US/Today portion of the journey, where it's always {0,0,1}), rather than paying
+  // MapLibre's style-reevaluation cost on every single scroll tick regardless of whether anything
+  // actually changed since the last one.
+  const lastAppliedRasterRef = useRef<EarthRasterCrossfadeState | null>(null);
   // Pin-01 hint pulse: a self-contained rAF loop, entirely separate from the scroll-progress
   // pipeline (a visitor sitting still reading the intro still sees it breathe). Only ever running
   // while GeographicJourney says the hanoi-overview stage is actually on screen.
@@ -508,6 +518,11 @@ export function JourneyMapCanvas({
     // fallback: imagery failed to load earlier — never show a blank/near-empty Earth, force the
     // original vector globe back to full strength instead of whatever the caller asked for
     const state = rasterFailedRef.current ? { dayOpacity: 0, nightOpacity: 0, vectorOpacity: 1 } : rawState;
+    const last = lastAppliedRasterRef.current;
+    if (last && last.dayOpacity === state.dayOpacity && last.nightOpacity === state.nightOpacity && last.vectorOpacity === state.vectorOpacity) {
+      return; // identical to what's already on the map — most ticks once the crossfade has settled
+    }
+    lastAppliedRasterRef.current = state;
     if (map.getLayer("earth-raster-day")) map.setPaintProperty("earth-raster-day", "raster-opacity", state.dayOpacity);
     if (map.getLayer("earth-raster-night")) map.setPaintProperty("earth-raster-night", "raster-opacity", state.nightOpacity);
     // fully hides (stops rendering) the raster layers once faded out, and only then — toggling
@@ -744,6 +759,11 @@ export function JourneyMapCanvas({
     constructedThemeRef.current = theme;
     const map = mapRef.current;
     if (!map) return;
+    // setStyle() below rebuilds every layer from mapStyle.ts's own static defaults, so
+    // applyEarthRasterCrossfade's "skip if unchanged since last applied" guard would otherwise
+    // wrongly no-op the very first post-swap call whenever the crossfade's value happens to match
+    // what was already cached from before the swap — the map itself was just reset underneath it.
+    lastAppliedRasterRef.current = null;
     map.once("style.load", () => {
       setupJourneyLayers(map, theme, isMobileRef.current, onPinClickRef, onPinHoverRef, hoveredPinRef);
       applyPersistedState(map);

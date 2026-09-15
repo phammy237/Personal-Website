@@ -1,7 +1,7 @@
 "use client";
 import { ImagePlaceholder } from "@/components/biography/ImagePlaceholder";
 
-const isVideo = (src: string) => /\.(mp4|webm|mov)$/i.test(src);
+export const isVideo = (src: string) => /\.(mp4|webm|mov)$/i.test(src);
 
 /** Max real images ever rendered directly in a gallery-style grid — enough for a rich moment
  *  without turning into a runaway grid; anything past this is summarized with a "+N" tag. */

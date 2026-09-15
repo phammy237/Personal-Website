@@ -1,6 +1,7 @@
 import { hanoiJourneyPins } from "@/data/hanoiJourney";
 import { getStageAtProgress, getStageById } from "@/lib/biography/journeyStages";
 import { clamp01, lerp, localProgress, smoothstep } from "@/lib/biography/journeyMotion";
+import { HANOI_COMPLETE_SETTLE_FRACTION } from "@/lib/biography/journeyMapCamera";
 import type { JourneyStageId } from "@/lib/biography/journeyTypes";
 import type { PinStatus } from "@/components/biography/MapPin";
 
@@ -32,10 +33,10 @@ export const HANOI_PIN_STAGE_IDS_SET: ReadonlySet<string> = new Set(HANOI_PIN_ST
 const HANOI_PIN_1 = getStageById("hanoi-pin-1");
 export const HANOI_PIN_5 = getStageById("hanoi-pin-5");
 const HANOI_COMPLETE = getStageById("hanoi-complete");
-/** fraction of hanoi-complete's own window by which the Pin-5 story panel has fully closed —
- *  mirrors journeyMapCamera.ts's HANOI_COMPLETE_SETTLE_FRACTION so the panel finishes closing
- *  right as the camera itself settles back on the Hanoi overview, not before or after it. */
-const PIN5_STORY_RETRACT_FRACTION = 0.45;
+// the Pin-5 story panel closes over the same fraction of hanoi-complete's own window the camera
+// itself takes to settle back on the Hanoi overview (see journeyMapCamera.ts) — one shared
+// constant, not two independently-declared copies that could drift apart.
+const PIN5_STORY_RETRACT_FRACTION = HANOI_COMPLETE_SETTLE_FRACTION;
 
 /** presentation-only values — where none of the geography comes from */
 const PIN_ZOOM = 1.7;
