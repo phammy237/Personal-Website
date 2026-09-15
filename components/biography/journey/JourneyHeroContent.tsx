@@ -63,7 +63,7 @@ export function JourneyHeroContent({
   return (
     <div
       ref={rootRef}
-      className="pointer-events-none absolute left-0 right-0 top-1/2 -translate-y-1/2 px-6 md:left-[clamp(48px,4.5vw,76px)] md:right-auto md:top-[28vh] md:w-[340px] md:translate-y-0 md:px-0"
+      className="pointer-events-none absolute left-0 right-0 top-1/2 -translate-y-1/2 px-6 md:left-[4.5vw] md:right-auto md:top-[28vh] md:w-[340px] md:translate-y-0 md:px-0"
     >
       <p className="mb-[28px] font-mono text-[11px] uppercase leading-relaxed tracking-[0.14em] text-[rgba(205,200,225,0.46)]">
         {journeyHeroContent.eyebrow}

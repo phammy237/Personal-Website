@@ -31,6 +31,11 @@ export type HanoiJourneyPin = {
   photoIdeas: string[];
   /** real photos, shown as a gallery in the expanded story modal once available */
   gallery?: string[];
+  /** shown in the preview card's image slot and the modal's media area whenever neither `image`
+   *  nor `gallery` has a real photo yet — a designed placeholder, never a borrowed/wrong photo or a
+   *  broken-image icon. Omit once real media exists; JourneyMediaPlaceholder is never shown
+   *  alongside real media, only in its place. */
+  mediaPlaceholder?: { eyebrow: string; description: string };
 };
 
 export const hanoiCheckpointCopy = {
@@ -128,7 +133,11 @@ export const hanoiJourneyPins: HanoiJourneyPin[] = [
     subtitle: "Learning to reach higher",
     ageRange: "8–10",
     coordinates: { lat: 21.0098, lon: 105.8003 },
-    image: "/IMG_4610.JPG",
+    // No real photo of Ngôi Sao Hà Nội exists yet — /IMG_4610.JPG was a wrong/demo stock photo
+    // (not an actual photo of this school) and has been removed rather than left in place. Shows
+    // the designed JourneyMediaPlaceholder until a real photo replaces this comment + adds `image`/
+    // `gallery` back.
+    mediaPlaceholder: { eyebrow: "Photo Coming Soon", description: "A memory for this chapter will be added here." },
     preview: {
       title: "Ngôi Sao Hà Nội Primary School",
       description: "Three years of scholarships, selective classes, and my first academic experiences outside Vietnam.",
@@ -160,11 +169,12 @@ export const hanoiJourneyPins: HanoiJourneyPin[] = [
     ageRange: "10–14",
     coordinates: { lat: 21.03, lon: 105.798 },
     // No real photo of Cầu Giấy exists yet — deliberately omitted rather than reusing the generic
-    // stock photo (/IMG_7605.JPG) other pages use as decoration. To add real photos later: drop
-    // files in public/biography/cau-giay/ (matching the flat convention every other Hanoi pin
-    // already uses — home/, nam-thanh-cong/, ngoi-sao-ha-noi/, nguyen-hue/) and set `image` to the
-    // hero shot plus a `gallery: [...]` array here, same shape as the other pins. No component
-    // changes needed — StoryMedia/JourneyPinStoryPanel already render whatever this array contains.
+    // stock photo (/IMG_7605.JPG) other pages use as decoration. Shows the designed
+    // JourneyMediaPlaceholder in the meantime. To add real photos later: drop files in
+    // public/biography/cau-giay/ (matching the flat convention every other Hanoi pin already uses —
+    // home/, nam-thanh-cong/, ngoi-sao-ha-noi/, nguyen-hue/), set `image`/`gallery` here, and remove
+    // `mediaPlaceholder` — no component changes needed either way.
+    mediaPlaceholder: { eyebrow: "Memories In Progress", description: "Art, music, languages, and a bigger canvas." },
     preview: {
       title: "Cầu Giấy Secondary School",
       description: "Where art, music, languages, friendship, and learning began blending together.",

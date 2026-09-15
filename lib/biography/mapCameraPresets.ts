@@ -32,7 +32,7 @@ const GAINESVILLE_PIN = usJourneyPins[1];
  *  than a true "whole Earth" framing (was 1.1) so the globe reads as the dominant hero visual
  *  rather than a small isolated sphere in empty space — see JourneyMapCanvas's hero padding, which
  *  also nudges the visual fit slightly left of center to leave room for the chapter rail. */
-export const EARTH_PRESET: JourneyCameraPreset = { center: [105, 18], zoom: 2.0 };
+export const EARTH_PRESET: JourneyCameraPreset = { center: [105, 18], zoom: 2.2 };
 
 /** country-level Vietnam framing, on the way in from the globe */
 export const VIETNAM_PRESET: JourneyCameraPreset = { center: [105.85, 17.5], zoom: 4.6 };
@@ -42,6 +42,16 @@ export const HANOI_PRESET: JourneyCameraPreset = { center: [105.803, 21.0], zoom
 
 /** wide Asia-Pacific view used as the "zoom back out toward the globe" pivot before crossing */
 export const EARTH_TRANSITION_PRESET: JourneyCameraPreset = { center: [150, 25], zoom: 1.6 };
+
+/** regional Southeast Asia framing — the interlude's mid-point between the Hanoi overview and the
+ *  wide Pacific pivot (EARTH_TRANSITION_PRESET), giving "Hanoi overview → Vietnam → regional Asia"
+ *  a real third beat instead of jumping straight from country-level to hemisphere-level. */
+export const ASIA_REGIONAL_PRESET: JourneyCameraPreset = { center: [110, 15], zoom: 3.2 };
+
+/** the journey's calm resting camera for the Today ending — pulled back further than USA_PRESET so
+ *  the final beat reads as "stepping back to take in the whole picture," not still zoomed into a
+ *  single chapter. */
+export const TODAY_PRESET: JourneyCameraPreset = { center: [-86.4, 35.6], zoom: 2.6 };
 
 /** regional U.S. framing, centered between Rivermont and Gainesville */
 export const USA_PRESET: JourneyCameraPreset = { center: [-86.4, 35.6], zoom: 3.6 };

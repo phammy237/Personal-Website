@@ -2,40 +2,38 @@
 import { useEffect, useRef } from "react";
 import { getStageById } from "@/lib/biography/journeyStages";
 import { stageWeight } from "@/lib/biography/journeyMotion";
-import { journeyHanoiIntroContent } from "@/lib/biography/journeyHanoiIntroContent";
+import { usJourneyCopy } from "@/data/usJourney";
 
-export type JourneyHanoiIntroPanelHandle = {
+export type JourneyUsIntroPanelHandle = {
   /** ref-driven, safe to call every scroll tick — no React state involved */
   update: (progress: number) => void;
 };
 
-const HANOI_OVERVIEW = getStageById("hanoi-overview");
-// quick fade at both edges of the hanoi-overview window itself — visible regardless of whether the
-// user arrived here via Begin Journey's cinematic jump or by scrolling here organically, since
-// visibility is purely a function of progress, not of how progress got there.
-const EDGE_FADE = 0.02;
+const US_OVERVIEW = getStageById("us-overview");
+const EDGE_FADE = 0.02; // matches JourneyHanoiIntroPanel's own EDGE_FADE
 
 /**
- * The Hanoi-overview landing state's intro block — same minimal overlay pattern as
- * JourneyHeroContent (ref-driven update(progress), no card/border), shown only for the
- * hanoi-overview stage, before any of the 5 pins have been visited. Its own CTA hands off to the
- * existing pin-click scroll path (onStart), so starting the Hanoi journey activates Pin 01 through
- * the same single scroll-progress source of truth every other navigation in this page already uses.
+ * The U.S.-overview landing state's intro block — same shell/behavior as JourneyHanoiIntroPanel
+ * (left column, ref-driven update(progress), no card/border), shown only for the us-overview stage.
+ * Two CTAs instead of one: "Start the Chapter" jumps straight into Rivermont's settled story
+ * window (mirrors JourneyHanoiIntroPanel's onStart), while "Explore Freely" eases only as far as
+ * rivermont-approach's own start — letting the user scroll/click through the map themselves rather
+ * than being snapped straight into a story panel.
  */
-export function JourneyHanoiIntroPanel({
+export function JourneyUsIntroPanel({
   handleRef,
   reducedMotion,
-  onStart,
-  onSkip,
+  onStartChapter,
+  onExploreFreely,
   showReturnLink,
   onReturnToSummary,
 }: {
-  handleRef: React.MutableRefObject<JourneyHanoiIntroPanelHandle | null>;
+  handleRef: React.MutableRefObject<JourneyUsIntroPanelHandle | null>;
   reducedMotion: boolean;
-  onStart: () => void;
-  onSkip: () => void;
-  /** true once the user has already reached hanoi-complete at least once this session — offers a
-   *  quiet way back to that summary instead of only "start from pin 1" or "skip the chapter." */
+  onStartChapter: () => void;
+  onExploreFreely: () => void;
+  /** true once the user has already reached us-complete at least once this session — mirrors
+   *  JourneyHanoiIntroPanel's own showReturnLink. */
   showReturnLink?: boolean;
   onReturnToSummary?: () => void;
 }) {
@@ -46,7 +44,7 @@ export function JourneyHanoiIntroPanel({
       update: (progress) => {
         const el = rootRef.current;
         if (!el) return;
-        const weight = stageWeight(progress, HANOI_OVERVIEW.start, HANOI_OVERVIEW.end, EDGE_FADE);
+        const weight = stageWeight(progress, US_OVERVIEW.start, US_OVERVIEW.end, EDGE_FADE);
         const visible = weight > 0.05;
         el.style.opacity = String(weight);
         el.style.transform = reducedMotion ? "none" : `translateY(${(1 - weight) * 16}px)`;
@@ -64,41 +62,37 @@ export function JourneyHanoiIntroPanel({
       ref={rootRef}
       className="pointer-events-none absolute inset-y-0 left-0 z-20 flex w-full max-w-sm items-center px-6 opacity-0 md:px-12 lg:px-16"
     >
-      {/* Subtle readability backdrop, not a card — a soft fade toward the page's own dark tone
-          behind the text, no border/rounded-rectangle edge anywhere. */}
       <div
         className="pointer-events-none absolute inset-y-0 left-0 -z-10 w-[130%] dark:opacity-100"
         style={{
-          background:
-            "linear-gradient(to right, rgba(24,35,63,0.55) 0%, rgba(24,35,63,0.28) 55%, transparent 100%)",
+          background: "linear-gradient(to right, rgba(24,35,63,0.55) 0%, rgba(24,35,63,0.28) 55%, transparent 100%)",
         }}
       />
       <div className="flex flex-col gap-5">
         <p className="font-mono text-[11px] uppercase leading-relaxed tracking-[0.25em] text-accent dark:text-accent-lavender">
-          {journeyHanoiIntroContent.eyebrow}
+          {usJourneyCopy.eyebrow}
         </p>
         <h2 className="font-display text-5xl leading-[1.05] text-surface dark:text-white md:text-6xl">
-          {journeyHanoiIntroContent.heading}
+          {usJourneyCopy.heading}
         </h2>
-        <p className="max-w-sm font-body text-sm leading-relaxed text-muted dark:text-white/60">{journeyHanoiIntroContent.body}</p>
+        <p className="max-w-sm font-body text-sm leading-relaxed text-muted dark:text-white/60">{usJourneyCopy.body}</p>
         <div className="flex flex-col items-start gap-3">
           <button
             type="button"
-            onClick={onStart}
+            onClick={onStartChapter}
             className="group flex w-fit items-center gap-3 font-mono text-xs uppercase tracking-[0.2em] text-surface transition-colors hover:text-accent dark:text-white/80 dark:hover:text-white"
           >
-            {journeyHanoiIntroContent.ctaLabel}
+            {usJourneyCopy.ctaLabel}
             <span className="flex h-8 w-8 items-center justify-center rounded-full border border-accent/50 transition-colors group-hover:border-accent dark:border-accent-lavender/50 dark:group-hover:border-accent-lavender">
               →
             </span>
           </button>
-          {/* deliberately quiet — must not compete with the primary CTA above */}
           <button
             type="button"
-            onClick={onSkip}
+            onClick={onExploreFreely}
             className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted/60 transition-colors hover:text-muted dark:text-white/35 dark:hover:text-white/60"
           >
-            Skip to next chapter
+            {usJourneyCopy.secondaryCtaLabel}
           </button>
           {showReturnLink && onReturnToSummary && (
             <button

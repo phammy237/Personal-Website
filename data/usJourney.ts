@@ -39,6 +39,17 @@ export const usJourneyCopy = {
   eyebrow: "Chapter 02 · Becoming",
   heading: "United States",
   instruction: "Follow the main route or select a location.",
+  body: "Two schools on opposite ends of the country, and the slow work of turning unfamiliar places into home.",
+  ctaLabel: "Start the chapter",
+  secondaryCtaLabel: "Explore freely",
+};
+
+export const usCheckpointCopy = {
+  heading: "A bigger world, another home.",
+  paragraph:
+    "Rivermont taught me how to build community somewhere new. Gainesville has given me the space to keep becoming — and the story is still being written.",
+  continueCta: "Continue to today",
+  stayCta: "Explore the U.S. chapter again",
 };
 
 export const usMemoriesCopy = {
@@ -64,6 +75,9 @@ export const usJourneyPins: USJourneyPin[] = [
     // To add real photos later: drop files in public/biography/rivermont/ and list them in the
     // relevant section's `images` array (plus `captions` if you want specific alt text) — no
     // component changes needed, StoryMedia already renders whatever each array contains.
+    // Suggested media ordering once photos exist (also sets `gallery` on this pin, which is what
+    // the story modal's carousel/thumbnail-grid actually reads): 1) arrival/campus, 2) friends,
+    // 3) Asian Culture Club, 4) dorm/prefect life, 5) school/community memories.
     storySections: [
       {
         id: "new-beginning",
@@ -113,6 +127,8 @@ export const usJourneyPins: USJourneyPin[] = [
     },
     // Same convention as Rivermont above — drop real photos in public/biography/gainesville/ and
     // list them per section; no component changes needed.
+    // Suggested media ordering once photos exist: 1) UF/campus, 2) projects, 3) research,
+    // 4) DSI/VISA/student orgs, 5) friends/everyday life, 6) professional experiences.
     storySections: [
       {
         id: "starting-over-again",

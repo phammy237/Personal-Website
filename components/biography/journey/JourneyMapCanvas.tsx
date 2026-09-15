@@ -5,6 +5,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { getJourneyMapStyle } from "@/lib/biography/mapStyle";
 import { EARTH_PRESET, type JourneyCameraState } from "@/lib/biography/mapCameraPresets";
 import { computeJourneyMapPadding } from "@/lib/biography/journeyMapPadding";
+import type { EarthRasterCrossfadeState } from "@/lib/biography/earthRasterCrossfade";
 import { lerp } from "@/lib/biography/journeyMotion";
 import {
   hanoiPinsGeoJSON,
@@ -49,6 +50,11 @@ export type JourneyMapHandle = {
   /** starts/stops the extremely-subtle Pin-01 pulse hint — a self-contained time-based loop (not
    *  scroll-tick-driven), only running while the hanoi-overview stage is actually on screen. */
   setHanoiOverviewPulseActive: (active: boolean) => void;
+  /** the Earth-hero satellite raster <-> editorial vector atlas crossfade — see
+   *  lib/biography/earthRasterCrossfade.ts, the single source of truth for these three numbers.
+   *  Also toggles the two raster layers' own visibility off once fully faded, so they stop costing
+   *  any GPU work for the rest of the journey (re-enabled automatically on scrolling back). */
+  setEarthRasterCrossfade: (state: EarthRasterCrossfadeState) => void;
 };
 
 export type JourneyMapCanvasProps = {
@@ -74,10 +80,11 @@ const PIN_LAYER_GROUPS = [
   { source: "us-pins", prefix: "us-pin", data: usPinsGeoJSON },
 ] as const;
 
-// Exact spec, three concentric layers (`-glow`, `-ring`, `-circle`) plus the number:
-// ACTIVE:    halo 34px rgba(142,107,255,.18) / ring 22px 2px #A98CFF / inner 14px #8E6BFF / number white 11px
-// COMPLETED: 18px filled rgba(142,107,255,.55), no ring, no glow
-// FUTURE:    14px transparent fill, 1px ring rgba(180,160,255,.45), no glow
+// Polish pass, three concentric layers (`-glow`, `-ring`, `-circle`) plus the number — active pin is
+// the strongest map element while a preview is open, per the map-hierarchy pass:
+// ACTIVE:    halo 38px rgba(142,107,255,.18) / ring 24px 2px #A98CFF / inner 14px #8E6BFF / number white 11px
+// COMPLETED: 18px filled rgba(142,107,255,.55), no ring, no glow — quiet
+// FUTURE:    14px transparent fill, 1px ring rgba(180,160,255,.45), no glow — very quiet
 const STATUS = ["feature-state", "status"];
 
 const PIN_CIRCLE_COLOR = ["case", ["==", STATUS, "active"], "#8E6BFF", ["==", STATUS, "completed"], "rgba(142,107,255,0.55)", "transparent"];
@@ -85,12 +92,12 @@ const PIN_RADIUS = ["case", ["==", STATUS, "active"], 7, ["==", STATUS, "complet
 
 // the ring is the ONLY visible edge for future pins (transparent fill); for completed pins it's
 // switched off entirely (a plain filled dot, no ring) via PIN_RING_OPACITY below
-const PIN_RING_RADIUS = ["case", ["==", STATUS, "active"], 11, 7];
+const PIN_RING_RADIUS = ["case", ["==", STATUS, "active"], 12, 7];
 const PIN_RING_STROKE_WIDTH = ["case", ["==", STATUS, "active"], 2, 1];
 const PIN_RING_COLOR = ["case", ["==", STATUS, "active"], "#A98CFF", "rgba(180,160,255,0.45)"];
 const PIN_RING_OPACITY = ["case", ["==", STATUS, "completed"], 0, 1];
 
-const PIN_GLOW_RADIUS = ["case", ["==", STATUS, "active"], 17, 0];
+const PIN_GLOW_RADIUS = ["case", ["==", STATUS, "active"], 19, 0];
 const PIN_GLOW_OPACITY = ["case", ["==", STATUS, "active"], 0.18, 0]; // "only active pin glows strongly"
 
 const PIN_NUMBER_COLOR = "#FFFFFF";
@@ -116,17 +123,24 @@ function subtitleOpacityExpression(isMobile: boolean) {
   return ["case", ["==", STATUS, "active"], 1, ["boolean", ["feature-state", "hover"], false], 0.85, 0];
 }
 
-// Three states along the core line: completed (.85), a narrow full-brightness band right at the
+// Three states along the core line: completed (.92), a narrow full-brightness band right at the
 // leading edge ("current segment"), future (.12) — the glow layer underneath is flat/constant, not
-// gradient-driven (see setupJourneyLayers), so only the core needs this per-frame update.
-const ROUTE_COMPLETED = "rgba(169,140,255,0.85)";
+// gradient-driven (see setupJourneyLayers), so only the core needs this per-frame update. Completed
+// bumped from .85 -> .92 (map-hierarchy polish: "route is second-strongest element" behind the
+// active pin) — future stays faint on purpose, this should read as elegant, not neon.
+const ROUTE_COMPLETED = "rgba(169,140,255,0.92)";
 const ROUTE_CURRENT = "#A98CFF";
 const ROUTE_FUTURE = "rgba(169,140,255,0.12)";
 const CURRENT_BAND_WIDTH = 0.015;
 
 function routeGradient(fraction: number) {
   const f = Math.max(0.0001, Math.min(0.9999, fraction));
-  const bandStart = Math.max(0, f - CURRENT_BAND_WIDTH);
+  // strictly greater than the leading "0" breakpoint below — at very small f (e.g. fraction=0,
+  // the route's own initial/reset state), f - CURRENT_BAND_WIDTH goes negative and clamping it to
+  // exactly 0 collided with that first breakpoint, which MapLibre's interpolate expression rejects
+  // ("input values in strictly ascending order"). Pre-existing bug, caught while verifying the
+  // Earth raster crossfade's own map errors were clean — unrelated to this route's own visuals.
+  const bandStart = Math.max(0.00005, f - CURRENT_BAND_WIDTH);
   return [
     "interpolate",
     ["linear"],
@@ -182,20 +196,22 @@ function setupJourneyLayers(
     ["domestic-route", "domestic-route"],
   ] as const) {
     // Flat/constant — doesn't itself track progress; the core line below carries the
-    // future/completed/current distinction via its gradient.
+    // future/completed/current distinction via its gradient. Opacity bumped .14 -> .17 (~20%
+    // stronger, map-hierarchy polish) so the route reads as the second-strongest element behind the
+    // active pin without tipping into neon.
     map.addLayer({
       id: `${id}-glow`,
       type: "line",
       source,
       layout: { "line-cap": "round", "line-join": "round" },
-      paint: { "line-color": "#8E6BFF", "line-width": 9, "line-blur": 3, "line-opacity": 0.14 },
+      paint: { "line-color": "#8E6BFF", "line-width": 10, "line-blur": 3, "line-opacity": 0.17 },
     });
     map.addLayer({
       id,
       type: "line",
       source,
       layout: { "line-cap": "round", "line-join": "round" },
-      paint: { "line-width": 2.5, "line-gradient": INITIAL_DIM_GRADIENT as never },
+      paint: { "line-width": 2.8, "line-gradient": INITIAL_DIM_GRADIENT as never },
     });
   }
   // trans-Pacific: visually distinct from the two local routes — thinner, no glow, broader arc,
@@ -212,21 +228,21 @@ function setupJourneyLayers(
   // Earth-hero-stage "glowing Hanoi" marker — visible only while zoomed out near the globe, before
   // the real Hanoi pins (below) take over. Starts fully transparent; GeographicJourney drives its
   // opacity every scroll tick via setHanoiAnchorGlowOpacity, same pattern as the routes above.
-  // Exact spec: 8px white center, 14px purple ring, 26px halo — "only one strong geographic marker
-  // on Earth hero."
+  // Raster-Earth polish: 6-8px white center, 16-18px purple ring, 28-34px halo — "only one strong
+  // geographic marker on Earth hero," now sized to read clearly against the satellite surface.
   map.addSource("hanoi-anchor", { type: "geojson", data: hanoiAnchorGeoJSON });
   map.addLayer({
     id: "hanoi-anchor-glow",
     type: "circle",
     source: "hanoi-anchor",
-    paint: { "circle-radius": 13, "circle-color": "#8E6BFF", "circle-blur": 1.2, "circle-opacity": 0 },
+    paint: { "circle-radius": 15, "circle-color": "#8E6BFF", "circle-blur": 1.2, "circle-opacity": 0 },
   });
   map.addLayer({
     id: "hanoi-anchor-ring",
     type: "circle",
     source: "hanoi-anchor",
     paint: {
-      "circle-radius": 7,
+      "circle-radius": 8,
       "circle-color": "transparent",
       "circle-stroke-color": "#A98CFF",
       "circle-stroke-width": 2,
@@ -466,11 +482,59 @@ export function JourneyMapCanvas({
   const transpacificOpacityRef = useRef(0);
   const hanoiAnchorOpacityRef = useRef(0);
   const hanoiChapterLabelOpacityRef = useRef(0);
+  // starts true (matching the raster layers' own initial "visible" layout default in mapStyle.ts)
+  // so the very first setEarthRasterCrossfade call, if it happens to already be fully faded (e.g. a
+  // mid-journey page refresh), correctly flips visibility off instead of a no-op "already false".
+  const rasterVisibleRef = useRef(true);
+  // set true if the earth-day/earth-night image source ever fails to load — see the map's "error"
+  // listener. Checked by setEarthRasterCrossfade to force a full-vector fallback rather than risk a
+  // blank/near-empty Earth hero.
+  const rasterFailedRef = useRef(false);
+  // last raw (pre-fallback) crossfade state — re-applied by applyPersistedState after a theme swap
+  // rebuilds the whole style (image sources included), same "persist across setStyle" pattern the
+  // existing pin/route/anchor refs already use.
+  const lastEarthRasterStateRef = useRef<EarthRasterCrossfadeState>({ dayOpacity: 0, nightOpacity: 0, vectorOpacity: 1 });
   // Pin-01 hint pulse: a self-contained rAF loop, entirely separate from the scroll-progress
   // pipeline (a visitor sitting still reading the intro still sees it breathe). Only ever running
   // while GeographicJourney says the hanoi-overview stage is actually on screen.
   const pulseRafRef = useRef<number | null>(null);
   const pulseActiveRef = useRef(false);
+
+  // Shared by the handle's setEarthRasterCrossfade (live scroll ticks) and applyPersistedState
+  // (re-applying the last known state after a theme swap rebuilds the whole style) — see those two
+  // call sites below.
+  const applyEarthRasterCrossfade = (map: MapLibreMap, rawState: EarthRasterCrossfadeState) => {
+    lastEarthRasterStateRef.current = rawState;
+    // fallback: imagery failed to load earlier — never show a blank/near-empty Earth, force the
+    // original vector globe back to full strength instead of whatever the caller asked for
+    const state = rasterFailedRef.current ? { dayOpacity: 0, nightOpacity: 0, vectorOpacity: 1 } : rawState;
+    if (map.getLayer("earth-raster-day")) map.setPaintProperty("earth-raster-day", "raster-opacity", state.dayOpacity);
+    if (map.getLayer("earth-raster-night")) map.setPaintProperty("earth-raster-night", "raster-opacity", state.nightOpacity);
+    // fully hides (stops rendering) the raster layers once faded out, and only then — toggling
+    // visibility every tick would be wasteful, so this only fires on an actual on/off edge
+    const shouldBeVisible = state.dayOpacity > 0.001 || state.nightOpacity > 0.001;
+    if (shouldBeVisible !== rasterVisibleRef.current) {
+      rasterVisibleRef.current = shouldBeVisible;
+      const visibility = shouldBeVisible ? "visible" : "none";
+      if (map.getLayer("earth-raster-day")) map.setLayoutProperty("earth-raster-day", "visibility", visibility);
+      if (map.getLayer("earth-raster-night")) map.setLayoutProperty("earth-raster-night", "visibility", visibility);
+    }
+    const v = state.vectorOpacity;
+    if (map.getLayer("water")) map.setPaintProperty("water", "fill-opacity", v);
+    if (map.getLayer("waterway")) map.setPaintProperty("waterway", "line-opacity", v);
+    if (map.getLayer("road-major")) map.setPaintProperty("road-major", "line-opacity", v);
+    if (map.getLayer("place-label-major")) map.setPaintProperty("place-label-major", "text-opacity", v);
+    // boundary-country/state already carry their own zoom-based ramp (see mapStyle.ts's "tiny
+    // outlined circles in the ocean" fix) — rebuilding the same zoom breakpoints scaled by v
+    // preserves that fix while layering the raster crossfade on top, rather than one overwriting
+    // the other.
+    if (map.getLayer("boundary-country")) {
+      map.setPaintProperty("boundary-country", "line-opacity", ["interpolate", ["linear"], ["zoom"], 2, 0, 3.5, v] as never);
+    }
+    if (map.getLayer("boundary-state")) {
+      map.setPaintProperty("boundary-state", "line-opacity", ["interpolate", ["linear"], ["zoom"], 3, 0, 4.5, v] as never);
+    }
+  };
 
   const applyPersistedState = (map: MapLibreMap) => {
     for (const [pinId, status] of Array.from(pinStatusesRef.current.entries())) {
@@ -485,6 +549,7 @@ export function JourneyMapCanvas({
     map.setPaintProperty("transpacific-route", "line-opacity", transpacificOpacityRef.current * 0.55);
     applyHanoiAnchorOpacity(map, hanoiAnchorOpacityRef.current);
     applyHanoiChapterLabelOpacity(map, hanoiChapterLabelOpacityRef.current);
+    applyEarthRasterCrossfade(map, lastEarthRasterStateRef.current);
   };
 
   const stopPulse = () => {
@@ -546,6 +611,14 @@ export function JourneyMapCanvas({
     map.on("error", (e) => {
       // eslint-disable-next-line no-console
       console.error("Journey map error:", e.error);
+      // Graceful fallback: if the satellite imagery itself fails to load (network hiccup, asset
+      // moved, etc.), never leave the Earth hero blank — force the vector atlas back to full
+      // opacity so the journey's original vector globe still renders normally. setEarthRasterCrossfade
+      // checks this flag on every subsequent call, so nothing else needs to know this happened.
+      const sourceId = (e as unknown as { sourceId?: string }).sourceId;
+      if (sourceId === "earth-day" || sourceId === "earth-night") {
+        rasterFailedRef.current = true;
+      }
     });
     mapRef.current = map;
 
@@ -568,7 +641,7 @@ export function JourneyMapCanvas({
           zoom: state.zoom,
           pitch: state.pitch ?? 0,
           bearing: state.bearing ?? 0,
-          padding: computeJourneyMapPadding(progress, isMobileRef.current),
+          padding: computeJourneyMapPadding(progress, isMobileRef.current, window.innerWidth),
         });
       },
       setPinStatus: (pinId, status) => {
@@ -616,8 +689,23 @@ export function JourneyMapCanvas({
         if (active) startPulse();
         else stopPulse();
       },
+      setEarthRasterCrossfade: (rawState) => {
+        const m = mapRef.current;
+        if (!m) return;
+        applyEarthRasterCrossfade(m, rawState);
+      },
     };
     onReadyRef.current?.();
+    // The earth-day/earth-night `image` sources aren't queryable via getLayer() the instant
+    // "style.load" fires — MapLibre only finishes registering an image-sourced layer once the
+    // image itself has actually loaded, which for a multi-MB satellite photo can take noticeably
+    // longer than the rest of the (tile-based) style. The very first setEarthRasterCrossfade call
+    // above therefore silently no-ops for those two layers specifically (every `getLayer` check
+    // returns falsy), and — since nothing else re-drives them until the next scroll tick — the
+    // raster stayed invisible on a page load with zero scroll yet. "idle" (all currently required
+    // resources, images included, finished loading) is the correct second replay point; `.once`
+    // since this only needs to happen the first time.
+    map.once("idle", () => onReadyRef.current?.());
 
     const onCanvasResize = () => map.resize();
     window.addEventListener("resize", onCanvasResize);
@@ -659,8 +747,20 @@ export function JourneyMapCanvas({
     map.once("style.load", () => {
       setupJourneyLayers(map, theme, isMobileRef.current, onPinClickRef, onPinHoverRef, hoveredPinRef);
       applyPersistedState(map);
+      // same race as the initial mount (see the matching comment there): the rebuilt earth-day/
+      // earth-night image-sourced layers aren't reliably queryable via getLayer() the instant
+      // style.load fires, so applyPersistedState's own raster-crossfade re-apply above can silently
+      // no-op for those two layers specifically — replay once more on "idle" once they're truly
+      // ready. This is exactly what was leaving the raster invisible after a light/dark theme swap.
+      map.once("idle", () => applyPersistedState(map));
     });
     map.setStyle(getJourneyMapStyle(theme));
+    // applyPersistedState is intentionally not in deps — a fresh closure every render that only
+    // reads current refs/mapRef, safe to call from this one-time imperative style-swap effect
+    // without needing to be a dependency (it was already called here before this fix; the added
+    // .once("idle", ...) replay above is what newly surfaces the same pre-existing pattern to the
+    // linter).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [theme]);
 
   return (

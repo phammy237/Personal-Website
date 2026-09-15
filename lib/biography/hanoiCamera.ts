@@ -1,7 +1,6 @@
 import { hanoiJourneyPins } from "@/data/hanoiJourney";
 import { getStageAtProgress, getStageById } from "@/lib/biography/journeyStages";
 import { clamp01, lerp, localProgress, smoothstep } from "@/lib/biography/journeyMotion";
-import { DEPARTURE_RETRACT_AT, DEPARTURE_RETRACT_WIDTH } from "@/lib/biography/transpacificCamera";
 import type { JourneyStageId } from "@/lib/biography/journeyTypes";
 import type { PinStatus } from "@/components/biography/MapPin";
 
@@ -32,6 +31,11 @@ export const HANOI_PIN_STAGE_IDS_SET: ReadonlySet<string> = new Set(HANOI_PIN_ST
 
 const HANOI_PIN_1 = getStageById("hanoi-pin-1");
 export const HANOI_PIN_5 = getStageById("hanoi-pin-5");
+const HANOI_COMPLETE = getStageById("hanoi-complete");
+/** fraction of hanoi-complete's own window by which the Pin-5 story panel has fully closed —
+ *  mirrors journeyMapCamera.ts's HANOI_COMPLETE_SETTLE_FRACTION so the panel finishes closing
+ *  right as the camera itself settles back on the Hanoi overview, not before or after it. */
+const PIN5_STORY_RETRACT_FRACTION = 0.45;
 
 /** presentation-only values — where none of the geography comes from */
 const PIN_ZOOM = 1.7;
@@ -109,11 +113,10 @@ export function computeHanoiCameraFrame(progress: number): HanoiCameraFrame {
   const pinCursor = derivePinCursor(progress);
   if (pinCursor <= -1) return { fromId: "overview", toId: "overview", t: 1, pinCursor: -1 };
   if (pinCursor >= 5) {
-    // Phase 7: once departed, the camera blends from pin-5's framing back to the neutral overview
-    // across the same hold-then-retract window journeyCamera's map-opacity crossfade uses (see
-    // transpacificCamera's DEPARTURE_RETRACT_AT/WIDTH) — so it settles into "overview" exactly as
-    // the map itself finishes fading, instead of staying frozen on pin-5 forever.
-    const t = smoothstep(clamp01((progress - (DEPARTURE_RETRACT_AT - DEPARTURE_RETRACT_WIDTH)) / DEPARTURE_RETRACT_WIDTH));
+    // Phase 6: once past Pin 5, the story panel closes over the leading fraction of hanoi-complete
+    // (PIN5_STORY_RETRACT_FRACTION) rather than lingering all the way to hanoi-departure — the
+    // chapter-complete overlay needs "no active story card" immediately, not several stages later.
+    const t = smoothstep(clamp01(localProgress(progress, HANOI_COMPLETE) / PIN5_STORY_RETRACT_FRACTION));
     return { fromId: "pin-5", toId: "overview", t, pinCursor: 5 };
   }
   const toId = `pin-${pinCursor + 1}` as HanoiCameraTargetId;

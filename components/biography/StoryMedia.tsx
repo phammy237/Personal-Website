@@ -22,10 +22,10 @@ function MediaItem({
   overlayLabel?: string;
 }) {
   if (!loadMedia) {
-    return <div className={`rounded-xl bg-accent-light/40 dark:bg-white/[0.03] ${className}`} />;
+    return <div className={`rounded-[13px] bg-accent-light/40 dark:bg-white/[0.03] ${className}`} />;
   }
   return (
-    <div className={`relative overflow-hidden rounded-xl bg-accent-light dark:bg-white/5 ${className}`}>
+    <div className={`relative overflow-hidden rounded-[13px] bg-accent-light dark:bg-white/5 ${className}`}>
       {isVideo(src) ? (
         <video src={src} className="h-full w-full object-cover" muted loop playsInline />
       ) : (
@@ -77,7 +77,7 @@ export function StoryMedia({ images, captions, alt, variant = "gallery", loadMed
 
   if (images.length === 2) {
     return (
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-[10px]">
         {images.map((src, i) => (
           <MediaItem key={src} src={src} alt={altFor(i)} loadMedia={loadMedia} className="aspect-[4/5] w-full" />
         ))}
@@ -89,9 +89,9 @@ export function StoryMedia({ images, captions, alt, variant = "gallery", loadMed
     const [hero, ...rest] = images;
     const shown = rest.slice(0, 3);
     return (
-      <div className="space-y-3">
+      <div className="space-y-[10px]">
         <MediaItem src={hero} alt={altFor(0)} loadMedia={loadMedia} className="aspect-[16/9] w-full" />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-[10px] sm:grid-cols-3">
           {shown.map((src, i) => (
             <MediaItem key={src} src={src} alt={altFor(i + 1)} loadMedia={loadMedia} className="aspect-square w-full" />
           ))}
@@ -104,9 +104,9 @@ export function StoryMedia({ images, captions, alt, variant = "gallery", loadMed
     const [hero, ...rest] = images;
     const shown = rest.slice(0, 2);
     return (
-      <div className="space-y-3">
+      <div className="space-y-[10px]">
         <MediaItem src={hero} alt={altFor(0)} loadMedia={loadMedia} className="aspect-[16/9] w-full" />
-        <div className="grid grid-cols-2 gap-3 sm:w-2/3">
+        <div className="grid grid-cols-2 gap-[10px] sm:w-2/3">
           {shown.map((src, i) => (
             <MediaItem key={src} src={src} alt={altFor(i + 1)} loadMedia={loadMedia} className="aspect-[4/3] w-full" />
           ))}
@@ -119,7 +119,7 @@ export function StoryMedia({ images, captions, alt, variant = "gallery", loadMed
   const shown = images.slice(0, GALLERY_DISPLAY_CAP);
   const overflow = images.length - shown.length;
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+    <div className="grid grid-cols-2 gap-[10px] sm:grid-cols-3">
       {shown.map((src, i) => (
         <MediaItem
           key={src}

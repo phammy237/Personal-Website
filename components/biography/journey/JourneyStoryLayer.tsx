@@ -7,6 +7,7 @@ import { usJourneyPins, usMemoryMarkers } from "@/data/usJourney";
 import { JourneyPinStoryPanel } from "@/components/biography/journey/JourneyPinStoryPanel";
 import { JourneyUsStoryPanel } from "@/components/biography/journey/JourneyUsStoryPanel";
 import { JourneyUsMemoriesPanel } from "@/components/biography/journey/JourneyUsMemoriesPanel";
+import { JourneyStoryModal, type JourneyStoryModalData } from "@/components/biography/journey/JourneyStoryModal";
 
 export type JourneyStoryLayerHandle = {
   /** ref-driven, safe to call every scroll tick — no React state involved */
@@ -26,12 +27,77 @@ const GAINESVILLE_INDEX = 6;
 const RIVERMONT_PIN_DATA = usJourneyPins[0];
 const GAINESVILLE_PIN_DATA = usJourneyPins[1];
 
+/** The story modal's carousel/thumbnail strip only ever renders `<img>` tags — a handful of pins'
+ *  `gallery` arrays (see data/hanoiJourney.ts) mix in real .mp4 clips alongside photos, which is
+ *  fine for a future video-aware viewer but renders as a broken-image icon through a plain <img>
+ *  today. Filtering to known image extensions here (not a runtime <img>-failure workaround) keeps
+ *  the modal only ever showing "actual valid media entries," per the polish pass's own rule. */
+const IMAGE_EXTENSION_RE = /\.(jpe?g|png|gif|webp|avif|svg)$/i;
+function onlyImages(paths: string[]): string[] {
+  return paths.filter((p) => IMAGE_EXTENSION_RE.test(p));
+}
+
+function hanoiPinToModalData(index: number): JourneyStoryModalData {
+  const pin = hanoiJourneyPins[index];
+  const gallery = onlyImages(pin.gallery && pin.gallery.length > 0 ? pin.gallery : pin.image ? [pin.image] : []);
+  // the plain backstory is one unlabeled block; Pin 5's own subsections (Building/Leading/Serving/
+  // Connecting) become their own labeled blocks after it — the same "subtle inline section label"
+  // treatment the U.S. pins' storySections get below, applied wherever the data already has real
+  // sub-headings rather than inventing new ones for the other four pins.
+  const overviewSections: JourneyStoryModalData["overviewSections"] = [{ label: null, paragraphs: pin.backstory }];
+  if (pin.subsections) {
+    pin.subsections.forEach((s) => overviewSections.push({ label: s.title, paragraphs: [s.description] }));
+  }
+  return {
+    id: pin.id,
+    number: pin.number,
+    title: pin.preview.title,
+    theme: pin.subtitle,
+    metaLabel: `Hanoi · Ages ${pin.ageRange}`,
+    gallery,
+    mediaPlaceholder: pin.mediaPlaceholder ?? null,
+    overviewSections,
+    index,
+    total: hanoiJourneyPins.length,
+  };
+}
+
+function usPinToModalData(index: 0 | 1): JourneyStoryModalData {
+  const pin = index === 0 ? RIVERMONT_PIN_DATA : GAINESVILLE_PIN_DATA;
+  const gallery = onlyImages(pin.gallery && pin.gallery.length > 0 ? pin.gallery : pin.image ? [pin.image] : []);
+  // each storySection's own heading becomes a real section label (mono/purple in the modal) rather
+  // than an uppercased lead-in paragraph — "subtle inline section labels," no nested cards
+  const overviewSections: JourneyStoryModalData["overviewSections"] =
+    pin.storySections.length > 0
+      ? pin.storySections.map((s) => ({ label: s.heading, paragraphs: s.body }))
+      : [{ label: null, paragraphs: [pin.preview.description] }];
+  return {
+    id: pin.id,
+    number: pin.number,
+    title: pin.preview.title,
+    theme: pin.subtitle,
+    metaLabel: `${pin.subtitle} · ${pin.yearRange}`,
+    gallery,
+    overviewSections,
+    index,
+    total: 2,
+  };
+}
+
+function modalDataForActiveIndex(activeIndex: number): JourneyStoryModalData | null {
+  if (activeIndex >= 0 && activeIndex <= 4) return hanoiPinToModalData(activeIndex);
+  if (activeIndex === RIVERMONT_INDEX) return usPinToModalData(0);
+  if (activeIndex === GAINESVILLE_INDEX) return usPinToModalData(1);
+  return null;
+}
+
 /**
- * Owns every location's story panel (5 Hanoi + Rivermont + Gainesville + the us-memories beat) and
- * their scroll-driven opacity/slide-in, replacing the per-map-stage wiring the old
- * JourneyHanoiMapStage/JourneyUsMapStage components used to own. GeographicJourney calls
- * handleRef.current.update(progress) once per scroll tick, alongside its other single-source-of-
- * truth updates (camera, pin status, route progress) — this introduces no new scroll listener.
+ * Owns every location's compact preview panel (5 Hanoi + Rivermont + Gainesville + the us-memories
+ * beat) and their scroll-driven opacity/slide-in, plus the single shared JourneyStoryModal — the
+ * full story, a completely separate popup layer that "Learn More" opens, never an in-place resize
+ * of the preview card. GeographicJourney calls handleRef.current.update(progress) once per scroll
+ * tick, alongside its other single-source-of-truth updates (camera, pin status, route progress) —
+ * this introduces no new scroll listener.
  *
  * Reuses the exact same story-weight math (deriveStoryWeights/deriveRivermontStoryWeight/etc.)
  * those old components already called — none of that renderer-agnostic logic changed, only where
@@ -40,9 +106,26 @@ const GAINESVILLE_PIN_DATA = usJourneyPins[1];
 export function JourneyStoryLayer({
   handleRef,
   reducedMotion,
+  onNavigatePin,
+  onModalOpenChange,
+  onFinishHanoiChapter,
+  onFinishUsChapter,
 }: {
   handleRef: React.MutableRefObject<JourneyStoryLayerHandle | null>;
   reducedMotion: boolean;
+  /** prev/next in the preview card's footer and the story modal's footer — a scroll request only,
+   *  the same single source of truth every other pin navigation (map click, keyboard list) already
+   *  goes through. */
+  onNavigatePin: (pinId: string) => void;
+  /** fires whenever the story modal opens/closes — GeographicJourney uses this to hide the stage
+   *  rail and Skip Journey while it's open ("modal should be highest-priority interface"). Only a
+   *  boolean signal crosses this boundary; the full preview/modal state machine stays local here. */
+  onModalOpenChange: (open: boolean) => void;
+  /** the modal's "Finish Chapter" button at Pin 5 / Gainesville — scrolls straight to that
+   *  chapter's completion stage (GeographicJourney's own scrollToStageStart("hanoi-complete"/
+   *  "us-complete")), never wraps back to that chapter's first pin. */
+  onFinishHanoiChapter: () => void;
+  onFinishUsChapter: () => void;
 }) {
   const hanoiRefs = useRef<Array<HTMLDivElement | null>>([null, null, null, null, null]);
   const rivermontRef = useRef<HTMLDivElement | null>(null);
@@ -54,6 +137,18 @@ export function JourneyStoryLayer({
   const [loadMediaIndex, setLoadMediaIndex] = useState<number>(-1);
   const loadMediaIndexRef = useRef(loadMediaIndex);
   loadMediaIndexRef.current = loadMediaIndex;
+
+  // Preview card vs. the separate story modal — ephemeral, UI-only, and deliberately a SINGLE value
+  // (not per-pin): "a location becoming active does not mean the visitor wants to read the entire
+  // story." Reset to "preview" every time the active location itself changes — EXCEPT when that
+  // change was requested from inside the modal itself (Previous/Next Story), which pages directly
+  // to the neighboring story without ever dropping back to the preview card. See isModalPagingRef.
+  const [storyMode, setStoryMode] = useState<"preview" | "modal">("preview");
+  // One-shot flag: set immediately before a modal-internal Previous/Next Story navigation, consumed
+  // (cleared) the moment the resulting activeIndex change is observed below. Every OTHER path that
+  // changes the active location (map click, keyboard list, organic scroll, prev/next on the compact
+  // preview card) leaves this false, so it still resets to preview exactly as before.
+  const isModalPagingRef = useRef(false);
 
   useEffect(() => {
     const applyStoryWeight = (panelEl: HTMLDivElement | null, weight: number) => {
@@ -86,6 +181,17 @@ export function JourneyStoryLayer({
         if (activeIndex !== loadMediaIndexRef.current) {
           loadMediaIndexRef.current = activeIndex;
           setLoadMediaIndex(activeIndex);
+          if (isModalPagingRef.current) {
+            // this change was requested from inside the modal (Previous/Next Story) — the modal
+            // stays open and its own data swap follows loadMediaIndex, per the "storybook paging"
+            // behavior; consume the flag so the NEXT location change (however it happens) goes back
+            // to the normal preview-reset rule.
+            isModalPagingRef.current = false;
+          } else {
+            // any other reason the active location changed — always land on preview, never carry
+            // the modal over from whichever location was previously active
+            setStoryMode("preview");
+          }
         }
       },
     };
@@ -99,6 +205,35 @@ export function JourneyStoryLayer({
     [loadMediaIndex]
   );
 
+  useEffect(() => {
+    onModalOpenChange(storyMode === "modal");
+  }, [storyMode, onModalOpenChange]);
+
+  // Compact preview card's own prev/next: reset to preview immediately, not waiting for the
+  // resulting scroll to actually land — "closing" (there's no modal open here to page within)
+  // straight to the next location's own preview, never auto-opening its modal.
+  const handleNavigate = useCallback(
+    (pinId: string) => {
+      setStoryMode("preview");
+      onNavigatePin(pinId);
+    },
+    [onNavigatePin]
+  );
+
+  // Modal's own Previous/Next Story: pages directly between neighboring full stories WITHOUT
+  // closing — sets the one-shot flag first so the activeIndex-change handler above keeps storyMode
+  // at "modal" instead of resetting to preview, then requests the same scroll navigation every
+  // other pin change goes through (the map camera/route/pin-status move in the background).
+  const handleModalPageTo = useCallback(
+    (pinId: string) => {
+      isModalPagingRef.current = true;
+      onNavigatePin(pinId);
+    },
+    [onNavigatePin]
+  );
+
+  const modalData = modalDataForActiveIndex(loadMediaIndex);
+
   return (
     <>
       {hanoiJourneyPins.map((pin, i) => (
@@ -109,11 +244,61 @@ export function JourneyStoryLayer({
           }}
           pin={pin}
           loadMedia={shouldLoad(i)}
+          hidden={storyMode === "modal"}
+          index={i}
+          total={hanoiJourneyPins.length}
+          onLearnMore={() => setStoryMode("modal")}
+          onPrev={() => {
+            if (i > 0) handleNavigate(hanoiJourneyPins[i - 1].id);
+          }}
+          onNext={() => {
+            if (i < hanoiJourneyPins.length - 1) handleNavigate(hanoiJourneyPins[i + 1].id);
+          }}
         />
       ))}
-      <JourneyUsStoryPanel ref={rivermontRef} pin={RIVERMONT_PIN_DATA} loadMedia={shouldLoad(RIVERMONT_INDEX)} />
-      <JourneyUsStoryPanel ref={gainesvilleRef} pin={GAINESVILLE_PIN_DATA} loadMedia={shouldLoad(GAINESVILLE_INDEX)} />
+      <JourneyUsStoryPanel
+        ref={rivermontRef}
+        pin={RIVERMONT_PIN_DATA}
+        loadMedia={shouldLoad(RIVERMONT_INDEX)}
+        hidden={storyMode === "modal"}
+        index={0}
+        total={2}
+        onLearnMore={() => setStoryMode("modal")}
+        onPrev={() => {}}
+        onNext={() => handleNavigate(GAINESVILLE_PIN_DATA.id)}
+      />
+      <JourneyUsStoryPanel
+        ref={gainesvilleRef}
+        pin={GAINESVILLE_PIN_DATA}
+        loadMedia={shouldLoad(GAINESVILLE_INDEX)}
+        hidden={storyMode === "modal"}
+        index={1}
+        total={2}
+        onLearnMore={() => setStoryMode("modal")}
+        onPrev={() => handleNavigate(RIVERMONT_PIN_DATA.id)}
+        onNext={() => {}}
+      />
       <JourneyUsMemoriesPanel ref={memoriesRef} markers={usMemoryMarkers} loadMedia={shouldLoad(GAINESVILLE_INDEX)} />
+
+      <JourneyStoryModal
+        data={modalData}
+        open={storyMode === "modal"}
+        reducedMotion={reducedMotion}
+        onClose={() => setStoryMode("preview")}
+        onPrevStory={() => {
+          if (loadMediaIndex > 0 && loadMediaIndex <= 4) handleModalPageTo(hanoiJourneyPins[loadMediaIndex - 1].id);
+          else if (loadMediaIndex === GAINESVILLE_INDEX) handleModalPageTo(RIVERMONT_PIN_DATA.id);
+        }}
+        onNextStory={() => {
+          if (loadMediaIndex >= 0 && loadMediaIndex < 4) handleModalPageTo(hanoiJourneyPins[loadMediaIndex + 1].id);
+          else if (loadMediaIndex === RIVERMONT_INDEX) handleModalPageTo(GAINESVILLE_PIN_DATA.id);
+        }}
+        onFinishChapter={() => {
+          setStoryMode("preview");
+          if (loadMediaIndex === 4) onFinishHanoiChapter();
+          else if (loadMediaIndex === GAINESVILLE_INDEX) onFinishUsChapter();
+        }}
+      />
     </>
   );
 }

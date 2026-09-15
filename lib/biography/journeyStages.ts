@@ -16,6 +16,9 @@ const STAGE_ORDER: Array<{ id: JourneyStageId; label: string; chapter: JourneySt
   { id: "hanoi-pin-3", label: "Hanoi — Pin 3", chapter: "hanoi" },
   { id: "hanoi-pin-4", label: "Hanoi — Pin 4", chapter: "hanoi" },
   { id: "hanoi-pin-5", label: "Hanoi — Pin 5", chapter: "hanoi" },
+  { id: "hanoi-complete", label: "Hanoi — Chapter Complete", chapter: "hanoi" },
+  { id: "hanoi-interlude-not-yet", label: "Between Chapters — Not Yet", chapter: "hanoi" },
+  { id: "hanoi-interlude-now", label: "Between Chapters — Now", chapter: "hanoi" },
   { id: "hanoi-departure", label: "Leaving Hanoi", chapter: "hanoi" },
   { id: "transpacific-flight", label: "Trans-Pacific Flight", chapter: "us" },
   { id: "us-overview", label: "United States Overview", chapter: "us" },
@@ -26,6 +29,8 @@ const STAGE_ORDER: Array<{ id: JourneyStageId; label: string; chapter: JourneySt
   { id: "gainesville-approach", label: "Approaching Gainesville", chapter: "us" },
   { id: "gainesville-story", label: "Gainesville", chapter: "us" },
   { id: "us-memories", label: "U.S. Memories", chapter: "us" },
+  { id: "us-complete", label: "United States — Chapter Complete", chapter: "us" },
+  { id: "today-transition", label: "Toward Today", chapter: "today" },
   { id: "today-ahead", label: "Today & Ahead", chapter: "today" },
 ];
 

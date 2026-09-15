@@ -8,6 +8,9 @@ export type JourneyStageId =
   | "hanoi-pin-3"
   | "hanoi-pin-4"
   | "hanoi-pin-5"
+  | "hanoi-complete"
+  | "hanoi-interlude-not-yet"
+  | "hanoi-interlude-now"
   | "hanoi-departure"
   | "transpacific-flight"
   | "us-overview"
@@ -18,6 +21,8 @@ export type JourneyStageId =
   | "gainesville-approach"
   | "gainesville-story"
   | "us-memories"
+  | "us-complete"
+  | "today-transition"
   | "today-ahead";
 
 export type JourneyChapterId = "earth" | "hanoi" | "us" | "today";
