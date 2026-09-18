@@ -16,7 +16,9 @@ import { chapters, routeArc } from "../data/biography";
 type Snapshot = { id: string; number: number; lat: number; lon: number };
 
 const EXPECTED_HANOI: Snapshot[] = [
-  { id: "home-early-childhood", number: 1, lat: 21.0107, lon: 105.8182 },
+  // Deliberately rounded to neighborhood-level precision (Phase 5 privacy pass) — was
+  // { lat: 21.0107, lon: 105.8182 }, street-level precise enough to identify a specific residence.
+  { id: "home-early-childhood", number: 1, lat: 21.01, lon: 105.82 },
   { id: "nam-thanh-cong", number: 2, lat: 21.0168, lon: 105.8112 },
   { id: "ngoi-sao-ha-noi", number: 3, lat: 21.0098, lon: 105.8003 },
   { id: "cau-giay-secondary", number: 4, lat: 21.03, lon: 105.798 },
@@ -24,7 +26,9 @@ const EXPECTED_HANOI: Snapshot[] = [
 ];
 
 const EXPECTED_US: Snapshot[] = [
-  { id: "rivermont", number: 1, lat: 41.7, lon: -90.5 },
+  // Real coordinates for 1821 Sunset Dr, Bettendorf, IA (Rivermont Collegiate), looked up and
+  // confirmed — no longer the earlier placeholder guess.
+  { id: "rivermont", number: 1, lat: 41.5293, lon: -90.5081 },
   { id: "gainesville", number: 2, lat: 29.6516, lon: -82.3248 },
 ];
 
@@ -67,7 +71,8 @@ function checkMissingContent() {
   for (const pin of hanoiJourneyPins) {
     assert.ok(pin.title, `Hanoi pin "${pin.id}" missing a title`);
     assert.ok(pin.backstory && pin.backstory.length > 0, `Hanoi pin "${pin.id}" missing backstory`);
-    assert.ok(pin.image, `Hanoi pin "${pin.id}" missing an image reference`);
+    // `image`/`gallery` are intentionally optional — a pin with no real photo yet (e.g. Cầu Giấy)
+    // must omit them rather than fall back to a generic stock path. Not asserted here on purpose.
   }
   for (const pin of usJourneyPins) {
     assert.ok(pin.title, `US pin "${pin.id}" missing a title`);
@@ -84,7 +89,7 @@ function main() {
   console.log("✓ Biography data preserved exactly:");
   console.log(`  Hanoi: ${hanoiJourneyPins.length} pins (ids/coords/order unchanged)`);
   console.log(`  United States: ${usJourneyPins.length} pins (ids/coords/order unchanged)`);
-  console.log(`  Note: "rivermont" coordinate (${EXPECTED_US[0].lat}, ${EXPECTED_US[0].lon}) remains a flagged placeholder — not verified as real, only verified as unchanged.`);
+  console.log(`  Note: "rivermont" coordinate (${EXPECTED_US[0].lat}, ${EXPECTED_US[0].lon}) is the real, looked-up address — no longer a placeholder.`);
 }
 
 main();

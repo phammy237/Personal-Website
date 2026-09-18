@@ -158,8 +158,9 @@ export function ChatBot() {
 
   return (
     <>
-      {/* Floating button */}
-      <div className="fixed bottom-6 right-6 z-50">
+      {/* Floating button — hidden while the biography journey's story modal is open (see
+          journey-story-modal-open in globals.css), so it never overlaps that modal's content */}
+      <div className="journey-chatbot-widget fixed bottom-6 right-6 z-50">
         <motion.button
           onClick={() => setOpen((o) => !o)}
           className="w-14 h-14 rounded-full flex items-center justify-center text-white shadow-xl shadow-accent/30"
@@ -190,7 +191,7 @@ export function ChatBot() {
       <AnimatePresence>
         {open && (
           <motion.div
-            className="fixed bottom-24 right-6 z-50 w-[340px] max-h-[520px] rounded-2xl overflow-hidden shadow-2xl shadow-black/50 border border-white/10 flex flex-col"
+            className="journey-chatbot-widget fixed bottom-24 right-6 z-50 w-[340px] max-h-[520px] rounded-2xl overflow-hidden shadow-2xl shadow-black/50 border border-white/10 flex flex-col"
             style={{ background: "#18233F" }}
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}

@@ -5,7 +5,7 @@ import { useReducedMotion } from "framer-motion";
 import type { FeatureCollection, Geometry } from "geojson";
 import type { GeoPoint } from "@/data/biography";
 import { AbstractGlobeFallback } from "@/components/biography/AbstractGlobeFallback";
-import type { GlobeMarker, SatelliteGlobeProps } from "@/components/biography/SatelliteGlobeCanvas";
+import type { GlobeMarker, GlobeViewState, SatelliteGlobeHandle, SatelliteGlobeProps } from "@/components/biography/SatelliteGlobeCanvas";
 
 // Isolated + code-split: three.js/@react-three never ships in the initial server-rendered
 // biography bundle, and never runs during SSR (Canvas/WebGL are browser-only).
@@ -54,7 +54,15 @@ export type GlobeHeroProps = {
   focusTarget?: GeoPoint | null;
   /** camera dolly-in, used for the "zooming into the destination" transition beat */
   zoomedIn?: boolean;
+  /** wheel-over-globe also nudges camera distance by default; disable for full-screen contexts */
+  wheelZoom?: boolean;
   onFocusComplete?: () => void;
+  /** controlled orientation/distance for scroll-driven callers — see SatelliteGlobeProps */
+  viewState?: GlobeViewState;
+  /** pauses the render loop (no unmount) when this globe isn't the visible stage */
+  visible?: boolean;
+  /** populated with an imperative handle once the scene mounts */
+  handleRef?: React.MutableRefObject<SatelliteGlobeHandle | null>;
 };
 
 export function GlobeHero({ className = "", size = 560, ...props }: GlobeHeroProps) {

@@ -1,13 +1,23 @@
 "use client";
-import { startTransition, useEffect, useMemo, useRef, useState } from "react";
-import { geoOrthographic, geoPath } from "d3-geo";
+import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { geoInterpolate, geoOrthographic, geoPath } from "d3-geo";
 import { useReducedMotion } from "framer-motion";
 import type { FeatureCollection, Geometry } from "geojson";
 import type { GeoPoint } from "@/data/biography";
+import { clamp01, smoothstep } from "@/lib/biography/journeyMotion";
+// type-only: erased at compile time, so this never pulls the three.js/@react-three WebGL bundle
+// into this fallback's chunk (GlobeHero already relies on the same type-only import pattern)
+import type { GlobeViewState, SatelliteGlobeHandle } from "@/components/biography/SatelliteGlobeCanvas";
 
 function rotationFor(target: GeoPoint): [number, number, number] {
   return [-target.lon, -target.lat, 0];
 }
+
+const ROUTE_SEGMENTS = 48;
+/** mirrors SatelliteGlobeCanvas's own FLIGHT_FADE_WINDOW — duplicated rather than imported to
+ *  avoid coupling this generic fallback to a journey-specific module (same reasoning as the WebGL
+ *  component's own comment on why it keeps its own copy) */
+const FLIGHT_FADE_WINDOW = 0.08;
 
 /**
  * The original hand-drawn SVG/d3-geo globe. Kept as the graceful fallback for browsers/devices
@@ -23,6 +33,9 @@ export function AbstractGlobeFallback({
   size = 560,
   className = "",
   ariaLabel = "Interactive globe",
+  arc = null,
+  viewState,
+  handleRef,
 }: {
   countries: FeatureCollection<Geometry> | null;
   highlightCountryIds?: string[];
@@ -32,6 +45,15 @@ export function AbstractGlobeFallback({
   size?: number;
   className?: string;
   ariaLabel?: string;
+  /** restrained travel route, e.g. Hanoi → United States — drawn as a great-circle line that
+   *  progressively reveals with `routeProgress`, same data shape the WebGL globe's `arc` takes */
+  arc?: { from: GeoPoint; to: GeoPoint } | null;
+  /** only `routeProgress` is consulted here — this fallback deliberately never tracks the WebGL
+   *  globe's live lat/lon/distance camera, per the "don't fake a detailed globe camera" rule */
+  viewState?: GlobeViewState;
+  /** populated with an imperative handle so the journey's scroll loop can drive route reveal the
+   *  same way it drives the WebGL globe, without this component re-rendering on every scroll tick */
+  handleRef?: React.MutableRefObject<SatelliteGlobeHandle | null>;
 }) {
   const [rotation, setRotation] = useState<[number, number, number]>(
     initialTarget ? rotationFor(initialTarget) : [-105, -15, 0]
@@ -41,6 +63,10 @@ export function AbstractGlobeFallback({
   const reducedMotion = useReducedMotion();
   const dragStart = useRef<{ x: number; y: number; rotation: [number, number, number] } | null>(null);
   const rafRef = useRef<number | undefined>(undefined);
+  const routeLineRef = useRef<SVGPathElement | null>(null);
+  const routeGroupRef = useRef<SVGGElement | null>(null);
+  const planeRef = useRef<SVGGElement | null>(null);
+  const routeProgressRef = useRef(viewState?.routeProgress ?? 0);
 
   useEffect(() => {
     if (!ambient || reducedMotion || dragging || !interactive) return;
@@ -71,6 +97,94 @@ export function AbstractGlobeFallback({
   }, [size, baseScale, scale, rotation]);
 
   const pathGen = useMemo(() => geoPath(projection), [projection]);
+
+  // great-circle waypoints (lon/lat), independent of rotation/scale — computed once per arc
+  const routeWaypoints = useMemo(() => {
+    if (!arc) return null;
+    const interpolate = geoInterpolate([arc.from.lon, arc.from.lat], [arc.to.lon, arc.to.lat]);
+    const points: [number, number][] = [];
+    for (let i = 0; i <= ROUTE_SEGMENTS; i++) points.push(interpolate(i / ROUTE_SEGMENTS));
+    return points;
+  }, [arc]);
+
+  // re-projected whenever rotation/scale change (drag or the one-off ambient spin) — the same
+  // cadence country boundaries already re-render at, not a per-scroll-tick cost
+  const { routePathD, projectedRoutePoints } = useMemo(() => {
+    if (!routeWaypoints) return { routePathD: null as string | null, projectedRoutePoints: [] as Array<[number, number] | null> };
+    const projected = routeWaypoints.map((pt) => projection(pt) as [number, number] | null);
+    let d = "";
+    let penDown = false;
+    for (const p of projected) {
+      if (!p) {
+        penDown = false;
+        continue;
+      }
+      d += `${penDown ? "L" : "M"}${p[0]},${p[1]} `;
+      penDown = true;
+    }
+    return { routePathD: d || null, projectedRoutePoints: projected };
+  }, [routeWaypoints, projection]);
+
+  /** imperative, ref-driven — safe to call on every scroll tick without touching React state.
+   *  Reveal uses the path's own normalized `pathLength` (see the <path> below), so it stays
+   *  correct even across the rare re-projection above without re-measuring anything. */
+  const applyRouteProgress = useCallback(
+    (t: number) => {
+      const clamped = clamp01(t);
+      routeProgressRef.current = clamped;
+      if (routeLineRef.current) routeLineRef.current.style.strokeDashoffset = String(1 - clamped);
+
+      const fadeIn = smoothstep(clamped / FLIGHT_FADE_WINDOW);
+      const fadeOut = 1 - smoothstep((clamped - (1 - FLIGHT_FADE_WINDOW)) / FLIGHT_FADE_WINDOW);
+      if (routeGroupRef.current) routeGroupRef.current.style.opacity = String(Math.min(fadeIn, fadeOut));
+
+      const pts = projectedRoutePoints;
+      if (planeRef.current && pts.length > 1) {
+        const idx = clamped * (pts.length - 1);
+        const i0 = Math.min(pts.length - 2, Math.floor(idx));
+        const a = pts[i0];
+        const b = pts[i0 + 1];
+        if (a && b) {
+          const localT = idx - i0;
+          const x = a[0] + (b[0] - a[0]) * localT;
+          const y = a[1] + (b[1] - a[1]) * localT;
+          const angle = (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / Math.PI;
+          // SVG's own `transform` attribute, not CSS `style.transform` — avoids relying on
+          // CSS-Transforms-on-SVG support/origin quirks for a plain translate+rotate
+          planeRef.current.setAttribute("transform", `translate(${x} ${y}) rotate(${angle})`);
+          planeRef.current.style.visibility = "visible";
+        } else {
+          planeRef.current.style.visibility = "hidden";
+        }
+      }
+    },
+    [projectedRoutePoints]
+  );
+
+  // re-apply the current progress whenever the route re-projects (drag/ambient rotation) so the
+  // reveal/plane position never lags one frame behind a rotation change
+  useEffect(() => {
+    applyRouteProgress(routeProgressRef.current);
+  }, [applyRouteProgress]);
+
+  useEffect(() => {
+    if (!handleRef) return;
+    handleRef.current = {
+      // only routeProgress is honored here — see the `viewState` prop doc above
+      setViewState: (next) => {
+        if (next.routeProgress !== undefined) applyRouteProgress(next.routeProgress);
+      },
+      resetView: () => {
+        setScale(1);
+        setRotation(initialTarget ? rotationFor(initialTarget) : [-105, -15, 0]);
+      },
+      zoomBy: (delta) => setScale((s) => Math.max(0.6, Math.min(2, s - delta))),
+    };
+    return () => {
+      if (handleRef.current) handleRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [handleRef, applyRouteProgress]);
 
   const handlePointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
     if (!interactive) return;
@@ -142,6 +256,24 @@ export function AbstractGlobeFallback({
             />
           );
         })}
+        {routePathD && (
+          <g ref={routeGroupRef} style={{ opacity: 0 }} aria-hidden="true">
+            <path
+              ref={routeLineRef}
+              d={routePathD}
+              fill="none"
+              strokeWidth={1.4}
+              strokeLinecap="round"
+              strokeDasharray={1}
+              strokeDashoffset={1}
+              pathLength={1}
+              className="stroke-[#8A6FB0] dark:stroke-[#C9BAD9]"
+            />
+            <g ref={planeRef} style={{ visibility: "hidden" }}>
+              <circle r={3.5} className="fill-accent dark:fill-[#F1EAF7]" />
+            </g>
+          </g>
+        )}
         <circle
           cx={size / 2}
           cy={size / 2}

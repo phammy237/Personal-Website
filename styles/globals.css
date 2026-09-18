@@ -56,6 +56,44 @@ body {
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
+/* Thin, quiet scrollbar for the journey story panels — a visible-but-unobtrusive rail rather than
+   the browser's default wide gray bar, which read as too "dashboard" against the editorial panels. */
+.journey-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(174,155,240,0.18) transparent; }
+.journey-scrollbar::-webkit-scrollbar { width: 5px; }
+.journey-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.journey-scrollbar::-webkit-scrollbar-thumb { background-color: rgba(174,155,240,0.18); border-radius: 999px; }
+.journey-scrollbar::-webkit-scrollbar-thumb:hover { background-color: rgba(174,155,240,0.34); }
+
+/* Journey map attribution — MapLibre's default is a bright white pill; restyled small/quiet per
+   the cinematic-atlas design system (legal text kept verbatim, only the chrome changes). */
+.maplibregl-ctrl-attrib {
+  background-color: rgba(8,13,28,0.42) !important;
+  padding: 3px 6px !important;
+  border-radius: 6px;
+  opacity: 0.65;
+  font-size: 9px !important;
+  line-height: 1.4 !important;
+}
+.maplibregl-ctrl-attrib a { color: rgba(238,236,246,0.7) !important; }
+.maplibregl-ctrl-attrib:hover { opacity: 0.85; }
+
+/* Hides the site-wide chat bubble while the journey's story modal is open — see the
+   document.body.classList calls in JourneyStoryModal.tsx. The modal is the highest-priority
+   interface at that point; the chat bubble must never overlap it. */
+body.journey-story-modal-open .journey-chatbot-widget { display: none !important; }
+
+/* Dims the chat bubble's idle prominence while the journey's Today section is in view — "Today
+   should feel calm." Behavior is untouched: hover still restores full opacity/glow, and clicking
+   still opens the chat exactly as anywhere else on the site. See the IntersectionObserver in
+   GeographicJourney.tsx that toggles this class. */
+body.journey-today-in-view .journey-chatbot-widget {
+  opacity: 0.55;
+  transition: opacity 0.25s ease;
+}
+body.journey-today-in-view .journey-chatbot-widget:hover {
+  opacity: 1;
+}
+
 /* Print stylesheet for CV */
 @media print {
   .no-print { display: none !important; }

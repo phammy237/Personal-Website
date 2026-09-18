@@ -83,6 +83,14 @@ export const EarthMaterial = shaderMaterial(
       float focusHalo = smoothstep(0.2, 0.0, focusDist) * focusGlow * (1.0 - dayMix * 0.7);
       color += vec3(1.0, 0.82, 0.52) * focusHalo * 0.4;
 
+      // brand grade: slight desaturation + slightly lowered contrast + a soft navy overlay, so the
+      // globe reads as part of this site's navy/purple palette rather than a stock-photorealistic
+      // Earth render
+      float luma = dot(color, vec3(0.299, 0.587, 0.114));
+      color = mix(color, vec3(luma), 0.14);
+      color = mix(vec3(0.5), color, 0.88);
+      color = mix(color, vec3(0.094, 0.137, 0.247), 0.16);
+
       gl_FragColor = vec4(color, 1.0);
     }
   `
@@ -90,7 +98,7 @@ export const EarthMaterial = shaderMaterial(
 
 /** Restrained Fresnel rim-glow shell — no post-processing bloom pass needed. */
 export const AtmosphereMaterial = shaderMaterial(
-  { glowColor: new Color("#7C8CE0"), intensity: 1.1 },
+  { glowColor: new Color("#9B8BB5"), intensity: 1.3 },
   /* vertex */ `
     varying vec3 vNormal;
     void main() {

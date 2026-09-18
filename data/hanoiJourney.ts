@@ -16,7 +16,8 @@ export type HanoiJourneyPin = {
   /** age range during this chapter, e.g. "6–8" */
   ageRange: string;
   coordinates: GeoPoint;
-  image: string;
+  /** optional — omit until a real photo of this specific place exists; never a generic stand-in */
+  image?: string;
   preview: {
     /** full official name, shown in the preview card */
     title: string;
@@ -30,12 +31,18 @@ export type HanoiJourneyPin = {
   photoIdeas: string[];
   /** real photos, shown as a gallery in the expanded story modal once available */
   gallery?: string[];
+  /** shown in the preview card's image slot and the modal's media area whenever neither `image`
+   *  nor `gallery` has a real photo yet — a designed placeholder, never a borrowed/wrong photo or a
+   *  broken-image icon. Omit once real media exists; JourneyMediaPlaceholder is never shown
+   *  alongside real media, only in its place. */
+  mediaPlaceholder?: { eyebrow: string; description: string };
 };
 
 export const hanoiCheckpointCopy = {
-  heading: "You've reached the end of Hanoi.",
-  paragraph: "This city gave me my roots, my curiosity, and the confidence to imagine a life beyond it.",
-  continueCta: "Continue to the next chapter",
+  eyebrow: "01 / Hanoi — Complete",
+  heading: "Roots.",
+  paragraph: "This city gave me the curiosity to imagine a life beyond it.",
+  continueCta: "Continue",
   stayCta: "Stay and explore Hanoi",
   skipCta: "Skip directly to the United States",
 };
@@ -61,7 +68,11 @@ export const hanoiJourneyPins: HanoiJourneyPin[] = [
     title: "Home",
     subtitle: "Where curiosity began",
     ageRange: "0–6",
-    coordinates: { lat: 21.0107, lon: 105.8182 },
+    // Deliberately approximate (neighborhood-level, ~1km, rounded to 2 decimal places) — the
+    // previous 4-decimal value had street-level precision, precise enough to identify a specific
+    // residence. Rounded in place, not re-geocoded, so it stays truthfully in the same part of
+    // Hanoi without pinpointing a home address. Do not increase this coordinate's precision.
+    coordinates: { lat: 21.01, lon: 105.82 },
     image: "/biography/home/home-1.jpg",
     preview: {
       title: "Home & Early Childhood",
@@ -123,7 +134,11 @@ export const hanoiJourneyPins: HanoiJourneyPin[] = [
     subtitle: "Learning to reach higher",
     ageRange: "8–10",
     coordinates: { lat: 21.0098, lon: 105.8003 },
-    image: "/IMG_4610.JPG",
+    // No real photo of Ngôi Sao Hà Nội exists yet — /IMG_4610.JPG was a wrong/demo stock photo
+    // (not an actual photo of this school) and has been removed rather than left in place. Shows
+    // the designed JourneyMediaPlaceholder until a real photo replaces this comment + adds `image`/
+    // `gallery` back.
+    mediaPlaceholder: { eyebrow: "Photo Coming Soon", description: "A memory for this chapter will be added here." },
     preview: {
       title: "Ngôi Sao Hà Nội Primary School",
       description: "Three years of scholarships, selective classes, and my first academic experiences outside Vietnam.",
@@ -154,7 +169,13 @@ export const hanoiJourneyPins: HanoiJourneyPin[] = [
     subtitle: "A bigger canvas",
     ageRange: "10–14",
     coordinates: { lat: 21.03, lon: 105.798 },
-    image: "/IMG_7605.JPG",
+    // No real photo of Cầu Giấy exists yet — deliberately omitted rather than reusing the generic
+    // stock photo (/IMG_7605.JPG) other pages use as decoration. Shows the designed
+    // JourneyMediaPlaceholder in the meantime. To add real photos later: drop files in
+    // public/biography/cau-giay/ (matching the flat convention every other Hanoi pin already uses —
+    // home/, nam-thanh-cong/, ngoi-sao-ha-noi/, nguyen-hue/), set `image`/`gallery` here, and remove
+    // `mediaPlaceholder` — no component changes needed either way.
+    mediaPlaceholder: { eyebrow: "Memories In Progress", description: "Art, music, languages, and a bigger canvas." },
     preview: {
       title: "Cầu Giấy Secondary School",
       description: "Where art, music, languages, friendship, and learning began blending together.",
