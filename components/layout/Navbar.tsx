@@ -50,9 +50,13 @@ export function Navbar() {
 
   // The journey page is one continuous full-bleed map background for its whole length (not just an
   // above-the-fold hero like the home page), so it keeps the transparent/subtle treatment
-  // regardless of scroll position rather than switching to a solid bar once scrolled.
+  // regardless of scroll position rather than switching to a solid bar once scrolled. It must still
+  // respect the actual site theme, though — the journey supports both dark AND light mode now, and
+  // forcing the "light text over a dark hero" treatment unconditionally (as if the journey page were
+  // always dark) left the nav nearly invisible (white text on a pale background) whenever the site
+  // was actually in light mode.
   const isJourneyPage = pathname === "/biography/journey";
-  const isDark = (isHome && !scrolled) || isJourneyPage;
+  const isDark = (isHome && !scrolled) || (isJourneyPage && theme === "dark");
   const solidBg = scrolled && isHome;
   const lightText = isDark && !solidBg;
 
@@ -61,7 +65,9 @@ export function Navbar() {
       <motion.header
         className={`fixed top-0 left-0 right-0 z-50 py-3 transition-all duration-300 ${
           isJourneyPage
-            ? "bg-transparent border-b border-[rgba(255,255,255,0.05)]"
+            ? theme === "dark"
+              ? "bg-transparent border-b border-[rgba(255,255,255,0.05)]"
+              : "bg-transparent border-b border-[rgba(20,20,40,0.06)]"
             : solidBg
             ? "bg-white/90 dark:bg-navy/90 backdrop-blur-sm border-b border-border dark:border-white/10 shadow-sm"
             : isDark

@@ -104,7 +104,7 @@ export function JourneyHanoiIntroPanel({
         </div>
       </div>
       {/* subtle coordinate line, bottom-left of the screen */}
-      <p className="absolute bottom-8 left-[5%] hidden font-mono text-[10px] tracking-[0.1em] text-[rgba(210,205,225,0.42)] md:block">
+      <p className="absolute bottom-8 left-[5%] hidden font-mono text-[10px] tracking-[0.1em] text-[rgba(78,84,112,0.55)] dark:text-[rgba(210,205,225,0.42)] md:block">
         {journeyHanoiIntroContent.coordinates}
       </p>
     </div>

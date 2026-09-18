@@ -1,4 +1,5 @@
 import type { StyleSpecification } from "maplibre-gl";
+import { getBiographyJourneyTheme } from "@/lib/biography/biographyJourneyTheme";
 
 /**
  * Free, open, no-API-key OpenStreetMap vector tiles — no signup, no billing, no rate limit stated.
@@ -25,69 +26,14 @@ export const OPENFREEMAP_ATTRIBUTION =
   '<a href="https://www.openmaptiles.org" target="_blank">OpenMapTiles</a> · Data from ' +
   '<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>';
 
-type ThemeColors = {
-  background: string;
-  water: string;
-  waterway: string;
-  waterLabel: string;
-  boundaryCountry: string;
-  boundaryState: string;
-  roadMinor: string;
-  roadMedium: string;
-  roadMajor: string;
-  cityLabel: string;
-  majorGeoLabel: string;
-  labelHalo: string;
-  skyColor: string;
-  horizonColor: string;
-};
-
-// Exact design-system palette — editorial cartography / digital atlas pass (mockup-matched, not
-// the earlier cinematic-atlas palette, not the site's shared brand tokens).
-const DARK: ThemeColors = {
-  background: "#080D1B",
-  water: "#0A1020",
-  waterway: "rgba(170,175,200,0.12)",
-  waterLabel: "rgba(190,190,210,0.24)",
-  boundaryCountry: "rgba(160,160,180,0.10)",
-  boundaryState: "rgba(160,160,180,0.08)",
-  roadMinor: "rgba(170,170,195,0.10)",
-  roadMedium: "rgba(190,188,210,0.15)",
-  roadMajor: "rgba(210,205,225,0.23)",
-  cityLabel: "rgba(225,220,235,0.32)",
-  majorGeoLabel: "rgba(235,230,242,0.48)",
-  labelHalo: "#080D1B",
-  // Deliberately darker than `background` — the globe's sphere and the void around it
-  // (MapLibre's "sky" in globe projection) must never share a color, or the sphere's
-  // edge disappears against it. See mapStyle.ts fog/sky regression notes.
-  skyColor: "#03050D",
-  horizonColor: "#9480D8",
-};
-
-const LIGHT: ThemeColors = {
-  background: "#F7F3FA",
-  water: "#E4DDED",
-  waterway: "rgba(91,58,142,0.25)",
-  waterLabel: "rgba(91,58,142,0.30)",
-  boundaryCountry: "rgba(91,58,142,0.35)",
-  boundaryState: "#E6E0EE",
-  roadMinor: "#E6E0EE",
-  roadMedium: "rgba(91,58,142,0.16)",
-  roadMajor: "rgba(91,58,142,0.28)",
-  cityLabel: "#676186",
-  majorGeoLabel: "#4A4468",
-  labelHalo: "#F7F3FA",
-  skyColor: "#DCD3EA",
-  horizonColor: "#B9A8D6",
-};
-
 /**
  * Small, hand-picked layer set against OpenFreeMap's OpenMapTiles-schema tiles — full color
- * control instead of a pre-baked raster style, tuned to this site's own brand tokens
- * (tailwind.config.ts) rather than a third party's palette.
+ * control instead of a pre-baked raster style. Colors come from the canonical
+ * biographyJourneyTheme token file (one source for both dark and light), not a locally hand-rolled
+ * palette — see that file for the design rationale of each theme.
  */
 export function getJourneyMapStyle(theme: "light" | "dark"): StyleSpecification {
-  const c = theme === "dark" ? DARK : LIGHT;
+  const c = getBiographyJourneyTheme(theme).map;
 
   return {
     version: 8,
@@ -287,7 +233,7 @@ export function getJourneyMapStyle(theme: "light" | "dark"): StyleSpecification 
         minzoom: 10,
         layout: { "text-field": ["get", "name"], "text-font": ["Noto Sans Regular"], "text-size": 13 },
         paint: {
-          "text-color": "rgba(199,186,255,0.5)",
+          "text-color": c.curatedLabel,
           "text-halo-color": c.background,
           "text-halo-width": 1.2,
           "text-opacity": ["interpolate", ["linear"], ["zoom"], 10, 0, 10.8, 1],
@@ -302,7 +248,7 @@ export function getJourneyMapStyle(theme: "light" | "dark"): StyleSpecification 
         minzoom: 10,
         layout: { "text-field": ["get", "name"], "text-font": ["Noto Sans Regular"], "text-size": 13 },
         paint: {
-          "text-color": "rgba(199,186,255,0.55)",
+          "text-color": c.curatedLabel,
           "text-halo-color": c.background,
           "text-halo-width": 1.2,
           "text-opacity": ["interpolate", ["linear"], ["zoom"], 10, 0, 10.8, 1],
@@ -322,7 +268,7 @@ export function getJourneyMapStyle(theme: "light" | "dark"): StyleSpecification 
           "symbol-placement": "line",
         },
         paint: {
-          "text-color": "rgba(199,186,255,0.55)",
+          "text-color": c.curatedLabel,
           "text-halo-color": c.background,
           "text-halo-width": 1.2,
           "text-opacity": ["interpolate", ["linear"], ["zoom"], 10, 0, 10.8, 1],

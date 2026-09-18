@@ -2,6 +2,7 @@
 import { useEffect, useRef } from "react";
 import { getStageById } from "@/lib/biography/journeyStages";
 import { rampDownTo } from "@/lib/biography/journeyMotion";
+import { getBiographyJourneyTheme, type BiographyJourneyThemeMode } from "@/lib/biography/biographyJourneyTheme";
 
 export type EarthGlowGeometry = { xPx: number; yPx: number; diameterPx: number };
 
@@ -39,11 +40,18 @@ const GLOW_EXTENT_PX = 30;
  */
 export function JourneyEarthGlow({
   handleRef,
+  theme,
 }: {
   handleRef: React.MutableRefObject<JourneyEarthGlowHandle | null>;
+  theme: BiographyJourneyThemeMode;
 }) {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const rimRef = useRef<HTMLDivElement | null>(null);
+  // read at update-time (every scroll tick) rather than closed over, so a theme toggle mid-journey
+  // is reflected on the very next tick — no stale dark-tuned glow left showing after switching to
+  // light (or vice versa).
+  const themeRef = useRef(theme);
+  themeRef.current = theme;
 
   useEffect(() => {
     handleRef.current = {
@@ -64,6 +72,7 @@ export function JourneyEarthGlow({
         const outerDiameterPx = diameterPx + GLOW_EXTENT_PX * 2;
         const outerRadiusPx = outerDiameterPx / 2;
         const edgeFraction = (diameterPx / 2 / outerRadiusPx) * 100;
+        const c = getBiographyJourneyTheme(themeRef.current).atmosphere;
         layerEl.style.left = `${xPx}px`;
         layerEl.style.top = `${yPx}px`;
         layerEl.style.width = `${outerDiameterPx}px`;
@@ -72,9 +81,9 @@ export function JourneyEarthGlow({
           "radial-gradient(circle,",
           "transparent 0%,",
           `transparent ${edgeFraction.toFixed(2)}%,`,
-          `rgba(210,225,255,0.42) ${edgeFraction.toFixed(2)}%,`,
-          `rgba(175,160,235,0.24) ${(edgeFraction + (100 - edgeFraction) * 0.35).toFixed(2)}%,`,
-          "rgba(135,110,225,0) 100%)",
+          `${c.inner} ${edgeFraction.toFixed(2)}%,`,
+          `${c.outer} ${(edgeFraction + (100 - edgeFraction) * 0.35).toFixed(2)}%,`,
+          `${c.outerFade} 100%)`,
         ].join(" ");
       },
     };
@@ -86,9 +95,11 @@ export function JourneyEarthGlow({
   return (
     // z-[5]: above the map canvas (z-auto) so the semi-transparent glow actually composites over
     // the rendered globe instead of being fully hidden behind its opaque background fill — still
-    // well below the z-20 text/story overlays.
+    // well below the z-20 text/story overlays. Visible in BOTH themes now — the atmosphere is part
+    // of the globe itself, not a dark-mode-only decoration; only its color tokens change (see
+    // biographyJourneyTheme.atmosphere).
     <div ref={rootRef} aria-hidden="true" className="pointer-events-none absolute inset-0 z-[5] overflow-hidden">
-      <div ref={rimRef} className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full opacity-0 dark:opacity-100" />
+      <div ref={rimRef} className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full" />
     </div>
   );
 }

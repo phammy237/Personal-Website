@@ -465,8 +465,8 @@ export function GeographicJourney() {
             onPinHover={setHoveredPinId}
             onReady={handleMapReady}
           />
-          <JourneyEarthGlow handleRef={earthGlowHandleRef} />
-          <JourneyEdgeFade handleRef={edgeFadeHandleRef} />
+          <JourneyEarthGlow handleRef={earthGlowHandleRef} theme={theme} />
+          <JourneyEdgeFade handleRef={edgeFadeHandleRef} theme={theme} />
           <JourneyStoryLayer
             handleRef={storyLayerHandleRef}
             reducedMotion={reducedMotion}
@@ -586,7 +586,7 @@ export function GeographicJourney() {
         className="relative z-10 min-h-screen overflow-hidden bg-base dark:bg-[#080D1B]"
       >
         <div className="absolute left-6 bottom-[15vh] flex w-[calc(100%-48px)] max-w-[520px] flex-col items-start gap-4 md:left-[clamp(72px,7vw,120px)] md:bottom-[16vh]">
-          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[rgba(185,170,225,0.72)]">Today / 2026</p>
+          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[rgba(78,84,112,0.72)] dark:text-[rgba(185,170,225,0.72)]">Today / 2026</p>
           <h2 className="font-display text-[46px] leading-[1.05] text-surface dark:text-[#F3F0F6] md:text-[56px]">
             Still becoming.
           </h2>

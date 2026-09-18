@@ -6,6 +6,7 @@ import { getJourneyMapStyle } from "@/lib/biography/mapStyle";
 import { EARTH_PRESET, type JourneyCameraState } from "@/lib/biography/mapCameraPresets";
 import { computeJourneyMapPadding } from "@/lib/biography/journeyMapPadding";
 import { FLIGHT_ORIGIN } from "@/lib/biography/transpacificCamera";
+import { getBiographyJourneyTheme, type BiographyJourneyThemeMode } from "@/lib/biography/biographyJourneyTheme";
 import type { EarthRasterCrossfadeState } from "@/lib/biography/earthRasterCrossfade";
 import { lerp } from "@/lib/biography/journeyMotion";
 import {
@@ -158,23 +159,29 @@ type PinIconSpec = {
   halo?: { diameter: number; color: string; blurPx: number };
 };
 
-const PIN_ICON_SPECS: PinIconSpec[] = [
-  {
-    id: "journey-pin-active",
-    pinWidth: 22,
-    pinHeight: 28,
-    fill: "#9A82E8",
-    stroke: "rgba(235,228,255,0.88)",
-    halo: { diameter: 34, color: "rgba(154,130,232,0.18)", blurPx: 7 },
-  },
-  {
-    id: "journey-pin-inactive",
-    pinWidth: 18,
-    pinHeight: 23,
-    fill: "#1B2340",
-    stroke: "rgba(180,165,225,0.56)",
-  },
-];
+/** theme-aware pin icon specs — colors come from biographyJourneyTheme.pin, never a fixed dark-only
+ *  palette (a pale inactive fill with a near-white stroke, tuned for a dark map, would be almost
+ *  invisible on the light theme's pale map). Re-evaluated every time icons are (re-)registered. */
+function pinIconSpecs(theme: BiographyJourneyThemeMode): PinIconSpec[] {
+  const c = getBiographyJourneyTheme(theme).pin;
+  return [
+    {
+      id: "journey-pin-active",
+      pinWidth: 22,
+      pinHeight: 28,
+      fill: c.activeFill,
+      stroke: c.activeStroke,
+      halo: { diameter: 34, color: c.activeHalo, blurPx: 7 },
+    },
+    {
+      id: "journey-pin-inactive",
+      pinWidth: 18,
+      pinHeight: 23,
+      fill: c.inactiveFill,
+      stroke: c.inactiveStroke,
+    },
+  ];
+}
 
 /** How far above its own anchor point (the tail tip, since icon-anchor is "bottom") the pin's
  *  circular top sits, in ems of PIN_NUMBER_SIZE — used as the number layer's own text-offset so it
@@ -242,12 +249,14 @@ function drawPinIcon(spec: PinIconSpec): ImageData {
   return ctx.getImageData(0, 0, canvasWidth, canvasHeight);
 }
 
-/** Registers both pin icon images with the map — idempotent-safe (guarded by hasImage) but must be
- *  called again after every setStyle() theme swap, since custom images don't survive a style
- *  reload the way GeoJSON sources/layers persist. */
-function registerPinIcons(map: MapLibreMap) {
-  for (const spec of PIN_ICON_SPECS) {
-    if (map.hasImage(spec.id)) continue;
+/** Registers both pin icon images with the map, redrawn for the given theme — must be called again
+ *  after every setStyle() theme swap, since custom images don't survive a style reload the way
+ *  GeoJSON sources/layers persist. `removeImage` first because a style swap can (depending on
+ *  MapLibre's own internal timing) leave the previous theme's cached image registered under the
+ *  same id, which `addImage` refuses to silently overwrite. */
+function registerPinIcons(map: MapLibreMap, theme: BiographyJourneyThemeMode) {
+  for (const spec of pinIconSpecs(theme)) {
+    if (map.hasImage(spec.id)) map.removeImage(spec.id);
     map.addImage(spec.id, drawPinIcon(spec));
   }
 }
@@ -277,17 +286,10 @@ function subtitleOpacityExpression(isMobile: boolean, suppression = 0) {
 }
 
 // Three states, both for the core line AND (separately) the glow underneath it — "selective glow":
-// only the CURRENT segment clearly reads purple/luminous; completed and future stay quiet.
-// core:  completed .26 / current .92 (#B09DF2) / future .10
-// glow:  completed .05 / current .20 (#8E73E6) / future 0 (no visible glow)
-const ROUTE_CORE_RGB = "176,157,242"; // #B09DF2
-const ROUTE_GLOW_RGB = "142,115,230"; // #8E73E6
-const ROUTE_COMPLETED = `rgba(${ROUTE_CORE_RGB},0.26)`;
-const ROUTE_CURRENT = `rgba(${ROUTE_CORE_RGB},0.92)`;
-const ROUTE_FUTURE = `rgba(${ROUTE_CORE_RGB},0.10)`;
-const ROUTE_GLOW_COMPLETED = `rgba(${ROUTE_GLOW_RGB},0.05)`;
-const ROUTE_GLOW_CURRENT = `rgba(${ROUTE_GLOW_RGB},0.20)`;
-const ROUTE_GLOW_FUTURE = `rgba(${ROUTE_GLOW_RGB},0)`;
+// only the CURRENT segment clearly reads purple/luminous; completed and future stay quiet. Exact
+// colors/opacities come from biographyJourneyTheme.route (theme-aware — the light theme's route
+// needs a more saturated core and lower glow opacity than dark to stay readable on a pale map,
+// never a reused dark-tuned value that reads as washed-out).
 const CURRENT_BAND_WIDTH = 0.015;
 
 // Chapter-complete dim: "route should remain visible but faded" — half the normal core/glow
@@ -331,15 +333,14 @@ function progressGradient(fraction: number, completed: string, current: string, 
   ];
 }
 
-function routeGradient(fraction: number) {
-  return progressGradient(fraction, ROUTE_COMPLETED, ROUTE_CURRENT, ROUTE_FUTURE, CURRENT_BAND_WIDTH);
+function routeGradient(fraction: number, theme: BiographyJourneyThemeMode) {
+  const c = getBiographyJourneyTheme(theme).route.core;
+  return progressGradient(fraction, c.completed, c.current, c.future, CURRENT_BAND_WIDTH);
 }
-function routeGlowGradient(fraction: number) {
-  return progressGradient(fraction, ROUTE_GLOW_COMPLETED, ROUTE_GLOW_CURRENT, ROUTE_GLOW_FUTURE, CURRENT_BAND_WIDTH);
+function routeGlowGradient(fraction: number, theme: BiographyJourneyThemeMode) {
+  const c = getBiographyJourneyTheme(theme).route.glow;
+  return progressGradient(fraction, c.completed, c.current, c.future, CURRENT_BAND_WIDTH);
 }
-
-const INITIAL_DIM_GRADIENT = routeGradient(0);
-const INITIAL_DIM_GLOW_GRADIENT = routeGlowGradient(0);
 
 // Cross-ocean "comet trail" route — a SHORT travel trace, never the whole Hanoi->U.S. line at full
 // brightness. Hanoi and the first U.S. stop are close to antipodal, so even a "traveled so far, held
@@ -351,25 +352,15 @@ const INITIAL_DIM_GLOW_GRADIENT = routeGlowGradient(0);
 // is what keeps this "a subtle path being drawn," never a dominant static arc, regardless of how far
 // along the crossing is.
 const TRANSPACIFIC_TRAIL_WINDOW = 0.14;
-const TRANSPACIFIC_CORE_TRANSPARENT = `rgba(${ROUTE_CORE_RGB},0)`;
-const TRANSPACIFIC_CORE_CURRENT = `rgba(${ROUTE_CORE_RGB},0.72)`;
-const TRANSPACIFIC_GLOW_TRANSPARENT = `rgba(${ROUTE_GLOW_RGB},0)`;
-const TRANSPACIFIC_GLOW_CURRENT = `rgba(${ROUTE_GLOW_RGB},0.12)`;
 
-function transpacificRouteGradient(fraction: number) {
-  return progressGradient(fraction, TRANSPACIFIC_CORE_TRANSPARENT, TRANSPACIFIC_CORE_CURRENT, TRANSPACIFIC_CORE_TRANSPARENT, TRANSPACIFIC_TRAIL_WINDOW);
+function transpacificRouteGradient(fraction: number, theme: BiographyJourneyThemeMode) {
+  const c = getBiographyJourneyTheme(theme).transpacific.core;
+  return progressGradient(fraction, c.transparent, c.current, c.transparent, TRANSPACIFIC_TRAIL_WINDOW);
 }
-function transpacificRouteGlowGradient(fraction: number) {
-  return progressGradient(fraction, TRANSPACIFIC_GLOW_TRANSPARENT, TRANSPACIFIC_GLOW_CURRENT, TRANSPACIFIC_GLOW_TRANSPARENT, TRANSPACIFIC_TRAIL_WINDOW);
+function transpacificRouteGlowGradient(fraction: number, theme: BiographyJourneyThemeMode) {
+  const c = getBiographyJourneyTheme(theme).transpacific.glow;
+  return progressGradient(fraction, c.transparent, c.current, c.transparent, TRANSPACIFIC_TRAIL_WINDOW);
 }
-
-const INITIAL_TRANSPACIFIC_GRADIENT = transpacificRouteGradient(0);
-const INITIAL_TRANSPACIFIC_GLOW_GRADIENT = transpacificRouteGlowGradient(0);
-
-/** the travel point's own two layers — a soft blurred halo underneath a small solid dot, both
- *  driven by the same overall route-visibility opacity (see setTranspacificTravelPoint). */
-const TRAVEL_POINT_COLOR = "#C3B2FF";
-const TRAVEL_POINT_GLOW_COLOR = "rgba(163,138,255,0.40)";
 
 function applyHanoiAnchorOpacity(map: MapLibreMap, opacity: number) {
   if (!map.getLayer("hanoi-anchor-glow")) return;
@@ -454,7 +445,10 @@ function setupJourneyLayers(
   hoveredPinRef: React.MutableRefObject<{ source: string; id: number } | null>,
   pinSuppression: number
 ) {
-  registerPinIcons(map);
+  registerPinIcons(map, theme);
+  const anchorColors = getBiographyJourneyTheme(theme).anchor;
+  const travelPointColors = getBiographyJourneyTheme(theme).travelPoint;
+  const pinTextColors = getBiographyJourneyTheme(theme).pin;
   map.addSource("hanoi-route", { type: "geojson", data: hanoiRouteGeoJSON, lineMetrics: true });
   map.addSource("domestic-route", { type: "geojson", data: domesticRouteGeoJSON, lineMetrics: true });
   map.addSource("transpacific-route", { type: "geojson", data: transpacificRouteGeoJSON, lineMetrics: true });
@@ -476,7 +470,7 @@ function setupJourneyLayers(
       paint: {
         "line-width": 6,
         "line-blur": 4,
-        "line-gradient": INITIAL_DIM_GLOW_GRADIENT as never,
+        "line-gradient": routeGlowGradient(0, theme) as never,
         "line-opacity": 1,
         "line-opacity-transition": ROUTE_OPACITY_TRANSITION,
       },
@@ -488,7 +482,7 @@ function setupJourneyLayers(
       layout: { "line-cap": "round", "line-join": "round" },
       paint: {
         "line-width": 1.6,
-        "line-gradient": INITIAL_DIM_GRADIENT as never,
+        "line-gradient": routeGradient(0, theme) as never,
         "line-opacity": 1,
         "line-opacity-transition": ROUTE_OPACITY_TRANSITION,
       },
@@ -506,7 +500,7 @@ function setupJourneyLayers(
     paint: {
       "line-width": 4,
       "line-blur": 3,
-      "line-gradient": INITIAL_TRANSPACIFIC_GLOW_GRADIENT as never,
+      "line-gradient": transpacificRouteGlowGradient(0, theme) as never,
       "line-opacity": 0,
     },
   });
@@ -515,7 +509,7 @@ function setupJourneyLayers(
     type: "line",
     source: "transpacific-route",
     layout: { "line-cap": "round", "line-join": "round" },
-    paint: { "line-width": 1.4, "line-gradient": INITIAL_TRANSPACIFIC_GRADIENT as never, "line-opacity": 0 },
+    paint: { "line-width": 1.4, "line-gradient": transpacificRouteGradient(0, theme) as never, "line-opacity": 0 },
   });
 
   // the route's single moving travel point — a soft blurred halo underneath a small solid dot, no
@@ -526,13 +520,13 @@ function setupJourneyLayers(
     id: "transpacific-travel-glow",
     type: "circle",
     source: "transpacific-travel-point",
-    paint: { "circle-radius": 8, "circle-color": TRAVEL_POINT_GLOW_COLOR, "circle-blur": 1, "circle-opacity": 0 },
+    paint: { "circle-radius": 8, "circle-color": travelPointColors.glow, "circle-blur": 1, "circle-opacity": 0 },
   });
   map.addLayer({
     id: "transpacific-travel-dot",
     type: "circle",
     source: "transpacific-travel-point",
-    paint: { "circle-radius": 3, "circle-color": TRAVEL_POINT_COLOR, "circle-opacity": 0 },
+    paint: { "circle-radius": 3, "circle-color": travelPointColors.dot, "circle-opacity": 0 },
   });
 
   // Earth-hero-stage "glowing Hanoi" marker — visible only while zoomed out near the globe, before
@@ -545,7 +539,7 @@ function setupJourneyLayers(
     id: "hanoi-anchor-glow",
     type: "circle",
     source: "hanoi-anchor",
-    paint: { "circle-radius": 15, "circle-color": "#8E6BFF", "circle-blur": 1.2, "circle-opacity": 0 },
+    paint: { "circle-radius": 15, "circle-color": anchorColors.glow, "circle-blur": 1.2, "circle-opacity": 0 },
   });
   map.addLayer({
     id: "hanoi-anchor-ring",
@@ -554,7 +548,7 @@ function setupJourneyLayers(
     paint: {
       "circle-radius": 8,
       "circle-color": "transparent",
-      "circle-stroke-color": "#A98CFF",
+      "circle-stroke-color": anchorColors.ring,
       "circle-stroke-width": 2,
       "circle-stroke-opacity": 0,
     },
@@ -563,7 +557,7 @@ function setupJourneyLayers(
     id: "hanoi-anchor-dot",
     type: "circle",
     source: "hanoi-anchor",
-    paint: { "circle-radius": 4, "circle-color": "#F4F1FB", "circle-opacity": 0 },
+    paint: { "circle-radius": 4, "circle-color": anchorColors.dot, "circle-opacity": 0 },
   });
   map.addLayer({
     id: "hanoi-anchor-label",
@@ -598,7 +592,7 @@ function setupJourneyLayers(
     id: "us-anchor-glow",
     type: "circle",
     source: "us-anchor",
-    paint: { "circle-radius": 15, "circle-color": "#8E6BFF", "circle-blur": 1.2, "circle-opacity": 0 },
+    paint: { "circle-radius": 15, "circle-color": anchorColors.glow, "circle-blur": 1.2, "circle-opacity": 0 },
   });
   map.addLayer({
     id: "us-anchor-ring",
@@ -607,7 +601,7 @@ function setupJourneyLayers(
     paint: {
       "circle-radius": 8,
       "circle-color": "transparent",
-      "circle-stroke-color": "#A98CFF",
+      "circle-stroke-color": anchorColors.ring,
       "circle-stroke-width": 2,
       "circle-stroke-opacity": 0,
     },
@@ -616,7 +610,7 @@ function setupJourneyLayers(
     id: "us-anchor-dot",
     type: "circle",
     source: "us-anchor",
-    paint: { "circle-radius": 4, "circle-color": "#F4F1FB", "circle-opacity": 0 },
+    paint: { "circle-radius": 4, "circle-color": anchorColors.dot, "circle-opacity": 0 },
   });
   map.addLayer({
     id: "us-anchor-label",
@@ -686,8 +680,8 @@ function setupJourneyLayers(
         "text-ignore-placement": true,
       },
       paint: {
-        "text-color": "#F4F1FB",
-        "text-halo-color": "#121A33",
+        "text-color": pinTextColors.titleText,
+        "text-halo-color": pinTextColors.labelHalo,
         "text-halo-width": 1.4,
         "text-opacity": titleOpacityExpression(isMobile, pinSuppression) as never,
       },
@@ -707,8 +701,8 @@ function setupJourneyLayers(
         "text-ignore-placement": true,
       },
       paint: {
-        "text-color": "rgba(205,200,225,0.7)",
-        "text-halo-color": "#121A33",
+        "text-color": pinTextColors.subtitleText,
+        "text-halo-color": pinTextColors.labelHalo,
         "text-halo-width": 1.4,
         "text-opacity": subtitleOpacityExpression(isMobile, pinSuppression) as never,
       },
@@ -751,7 +745,7 @@ function setupJourneyLayers(
         "text-ignore-placement": true,
       },
       paint: {
-        "text-color": "#FFFFFF",
+        "text-color": pinTextColors.activeNumberText,
         "text-opacity": withPinSuppression(["case", ["==", STATUS, "active"], 1, 0], pinSuppression) as never,
       },
     });
@@ -768,7 +762,7 @@ function setupJourneyLayers(
         "text-ignore-placement": true,
       },
       paint: {
-        "text-color": "rgba(235,230,245,0.76)",
+        "text-color": pinTextColors.inactiveNumberText,
         "text-opacity": withPinSuppression(["case", ["!=", STATUS, "active"], PIN_OPACITY, 0], pinSuppression) as never,
       },
     });
@@ -928,16 +922,17 @@ export function JourneyMapCanvas({
       const ref = PIN_FEATURE_REF_BY_ID.get(pinId);
       if (ref) map.setFeatureState(ref, { status });
     }
-    map.setPaintProperty("hanoi-route", "line-gradient", routeGradient(hanoiRouteProgressRef.current) as never);
-    map.setPaintProperty("hanoi-route-glow", "line-gradient", routeGlowGradient(hanoiRouteProgressRef.current) as never);
-    map.setPaintProperty("domestic-route", "line-gradient", routeGradient(domesticRouteProgressRef.current) as never);
+    const currentTheme = constructedThemeRef.current;
+    map.setPaintProperty("hanoi-route", "line-gradient", routeGradient(hanoiRouteProgressRef.current, currentTheme) as never);
+    map.setPaintProperty("hanoi-route-glow", "line-gradient", routeGlowGradient(hanoiRouteProgressRef.current, currentTheme) as never);
+    map.setPaintProperty("domestic-route", "line-gradient", routeGradient(domesticRouteProgressRef.current, currentTheme) as never);
     map.setPaintProperty(
       "domestic-route-glow",
       "line-gradient",
-      routeGlowGradient(domesticRouteProgressRef.current) as never
+      routeGlowGradient(domesticRouteProgressRef.current, currentTheme) as never
     );
-    map.setPaintProperty("transpacific-route", "line-gradient", transpacificRouteGradient(transpacificRouteProgressRef.current) as never);
-    map.setPaintProperty("transpacific-route-glow", "line-gradient", transpacificRouteGlowGradient(transpacificRouteProgressRef.current) as never);
+    map.setPaintProperty("transpacific-route", "line-gradient", transpacificRouteGradient(transpacificRouteProgressRef.current, currentTheme) as never);
+    map.setPaintProperty("transpacific-route-glow", "line-gradient", transpacificRouteGlowGradient(transpacificRouteProgressRef.current, currentTheme) as never);
     applyTranspacificOpacity(map, transpacificOpacityRef.current);
     if (map.getSource("transpacific-travel-point")) {
       (map.getSource("transpacific-travel-point") as GeoJSONSource).setData({
@@ -1019,15 +1014,15 @@ export function JourneyMapCanvas({
         hanoiRouteProgressRef.current = fraction;
         const m = mapRef.current;
         if (!m || !m.getLayer("hanoi-route")) return;
-        m.setPaintProperty("hanoi-route", "line-gradient", routeGradient(fraction) as never);
-        m.setPaintProperty("hanoi-route-glow", "line-gradient", routeGlowGradient(fraction) as never);
+        m.setPaintProperty("hanoi-route", "line-gradient", routeGradient(fraction, constructedThemeRef.current) as never);
+        m.setPaintProperty("hanoi-route-glow", "line-gradient", routeGlowGradient(fraction, constructedThemeRef.current) as never);
       },
       setDomesticRouteProgress: (fraction) => {
         domesticRouteProgressRef.current = fraction;
         const m = mapRef.current;
         if (!m || !m.getLayer("domestic-route")) return;
-        m.setPaintProperty("domestic-route", "line-gradient", routeGradient(fraction) as never);
-        m.setPaintProperty("domestic-route-glow", "line-gradient", routeGlowGradient(fraction) as never);
+        m.setPaintProperty("domestic-route", "line-gradient", routeGradient(fraction, constructedThemeRef.current) as never);
+        m.setPaintProperty("domestic-route-glow", "line-gradient", routeGlowGradient(fraction, constructedThemeRef.current) as never);
       },
       setRouteEmphasis: (routeId, emphasis) => {
         const layerId = routeId === "hanoi" ? "hanoi-route" : "domestic-route";
@@ -1047,8 +1042,8 @@ export function JourneyMapCanvas({
         transpacificRouteProgressRef.current = fraction;
         const m = mapRef.current;
         if (!m || !m.getLayer("transpacific-route")) return;
-        m.setPaintProperty("transpacific-route", "line-gradient", transpacificRouteGradient(fraction) as never);
-        m.setPaintProperty("transpacific-route-glow", "line-gradient", transpacificRouteGlowGradient(fraction) as never);
+        m.setPaintProperty("transpacific-route", "line-gradient", transpacificRouteGradient(fraction, constructedThemeRef.current) as never);
+        m.setPaintProperty("transpacific-route-glow", "line-gradient", transpacificRouteGlowGradient(fraction, constructedThemeRef.current) as never);
       },
       setTranspacificTravelPoint: (coordinate, opacity) => {
         travelPointCoordinateRef.current = coordinate;
