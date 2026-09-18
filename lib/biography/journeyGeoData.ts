@@ -2,6 +2,7 @@ import { geoInterpolate } from "d3-geo";
 import type { Feature, FeatureCollection, LineString, Point } from "geojson";
 import { hanoiJourneyPins } from "@/data/hanoiJourney";
 import { usJourneyPins } from "@/data/usJourney";
+import { chapters } from "@/data/biography";
 import { DOMESTIC_ROUTE_WAYPOINTS } from "@/lib/biography/usCamera";
 import { FLIGHT_ORIGIN, FLIGHT_DESTINATION } from "@/lib/biography/transpacificCamera";
 import { HANOI_PRESET } from "@/lib/biography/mapCameraPresets";
@@ -16,12 +17,20 @@ export type JourneyPinProperties = {
 };
 
 /** module-load-computed from the already-real lat/lon in data/hanoiJourney.ts and data/usJourney.ts
- *  — no data-file changes needed, this just reshapes existing coordinates into GeoJSON features. */
+ *  — no data-file changes needed, this just reshapes existing coordinates into GeoJSON features.
+ *
+ *  The top-level `id` is the per-collection ARRAY INDEX, not `pin.id` — MapLibre's GeoJSON
+ *  feature-state only works with numeric ids (a non-numeric string id like "home-early-childhood"
+ *  silently fails to register, so `setFeatureState`/`getFeatureState` never match anything and
+ *  every pin permanently renders its default/fallback paint case). This was the actual root cause
+ *  of the "pins never show their active/completed styling" bug (every pin looked like an empty
+ *  outline pin, active or not). `properties.id` keeps the real string id for click/hover callbacks
+ *  and everywhere else in the app that already expects that string. */
 export const hanoiPinsGeoJSON: FeatureCollection<Point, JourneyPinProperties> = {
   type: "FeatureCollection",
-  features: hanoiJourneyPins.map((pin) => ({
+  features: hanoiJourneyPins.map((pin, index) => ({
     type: "Feature",
-    id: pin.id,
+    id: index,
     properties: {
       id: pin.id,
       number: pin.number,
@@ -36,9 +45,9 @@ export const hanoiPinsGeoJSON: FeatureCollection<Point, JourneyPinProperties> = 
 
 export const usPinsGeoJSON: FeatureCollection<Point, JourneyPinProperties> = {
   type: "FeatureCollection",
-  features: usJourneyPins.map((pin) => ({
+  features: usJourneyPins.map((pin, index) => ({
     type: "Feature",
-    id: pin.id,
+    id: index,
     properties: {
       id: pin.id,
       number: pin.number,
@@ -70,6 +79,24 @@ export const hanoiChapterLabelGeoJSON: Feature<Point, { title: string }> = {
   type: "Feature",
   properties: { title: "Hanoi" },
   geometry: { type: "Point", coordinates: HANOI_PRESET.center },
+};
+
+/** the cross-ocean transition's single "United States" arrival marker — a country-scale point
+ *  (the same regional center USA_PRESET already frames around, via chapters[1].globeTarget), not a
+ *  specific city; the real Rivermont pin takes over once the transition ends. */
+export const usAnchorGeoJSON: Feature<Point, { title: string }> = {
+  type: "Feature",
+  properties: { title: "United States" },
+  geometry: { type: "Point", coordinates: [chapters[1].globeTarget.lon, chapters[1].globeTarget.lat] },
+};
+
+/** the cross-ocean route's live travel point — its coordinates are overwritten every scroll tick
+ *  (see JourneyMapCanvas's setTranspacificTravelPoint) from the exact same great-circle geometry as
+ *  transpacificRouteGeoJSON below; this is just the initial seed position (Hanoi, progress 0). */
+export const transpacificTravelPointGeoJSON: Feature<Point> = {
+  type: "Feature",
+  properties: {},
+  geometry: { type: "Point", coordinates: [FLIGHT_ORIGIN.lon, FLIGHT_ORIGIN.lat] },
 };
 
 /** the 5 Hanoi pins in order — a narrative connection, not a real street route */

@@ -35,16 +35,16 @@ export const JourneyPinStoryPanel = forwardRef<
   }
 >(function JourneyPinStoryPanel({ pin, loadMedia, index, total, hidden, onLearnMore, onPrev, onNext }, ref) {
   return (
-    // Outer wrapper handles ALL layout positioning via flexbox (mobile: bottom-anchored; desktop:
-    // right/top-anchored, not vertically centered) — deliberately NOT via a CSS transform, because
-    // the inner (ref'd) element's `transform` is owned entirely by the imperative slide-in
-    // animation below. Combining the two in one element made the animation's `translateY(px)`
-    // silently replace Tailwind's centering (inline styles win over classes on the same property).
+    // Outer wrapper handles ALL layout positioning (mobile: bottom sheet; desktop: a fixed
+    // right-edge column, not a floating card) — deliberately NOT via a CSS transform, because the
+    // inner (ref'd) element's `transform` is owned entirely by the imperative slide-in animation
+    // below. Combining the two in one element made the animation's `translateY(px)` silently
+    // replace Tailwind's positioning (inline styles win over classes on the same property).
     //
-    // Mobile bottom offset (pb-36) clears the mobile chapter rail, which sits fixed at bottom-20
+    // Mobile bottom offset (pb-32) clears the mobile chapter rail, which sits fixed at bottom-20
     // with its own ~45px pill height — the sheet would otherwise render underneath it.
     <div
-      className={`pointer-events-none absolute inset-0 z-20 flex items-end justify-center px-4 pb-36 md:items-start md:justify-end md:px-0 md:pb-0 md:pr-[5vw] md:pt-[14vh] ${hidden ? "invisible" : ""}`}
+      className={`pointer-events-none absolute inset-0 z-30 flex items-end justify-center px-3 pb-32 md:block md:px-0 md:pb-0 ${hidden ? "invisible" : ""}`}
     >
       <div
         ref={ref}
@@ -53,8 +53,11 @@ export const JourneyPinStoryPanel = forwardRef<
         aria-label={`Preview: ${pin.preview.title}`}
         aria-hidden="true"
         style={{ opacity: 0, pointerEvents: "none" }}
-        // small and fixed — "must stay small... it is only a teaser," never grows to fit content
-        className="relative flex w-full flex-col overflow-hidden rounded-[22px] border border-border bg-white/97 shadow-lg backdrop-blur dark:border-[rgba(180,160,255,0.16)] dark:bg-[rgba(22,27,57,0.92)] dark:shadow-[0_24px_70px_rgba(0,0,0,0.34)] md:max-h-none md:w-[360px]"
+        // "an editorial column attached to the composition," not a floating card: flat background,
+        // border-left only, no radius, no shadow, no blur, no gradient. Desktop: fixed to the right
+        // edge, running from below nav to near the bottom, 440px preferred (400-30vw). Mobile
+        // (<md): a bottom sheet.
+        className="relative flex max-h-[56vh] w-full flex-col overflow-y-auto overflow-x-hidden border-t border-border bg-white/97 dark:border-[rgba(180,174,205,0.14)] dark:bg-[rgba(8,13,27,0.94)] md:fixed md:right-0 md:top-[80px] md:bottom-6 md:max-h-none md:w-[440px] md:min-w-[400px] md:max-w-[30vw] md:border-t-0 md:border-l"
       >
         <JourneyPinPreviewCard
           number={pin.number}

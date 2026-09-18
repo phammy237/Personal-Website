@@ -4,13 +4,22 @@ import Link from "next/link";
 import { useReducedMotion } from "framer-motion";
 import { journeyChapters, journeyStages, getChapterIndex, getStageAtProgress, getStageById } from "@/lib/biography/journeyStages";
 import {
-  derivePinCursor,
+  computeHanoiCameraFrame,
   derivePinStatus,
+  deriveActivationCursor,
   toMapPinStatus,
-  deriveRouteProgress,
+  deriveContinuousRouteProgress,
   computePinClickTargetProgress,
 } from "@/lib/biography/hanoiCamera";
-import { computeGlobeArrivalOpacity } from "@/lib/biography/transpacificCamera";
+import {
+  computeCrossOceanProjectionMode,
+  computeCrossOceanRouteVisibility,
+  computeCrossOceanRouteProgress,
+  computeCrossOceanCleanWeight,
+  computeHanoiAnchorCrossOceanWeight,
+  computeUsAnchorWeight,
+  computeTravelPointCoordinate,
+} from "@/lib/biography/crossOceanCamera";
 import {
   RIVERMONT_PIN_ID,
   GAINESVILLE_PIN_ID,
@@ -53,15 +62,11 @@ const HANOI_OVERVIEW_EDGE_FADE = 0.02; // matches JourneyHanoiIntroPanel's own E
 // CTA-triggered scroll targets below.
 const HANOI_COMPLETE_STAGE = getStageById("hanoi-complete");
 const US_COMPLETE_STAGE = getStageById("us-complete");
-/** Cross the Ocean's landing target — just inside hanoi-departure, mirroring
- *  BEGIN_JOURNEY_TARGET_PROGRESS's own boundary-rounding nudge. */
-const CROSS_OCEAN_TARGET_PROGRESS = getStageById("hanoi-departure").start + 1 / journeyStages.length / 4;
 /** the stage rail and Skip Journey button hide during these — a minimal, full-bleed cinematic beat
  *  with nothing to navigate to or skip past from inside it. */
 const INTERLUDE_STAGE_IDS: ReadonlySet<string> = new Set(["hanoi-interlude-not-yet", "hanoi-interlude-now"]);
-/** every stage where the compact preview card (top-right, 360px) can be on screen — Skip Journey
- *  needs the stricter "only if clear separation exists" rule here; everywhere else the simpler
- *  "just not modal/interlude/today" rule already covers it. */
+/** every stage where the right-edge story panel can be on screen — Skip Journey hides entirely
+ *  during these ("should not feature ... as a prominent UI element during active story screens"). */
 const PIN_PREVIEW_STAGE_IDS: ReadonlySet<string> = new Set([
   "hanoi-pin-1",
   "hanoi-pin-2",
@@ -71,6 +76,10 @@ const PIN_PREVIEW_STAGE_IDS: ReadonlySet<string> = new Set([
   "rivermont-story",
   "gainesville-story",
 ]);
+/** Skip Journey's own allowlist — visible ONLY on the Earth/Hanoi/U.S. intro-overview beats, per
+ *  "it can remain only on: Earth intro, Hanoi intro, U.S. intro." Hidden on every other stage
+ *  (stories, chapter-complete, interlude, Today), not just the ones it used to collide with. */
+const SKIP_JOURNEY_ALLOWED_STAGE_IDS: ReadonlySet<string> = new Set(["earth-intro", "hanoi-overview", "us-overview"]);
 
 /** scroll distance dedicated to each stage while the stage is pinned, in viewport-heights */
 const STAGE_VH = 90;
@@ -90,8 +99,6 @@ export function GeographicJourney() {
   const earthGlowHandleRef = useRef<JourneyEarthGlowHandle | null>(null);
   const edgeFadeHandleRef = useRef<JourneyEdgeFadeHandle | null>(null);
   const isBeginningJourneyRef = useRef(false);
-  const isCrossingOceanRef = useRef(false);
-  const pulseActiveRef = useRef(false);
   // fast, re-render-free "already flipped" check for applyProgress's own scroll-tick loop — the
   // actual render-affecting value lives in the hasReachedHanoiComplete/hasReachedUsComplete state
   // declared below, set (once) from inside applyProgress by reading these.
@@ -152,24 +159,49 @@ export function GeographicJourney() {
       const current = getStageAtProgress(progress);
       const previousStageId = activeStageIdRef.current;
 
+      // Explicit projection ownership — fixes the globe's curved silhouette leaking into flat-map
+      // stages, AND (see crossOceanCamera.ts) deliberately re-forms it for the redesigned
+      // cross-ocean transition's own rotation window. Idempotent; only actually touches the map on
+      // a real mode change.
+      mapHandleRef.current?.setProjectionMode(computeCrossOceanProjectionMode(progress));
+
       // the persistent map's whole camera choreography — one continuous progress→state function
       // spanning Earth → Vietnam → Hanoi → back out → United States → Rivermont → Gainesville.
       mapHandleRef.current?.setCamera(computeJourneyCameraState(progress, reducedMotion), progress);
       mapHandleRef.current?.setEarthRasterCrossfade(computeEarthRasterCrossfade(progress));
 
-      // Hanoi pins/route
-      const hanoiCursor = derivePinCursor(progress);
+      // Hanoi pins/route — one shared frame drives the route's continuous draw-in AND pin
+      // activation, so "line reaches ~95%, pin activates" holds by construction instead of pin
+      // status flipping the instant the stage boundary crosses (which used to let a pin activate
+      // while the route was still only partway drawn).
+      const hanoiFrame = computeHanoiCameraFrame(progress);
+      const hanoiActivationCursor = deriveActivationCursor(hanoiFrame);
       hanoiJourneyPins.forEach((pin, i) => {
-        mapHandleRef.current?.setPinStatus(pin.id, toMapPinStatus(derivePinStatus(i, hanoiCursor)));
+        mapHandleRef.current?.setPinStatus(pin.id, toMapPinStatus(derivePinStatus(i, hanoiActivationCursor)));
       });
-      mapHandleRef.current?.setHanoiRouteProgress(deriveRouteProgress(hanoiCursor));
+      mapHandleRef.current?.setHanoiRouteProgress(deriveContinuousRouteProgress(hanoiFrame));
+      // "the point is the text, not the map" — background route dims once chapter-complete takes
+      // over, same as the story card's own (much faster) retraction above it.
+      mapHandleRef.current?.setRouteEmphasis("hanoi", progress >= HANOI_COMPLETE_STAGE.start ? 0 : 1);
 
       // U.S. pins/route
       mapHandleRef.current?.setPinStatus(RIVERMONT_PIN_ID, toUsMapPinStatus(deriveRivermontStatus(progress)));
       mapHandleRef.current?.setPinStatus(GAINESVILLE_PIN_ID, toUsMapPinStatus(deriveGainesvilleStatus(progress)));
       mapHandleRef.current?.setDomesticRouteProgress(computeUsRouteProgress(progress));
-      // trans-Pacific route: visible only through the same reveal/retreat hump the globe crossing uses
-      mapHandleRef.current?.setTranspacificRouteOpacity(computeGlobeArrivalOpacity(progress));
+      mapHandleRef.current?.setRouteEmphasis("domestic", progress >= US_COMPLETE_STAGE.start ? 0 : 1);
+
+      // The redesigned cross-ocean transition — see crossOceanCamera.ts for the full choreography.
+      // One shared visibility envelope drives the route AND its travel point together, and one
+      // shared route-progress value drives both the route's progressive "comet trail" reveal and
+      // the travel point's own position, so nothing here can drift apart from the globe's rotation.
+      const crossOceanRouteVisibility = computeCrossOceanRouteVisibility(progress);
+      mapHandleRef.current?.setTranspacificRouteOpacity(crossOceanRouteVisibility);
+      mapHandleRef.current?.setTranspacificRouteProgress(computeCrossOceanRouteProgress(progress));
+      mapHandleRef.current?.setTranspacificTravelPoint(computeTravelPointCoordinate(progress), crossOceanRouteVisibility);
+      // "clean globe" — hides the (otherwise pixel-overlapping, at this zoom) numbered Hanoi/U.S.
+      // pins and generic basemap labels for the duration of the transition.
+      mapHandleRef.current?.setCrossOceanImmersion(computeCrossOceanCleanWeight(progress));
+      mapHandleRef.current?.setUsAnchorGlowOpacity(computeUsAnchorWeight(progress));
 
       // story panels — opacity/slide-in for whichever location is currently being read
       storyLayerHandleRef.current?.update(progress);
@@ -180,9 +212,12 @@ export function GeographicJourney() {
       // Earth and Hanoi visual modes.
       const heroWeight = rampDownTo(progress, HERO_FADE_COMPLETE_AT, HERO_FADE_COMPLETE_AT);
       heroHandleRef.current?.update(progress);
-      earthGlowHandleRef.current?.update(progress);
+      earthGlowHandleRef.current?.update(progress, mapHandleRef.current?.getEarthGlowGeometry() ?? null);
       edgeFadeHandleRef.current?.update(progress, isStoryModalOpenRef.current);
-      mapHandleRef.current?.setHanoiAnchorGlowOpacity(heroWeight);
+      // the Earth-hero "glowing Hanoi" marker and the cross-ocean transition's own departure-side
+      // "Hanoi" marker share this one anchor layer (see JourneyMapCanvas) — never both visible at
+      // once (their two windows don't overlap), so a plain max is enough.
+      mapHandleRef.current?.setHanoiAnchorGlowOpacity(Math.max(heroWeight, computeHanoiAnchorCrossOceanWeight(progress)));
       hanoiIntroHandleRef.current?.update(progress);
       usIntroHandleRef.current?.update(progress);
       hanoiCompleteHandleRef.current?.update(progress);
@@ -197,16 +232,12 @@ export function GeographicJourney() {
         setHasReachedUsComplete(true);
       }
 
-      // Hanoi chapter label + Pin-01 overview hint: both tied to the same hanoi-overview window the
-      // intro panel itself fades over. The pulse is a standalone time-based loop (see
-      // JourneyMapCanvas) — only toggled here on actual enter/exit, never re-triggered every tick.
+      // Hanoi chapter label, tied to the hanoi-overview window the intro panel itself fades over.
+      // (Pin-01 used to get a separate pulsing "hint" hover here too — removed per the
+      // cinematic-atlas spec's "no pulsing/expanding circles" rule; the active pin's static halo
+      // already carries that job.)
       const hanoiOverviewWeight = stageWeight(progress, HANOI_OVERVIEW_STAGE.start, HANOI_OVERVIEW_STAGE.end, HANOI_OVERVIEW_EDGE_FADE);
       mapHandleRef.current?.setHanoiChapterLabelOpacity(hanoiOverviewWeight);
-      const shouldPulse = hanoiOverviewWeight > 0.5;
-      if (shouldPulse !== pulseActiveRef.current) {
-        pulseActiveRef.current = shouldPulse;
-        mapHandleRef.current?.setHanoiOverviewPulseActive(shouldPulse);
-      }
 
       if (current.id !== previousStageId) {
         activeStageIdRef.current = current.id;
@@ -354,44 +385,6 @@ export function GeographicJourney() {
   const goToStage = useCallback((stageId: (typeof journeyStages)[number]["id"]) => () => scrollToStageStart(stageId), [scrollToStageStart]);
   const handleExploreUsFreely = useCallback(() => scrollToStageStart("rivermont-approach"), [scrollToStageStart]);
 
-  // "Cross the Ocean" — the interlude's own cinematic, non-scroll-driven camera move (interlude-now
-  // -> hanoi-departure's landing point), the same "still goes through applyProgress every frame, so
-  // camera/pin/rail state is never computed twice" pattern beginJourneyTransition uses for Earth ->
-  // Hanoi — deliberately a separate function (not a refactor of beginJourneyTransition itself) so
-  // that already-verified transition is never touched.
-  const crossOceanTransition = useCallback(() => {
-    if (isCrossingOceanRef.current) return;
-    isCrossingOceanRef.current = true;
-
-    const trigger = gsapRef.current?.trigger;
-    const gsap = gsapRef.current?.gsap;
-    const startProgress = lastProgressRef.current;
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    const finish = () => {
-      const targetY = computeScrollYForProgress(CROSS_OCEAN_TARGET_PROGRESS);
-      if (targetY !== null) window.scrollTo(0, targetY);
-      trigger?.enable(false);
-      document.body.style.overflow = previousOverflow;
-      isCrossingOceanRef.current = false;
-    };
-
-    trigger?.disable(false, false);
-
-    const duration = reducedMotion ? 200 : 1700;
-    const start = typeof performance !== "undefined" ? performance.now() : Date.now();
-
-    const tick = (now: number) => {
-      const t = Math.min(1, (now - start) / duration);
-      applyProgress(lerp(startProgress, CROSS_OCEAN_TARGET_PROGRESS, easeOutCubic(t)), gsap);
-      if (t < 1) requestAnimationFrame(tick);
-      else finish();
-    };
-    requestAnimationFrame(tick);
-  }, [applyProgress, computeScrollYForProgress, reducedMotion]);
-
   const scrollToTodaySection = useCallback(() => {
     const el = todaySectionRef.current;
     if (!el) return;
@@ -495,7 +488,7 @@ export function GeographicJourney() {
             handleRef={hanoiCompleteHandleRef}
             stageId="hanoi-complete"
             reducedMotion={reducedMotion}
-            eyebrow="Chapter 01 Complete"
+            eyebrow={hanoiCheckpointCopy.eyebrow}
             heading={hanoiCheckpointCopy.heading}
             paragraph={hanoiCheckpointCopy.paragraph}
             primaryLabel={hanoiCheckpointCopy.continueCta}
@@ -503,7 +496,7 @@ export function GeographicJourney() {
             secondaryLabel={hanoiCheckpointCopy.stayCta}
             onSecondary={goToStage("hanoi-overview")}
           />
-          <JourneyInterlude handleRef={interludeHandleRef} reducedMotion={reducedMotion} onCrossOcean={crossOceanTransition} />
+          <JourneyInterlude handleRef={interludeHandleRef} reducedMotion={reducedMotion} onCrossOcean={goToStage("us-overview")} />
           <JourneyUsIntroPanel
             handleRef={usIntroHandleRef}
             reducedMotion={reducedMotion}
@@ -516,7 +509,7 @@ export function GeographicJourney() {
             handleRef={usCompleteHandleRef}
             stageId="us-complete"
             reducedMotion={reducedMotion}
-            eyebrow="Chapter 02 Complete"
+            eyebrow={usCheckpointCopy.eyebrow}
             heading={usCheckpointCopy.heading}
             paragraph={usCheckpointCopy.paragraph}
             primaryLabel={usCheckpointCopy.continueCta}
@@ -552,14 +545,15 @@ export function GeographicJourney() {
 
       {/* Hides once the journey resolves into "Today & Ahead" — past that point there's no more
           chapter to navigate to, and leaving it up would float the rail over the site's own
-          footer for the rest of the page. Also hides while the full story modal is open — the
-          modal is the highest-priority interface at that point; the compact preview card (360px)
-          no longer collides with the rail (right-30px), so the rail stays visible during plain
-          preview-card display. Also hides during the between-chapters interlude — a minimal,
-          full-bleed cinematic beat with no chapter left to navigate to from there anyway (per
-          Phase 6: "hide during interlude if it conflicts"). Chapter-complete states stay visible —
-          only the interlude itself is hidden. */}
-      {activeStage.id !== "today-ahead" && !isStoryModalOpen && !INTERLUDE_STAGE_IDS.has(activeStage.id) && (
+          footer for the rest of the page. Also hides while the full story modal is open, during
+          the between-chapters interlude, and — since the story panel is now a full-height
+          right-edge column (see JourneyPinStoryPanel) rather than a narrower floating card — while
+          any story panel could be on screen, matching the mockup (no rail visible in story view)
+          and Skip Journey's own identical hide rule. Chapter-complete states stay visible. */}
+      {activeStage.id !== "today-ahead" &&
+        !isStoryModalOpen &&
+        !INTERLUDE_STAGE_IDS.has(activeStage.id) &&
+        !PIN_PREVIEW_STAGE_IDS.has(activeStage.id) && (
         <JourneyProgressRail
           chapters={journeyChapters}
           activeChapterId={activeStage.chapter}
@@ -568,95 +562,46 @@ export function GeographicJourney() {
         />
       )}
 
-      {activeStage.id !== "today-ahead" && !isStoryModalOpen && !INTERLUDE_STAGE_IDS.has(activeStage.id) && (
+      {/* Extremely low priority — visible ONLY on the three intro/overview beats (Earth, Hanoi,
+          U.S.); hidden everywhere else (stories, chapter-complete, interlude, Today) so it never
+          competes with active journey content. Tiny plain mono text at a fixed .35 opacity — no
+          pill, no border, no background, no arrow. */}
+      {SKIP_JOURNEY_ALLOWED_STAGE_IDS.has(activeStage.id) && !isStoryModalOpen && (
         <button
           type="button"
           onClick={scrollToTodaySection}
-          className={`fixed right-4 top-[76px] z-40 flex h-10 items-center rounded-full border border-[rgba(255,255,255,0.14)] bg-transparent px-[18px] font-mono text-[11px] uppercase tracking-[0.14em] text-[rgba(205,200,225,0.46)] transition-colors hover:text-[rgba(238,236,246,0.8)] md:right-8 ${
-            // the preview card starts at md:pt-[14vh] — below roughly 720px tall, this button's own
-            // ~116px bottom edge would land inside (or past) that 24px clearance, so it hides rather
-            // than ever risk overlapping the card. Every other visible stage (overview, chapter-
-            // complete, etc.) has no card to collide with, so it keeps the simple rule above.
-            PIN_PREVIEW_STAGE_IDS.has(activeStage.id) ? "[@media(max-height:720px)]:hidden" : ""
-          }`}
+          className="fixed right-4 top-[76px] z-[25] font-mono text-[10px] uppercase tracking-[0.14em] text-muted opacity-[.35] transition-opacity hover:opacity-70 dark:text-[#F3F0F6] md:right-8 md:top-[72px]"
         >
-          Skip Journey →
+          Skip Journey
         </button>
       )}
 
+      {/* A quiet final atlas page — "closing a book," not a portfolio-template hero. Solid dark
+          background only: no decorative grid lines, arcs, circles, or ghosted route (all removed
+          per spec — "if the existing map is difficult here, solid dark background is BETTER than
+          fake decorative geometry"). Left-aligned editorial block, not centered. */}
       <section
         ref={todaySectionRef}
         aria-label="Today & Ahead"
-        className="relative z-10 flex min-h-screen flex-col items-center overflow-hidden bg-base px-6 dark:bg-navy"
+        className="relative z-10 min-h-screen overflow-hidden bg-base dark:bg-[#080D1B]"
       >
-        {/* ONE soft violet haze — the section's only atmosphere, no stars/circles/panels. Sits
-            behind the heading + route ghost, nudged toward the composition's own off-center focus. */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background: "radial-gradient(ellipse 55% 45% at 50% 42%, rgba(155,139,181,0.14), transparent 70%)",
-          }}
-        />
-        {/* Faint abstracted map texture — a few graticule-like arcs suggesting geography, never a
-            readable active map (opacity capped well below anything else on this page). */}
-        <svg
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 h-full w-full text-accent dark:text-accent-lavender"
-          style={{ opacity: 0.09 }}
-          preserveAspectRatio="xMidYMid slice"
-          viewBox="0 0 1000 600"
-        >
-          <path d="M -50 120 Q 500 20 1050 120" fill="none" stroke="currentColor" strokeWidth="1" />
-          <path d="M -50 300 Q 500 260 1050 300" fill="none" stroke="currentColor" strokeWidth="1" />
-          <path d="M -50 480 Q 500 540 1050 480" fill="none" stroke="currentColor" strokeWidth="1" />
-          <path d="M 220 -40 Q 260 300 220 640" fill="none" stroke="currentColor" strokeWidth="1" />
-          <path d="M 780 -40 Q 740 300 780 640" fill="none" stroke="currentColor" strokeWidth="1" />
-        </svg>
-        {/* The completed Hanoi -> U.S. route, ghosted — a visual echo, not navigation: no pins, no
-            glowing markers, just the shape of where the journey went. */}
-        <svg
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 h-full w-full text-accent-lavender"
-          style={{ opacity: 0.11 }}
-          preserveAspectRatio="xMidYMid slice"
-          viewBox="0 0 1000 600"
-        >
-          <path
-            d="M 150 460 Q 420 120 620 300 Q 760 420 880 200"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeDasharray="1 9"
-            strokeLinecap="round"
-          />
-        </svg>
-
-        {/* Nudged up from dead-center (50vh) toward ~45vh — a slightly more editorial composition
-            than a plain centered CTA block. */}
-        <div className="relative flex w-full max-w-[760px] -translate-y-[5vh] flex-1 flex-col items-center justify-center gap-6 py-24 text-center">
-          <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent dark:text-accent-lavender">Today &amp; Ahead</p>
-          <h2 className="max-w-2xl font-display text-[42px] leading-[1.02] text-surface dark:text-white md:text-[60px]">
-            This is where the story
-            <br />
-            catches up to today.
+        <div className="absolute left-6 bottom-[15vh] flex w-[calc(100%-48px)] max-w-[520px] flex-col items-start gap-4 md:left-[clamp(72px,7vw,120px)] md:bottom-[16vh]">
+          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[rgba(185,170,225,0.72)]">Today / 2026</p>
+          <h2 className="font-display text-[46px] leading-[1.05] text-surface dark:text-[#F3F0F6] md:text-[56px]">
+            Still becoming.
           </h2>
-          <p className="max-w-[600px] font-body text-base leading-relaxed text-muted dark:text-white/[0.72]">
-            Hanoi, Rivermont, Gainesville — that&apos;s the journey so far. I&apos;d love to hear where our paths cross next.
+          <p className="max-w-[470px] font-body text-[16px] leading-[1.6] text-muted dark:text-[rgba(226,224,235,0.70)]">
+            Hanoi, Rivermont, Gainesville — the map ends here for now. The rest is still being written.
           </p>
           <Link
             href="/connect"
-            className="flex h-[49px] items-center rounded-[24px] bg-accent px-[28px] font-mono text-xs tracking-wider text-white transition-all duration-200 hover:bg-accent/90 hover:shadow-[0_0_20px_rgba(142,107,255,0.35)]"
+            className="mt-2 font-mono text-[11px] uppercase tracking-[0.16em] text-surface transition-colors hover:text-[#B09DF2] dark:text-[#F3F0F6]"
           >
             Let&apos;s Connect →
           </Link>
-          <div className="mt-9 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-            {["More Places", "More People", "More Possibilities"].map((label) => (
-              <span key={label} className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted/40 dark:text-white/[0.32]">
-                {label}
-              </span>
-            ))}
-          </div>
+          <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.14em] text-muted opacity-[.28] dark:text-[rgba(210,205,225,0.6)]">
+            More places · More people · More to come
+          </p>
         </div>
       </section>
     </div>

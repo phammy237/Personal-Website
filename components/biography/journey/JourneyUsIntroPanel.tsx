@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useRef } from "react";
 import { getStageById } from "@/lib/biography/journeyStages";
-import { stageWeight } from "@/lib/biography/journeyMotion";
+import { rampDownTo, rampUpFrom } from "@/lib/biography/journeyMotion";
+import { US_INTRO_TEXT_ENTER_WIDTH } from "@/lib/biography/crossOceanCamera";
 import { applyStageWeightStyle } from "@/components/biography/journey/journeyPanelStyle";
 import { usJourneyCopy } from "@/data/usJourney";
 
@@ -20,6 +21,11 @@ const EDGE_FADE = 0.02; // matches JourneyHanoiIntroPanel's own EDGE_FADE
  * window (mirrors JourneyHanoiIntroPanel's onStart), while "Explore Freely" eases only as far as
  * rivermont-approach's own start — letting the user scroll/click through the map themselves rather
  * than being snapped straight into a story panel.
+ *
+ * Entrance is deliberately held back to us-overview's own final stretch (see
+ * US_INTRO_TEXT_ENTER_WIDTH) — this stage's earlier ~90% is still the cross-ocean globe zooming in
+ * and flattening into mercator (see crossOceanCamera.ts); the U.S. chapter's own copy must never
+ * appear while that globe rim is still on screen.
  */
 export function JourneyUsIntroPanel({
   handleRef,
@@ -45,7 +51,10 @@ export function JourneyUsIntroPanel({
       update: (progress) => {
         const el = rootRef.current;
         if (!el) return;
-        const weight = stageWeight(progress, US_OVERVIEW.start, US_OVERVIEW.end, EDGE_FADE);
+        const weight = Math.min(
+          rampUpFrom(progress, US_OVERVIEW.end, US_INTRO_TEXT_ENTER_WIDTH),
+          rampDownTo(progress, US_OVERVIEW.end + EDGE_FADE, EDGE_FADE)
+        );
         applyStageWeightStyle(el, weight, reducedMotion);
       },
     };
@@ -57,37 +66,34 @@ export function JourneyUsIntroPanel({
   return (
     <div
       ref={rootRef}
-      className="pointer-events-none absolute inset-y-0 left-0 z-20 flex w-full max-w-sm items-center px-6 opacity-0 md:px-12 lg:px-16"
+      className="pointer-events-none absolute left-0 right-0 top-1/2 z-20 -translate-y-1/2 px-6 opacity-0 md:left-[5%] md:right-auto md:top-[45%] md:w-[360px] md:translate-y-0 md:px-0"
     >
-      <div
-        className="pointer-events-none absolute inset-y-0 left-0 -z-10 w-[130%] dark:opacity-100"
-        style={{
-          background: "linear-gradient(to right, rgba(24,35,63,0.55) 0%, rgba(24,35,63,0.28) 55%, transparent 100%)",
-        }}
-      />
+      {/* full-bleed map behind the copy — no dark panel/circular crop obscuring it */}
       <div className="flex flex-col gap-5">
-        <p className="font-mono text-[11px] uppercase leading-relaxed tracking-[0.25em] text-accent dark:text-accent-lavender">
+        <p className="font-mono text-[11px] uppercase leading-relaxed tracking-[0.24em] text-accent dark:text-[#9480D8]">
           {usJourneyCopy.eyebrow}
         </p>
-        <h2 className="font-display text-5xl leading-[1.05] text-surface dark:text-white md:text-6xl">
+        <h2 className="font-display text-[54px] leading-[0.98] text-surface dark:text-[#F3F0F6] md:text-[58px]">
           {usJourneyCopy.heading}
         </h2>
-        <p className="max-w-sm font-body text-sm leading-relaxed text-muted dark:text-white/60">{usJourneyCopy.body}</p>
+        <p className="max-w-[320px] font-body text-[16px] leading-[1.55] text-muted dark:text-[rgba(226,224,235,0.70)]">
+          {usJourneyCopy.body}
+        </p>
         <div className="flex flex-col items-start gap-3">
           <button
             type="button"
             onClick={onStartChapter}
-            className="group flex w-fit items-center gap-3 font-mono text-xs uppercase tracking-[0.2em] text-surface transition-colors hover:text-accent dark:text-white/80 dark:hover:text-white"
+            className="group flex w-fit items-center gap-2 font-mono text-[11px] uppercase tracking-[0.16em] text-surface opacity-100 transition-colors hover:text-accent dark:text-[#F3F0F6] dark:hover:text-[#A28BE8]"
           >
             {usJourneyCopy.ctaLabel}
-            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-accent/50 transition-colors group-hover:border-accent dark:border-accent-lavender/50 dark:group-hover:border-accent-lavender">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[rgba(148,128,216,0.4)] transition-colors group-hover:border-[#A28BE8]">
               →
             </span>
           </button>
           <button
             type="button"
             onClick={onExploreFreely}
-            className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted/60 transition-colors hover:text-muted dark:text-white/35 dark:hover:text-white/60"
+            className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted opacity-[.42] transition-opacity hover:opacity-70 dark:text-[rgba(210,205,225,0.6)]"
           >
             {usJourneyCopy.secondaryCtaLabel}
           </button>
@@ -95,7 +101,7 @@ export function JourneyUsIntroPanel({
             <button
               type="button"
               onClick={onReturnToSummary}
-              className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted/60 transition-colors hover:text-muted dark:text-white/35 dark:hover:text-white/60"
+              className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted opacity-[.42] transition-opacity hover:opacity-70 dark:text-[rgba(210,205,225,0.6)]"
             >
               Back to chapter summary
             </button>

@@ -5,8 +5,6 @@ import {
   EARTH_PRESET,
   VIETNAM_PRESET,
   HANOI_PRESET,
-  EARTH_TRANSITION_PRESET,
-  ASIA_REGIONAL_PRESET,
   USA_PRESET,
   RIVERMONT_PRESET,
   GAINESVILLE_PRESET,
@@ -15,6 +13,11 @@ import {
   type JourneyCameraPreset,
   type JourneyCameraState,
 } from "@/lib/biography/mapCameraPresets";
+import {
+  computeCrossOceanCameraState,
+  CROSS_OCEAN_ENTRY_HOLD,
+  CROSS_OCEAN_MIDPOINT_HOLD,
+} from "@/lib/biography/crossOceanCamera";
 
 /**
  * Continuous progress(0–1) → MapLibre camera state for the whole journey, replacing the
@@ -32,7 +35,6 @@ const HANOI_COMPLETE = getStageById("hanoi-complete");
 const HANOI_INTERLUDE_NOT_YET = getStageById("hanoi-interlude-not-yet");
 const HANOI_INTERLUDE_NOW = getStageById("hanoi-interlude-now");
 const HANOI_DEPARTURE = getStageById("hanoi-departure");
-const TRANSPACIFIC_FLIGHT = getStageById("transpacific-flight");
 const US_OVERVIEW = getStageById("us-overview");
 const RIVERMONT_APPROACH = getStageById("rivermont-approach");
 const RIVERMONT_STORY = getStageById("rivermont-story");
@@ -49,24 +51,13 @@ const TODAY_TRANSITION = getStageById("today-transition");
 const HANOI_PIN_SETTLE_FRACTION = 0.45;
 
 /**
- * hanoi-departure's own zoom-out (pin scale ~14 down to near-globe ~1.6) was, on its own, by far
- * the single biggest per-stage zoom change in the whole journey — nearly double the next largest.
- * Split across hanoi-departure's full window AND the early portion of transpacific-flight instead
- * of cramming it into one stage, so "zooming back out to the globe" reads as its own slower,
- * broader beat rather than an abrupt snap-out right before the Pacific crossing begins.
- */
-// balanced so both pieces move at roughly the same peak rate (amount/width-fraction), rather than
-// leaving the second (narrower) piece with a sharper burst than the first
-const HANOI_EXIT_SPLIT = 0.7; // fraction of the pin(4)->earthTransition distance covered by hanoi-departure alone
-const HANOI_EXIT_FINISH_FRACTION = 0.4; // remaining fraction finished within transpacific-flight's own early window
-
-/**
  * Symmetric fix for the same issue on the U.S. side: usa->rivermont was the second-largest
  * per-stage zoom change, compressed into rivermont-approach alone — notably more abrupt than the
- * Hanoi equivalent (vietnam->hanoi), which gets its own full dedicated stage. Borrowing the tail of
- * us-overview's hold gives this transition closer to the same broad, unhurried pacing.
+ * Hanoi equivalent (vietnam->hanoi), which gets its own full dedicated stage. crossOceanCamera.ts's
+ * own cross-ocean camera already lands exactly on this fraction of the usa->rivermont distance by
+ * the time rivermont-approach begins (see its CROSS_OCEAN_END_STATE) — this constant must stay in
+ * sync with that module's own identical (deliberately duplicated, not imported — see there) copy.
  */
-const US_APPROACH_EARLY_START_FRACTION = 0.7; // us-overview holds until this fraction of its own window
 const US_APPROACH_EARLY_SPLIT = 0.3; // fraction of the usa->rivermont distance covered before rivermont-approach begins
 
 /** Phase 6 — fraction of hanoi-complete's own window spent easing the camera back from the last
@@ -135,35 +126,13 @@ export function computeJourneyCameraState(progress: number, reducedMotion: boole
   if (progress < HANOI_INTERLUDE_NOT_YET.end) {
     return lerpPreset(HANOI_PRESET, VIETNAM_PRESET, smoothstep(localProgress(progress, HANOI_INTERLUDE_NOT_YET)));
   }
-  if (progress < HANOI_INTERLUDE_NOW.end) {
-    return lerpPreset(VIETNAM_PRESET, ASIA_REGIONAL_PRESET, smoothstep(localProgress(progress, HANOI_INTERLUDE_NOW)));
-  }
-
-  // hanoi-departure/transpacific-flight's own zoom-out now continues from ASIA_REGIONAL_PRESET (the
-  // interlude's resting point) rather than directly from the last pin — same split-across-two-stages
-  // shape as before (see HANOI_EXIT_SPLIT/HANOI_EXIT_FINISH_FRACTION above), just re-anchored so
-  // there's no snap at the hanoi-interlude-now -> hanoi-departure boundary.
-  if (progress < HANOI_DEPARTURE.end) {
-    const t = smoothstep(localProgress(progress, HANOI_DEPARTURE)) * HANOI_EXIT_SPLIT;
-    return lerpPreset(ASIA_REGIONAL_PRESET, EARTH_TRANSITION_PRESET, t);
-  }
-  if (progress < TRANSPACIFIC_FLIGHT.end) {
-    const localT = localProgress(progress, TRANSPACIFIC_FLIGHT);
-    if (localT < HANOI_EXIT_FINISH_FRACTION) {
-      // finishing the zoom-out carried over from hanoi-departure, before any Pacific panning starts
-      const t = HANOI_EXIT_SPLIT + smoothstep(localT / HANOI_EXIT_FINISH_FRACTION) * (1 - HANOI_EXIT_SPLIT);
-      return lerpPreset(ASIA_REGIONAL_PRESET, EARTH_TRANSITION_PRESET, t);
-    }
-    const panT = smoothstep((localT - HANOI_EXIT_FINISH_FRACTION) / (1 - HANOI_EXIT_FINISH_FRACTION));
-    return lerpPreset(EARTH_TRANSITION_PRESET, USA_PRESET, panT);
-  }
+  // hanoi-interlude-now through us-overview: the redesigned cross-ocean transition — "flat map
+  // curves into a globe, globe rotates eastward across the Pacific, North America comes around,
+  // camera descends, globe flattens into the U.S. map." See crossOceanCamera.ts for the full
+  // choreography; its own final frame is constructed to exactly match rivermont-approach's own
+  // US_APPROACH_EARLY_SPLIT hand-off below, so there's no snap at that boundary either.
   if (progress < US_OVERVIEW.end) {
-    const localT = localProgress(progress, US_OVERVIEW);
-    if (localT < US_APPROACH_EARLY_START_FRACTION) return holdPreset(USA_PRESET);
-    // anticipatory zoom-in begun during the tail of the hold, finished across rivermont-approach —
-    // the same split-across-a-boundary technique as the hanoi-departure/transpacific-flight seam
-    const t = smoothstep((localT - US_APPROACH_EARLY_START_FRACTION) / (1 - US_APPROACH_EARLY_START_FRACTION)) * US_APPROACH_EARLY_SPLIT;
-    return lerpPreset(USA_PRESET, RIVERMONT_PRESET, t);
+    return computeCrossOceanCameraState(progress);
   }
   if (progress < RIVERMONT_APPROACH.end) {
     const t = US_APPROACH_EARLY_SPLIT + smoothstep(localProgress(progress, RIVERMONT_APPROACH)) * (1 - US_APPROACH_EARLY_SPLIT);
@@ -208,9 +177,10 @@ function computeReducedJourneyCameraState(progress: number): JourneyCameraState 
   }
   // hanoi-complete + hanoi-interlude-not-yet: discrete hold at the Hanoi overview
   if (progress < HANOI_INTERLUDE_NOW.start) return holdPreset(HANOI_PRESET);
-  // hanoi-interlude-now: discrete hold at the regional Asia pull-back
-  if (progress < HANOI_DEPARTURE.start) return holdPreset(ASIA_REGIONAL_PRESET);
-  if (progress < TRANSPACIFIC_FLIGHT.start) return holdPreset(EARTH_TRANSITION_PRESET);
+  // hanoi-interlude-now: discrete hold on the globe, centered on Hanoi/East Asia
+  if (progress < HANOI_DEPARTURE.start) return CROSS_OCEAN_ENTRY_HOLD;
+  // hanoi-departure/transpacific-flight: discrete hold at the Pacific rotation's own midpoint
+  if (progress < US_OVERVIEW.start) return CROSS_OCEAN_MIDPOINT_HOLD;
   if (progress < RIVERMONT_APPROACH.start) return holdPreset(USA_PRESET);
   if (progress < FLORIDA_FLIGHT.start) return holdPreset(RIVERMONT_PRESET);
   // gainesville-approach through us-memories: discrete hold at Gainesville

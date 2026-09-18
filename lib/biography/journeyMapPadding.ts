@@ -1,5 +1,6 @@
 import { getStageById } from "@/lib/biography/journeyStages";
-import { clamp01, lerp, smoothstep, stageWeight } from "@/lib/biography/journeyMotion";
+import { clamp01, lerp, rampDownTo, rampUpFrom, smoothstep, stageWeight } from "@/lib/biography/journeyMotion";
+import { US_INTRO_TEXT_ENTER_WIDTH } from "@/lib/biography/crossOceanCamera";
 
 export type JourneyMapPadding = { top: number; bottom: number; left: number; right: number };
 
@@ -27,7 +28,25 @@ const EARTH_PADDING_LEFT_FRACTION = 0.3;
 const EARTH_PADDING_RIGHT = 30; // clears the right-side chapter rail (now narrow, right-30px)
 const HANOI_INTRO_PADDING_LEFT = 380; // clears the left-column Hanoi intro panel (max-w-sm)
 const US_INTRO_PADDING_LEFT = 380; // clears JourneyUsIntroPanel — same left-column shell as Hanoi's
-const STORY_PADDING_RIGHT = 400; // clears the right-anchored pin story panel (440px wide + right-5vw offset)
+// Clears the right-edge-attached story panel (see JourneyPinStoryPanel — 440px preferred,
+// clamped between a 400px min-width and a 30vw max-width, matching its own Tailwind classes
+// exactly) plus a fixed clearance buffer, so the reserved camera padding stays panel-width-aware
+// instead of a single hardcoded number. left/top/bottom bias the active pin to the spec's own
+// suggested composition — roughly 35-42% across, 48-58% down.
+const STORY_PANEL_MIN_WIDTH = 400;
+const STORY_PANEL_PREFERRED_WIDTH = 440;
+const STORY_PANEL_MAX_WIDTH_VW = 0.3;
+const STORY_PADDING_BUFFER = 80;
+const STORY_PADDING_LEFT = 70;
+const STORY_PADDING_TOP = 90;
+const STORY_PADDING_BOTTOM = 70;
+
+/** Mirrors the story panel's own `w-[440px] min-w-[400px] max-w-[30vw]` CSS resolution exactly —
+ *  clamp to the max-width first, then floor at the min-width — so the camera reservation always
+ *  matches what's actually rendered, on any viewport width. */
+function computeStoryPanelWidth(viewportWidth: number): number {
+  return Math.max(STORY_PANEL_MIN_WIDTH, Math.min(STORY_PANEL_PREFERRED_WIDTH, viewportWidth * STORY_PANEL_MAX_WIDTH_VW));
+}
 
 /**
  * Single source of truth for every screen-space reservation the persistent map's camera needs —
@@ -61,23 +80,43 @@ export function computeJourneyMapPadding(progress: number, isMobile: boolean, vi
 
   if (progress < HANOI_PIN_5.end) {
     const t = smoothstep(clamp01((progress - HANOI_OVERVIEW.end) / STORY_PADDING_RAMP));
-    return { ...ZERO_PADDING, right: STORY_PADDING_RIGHT * t };
+    const storyPaddingRight = computeStoryPanelWidth(viewportWidth) + STORY_PADDING_BUFFER;
+    return {
+      left: STORY_PADDING_LEFT * t,
+      top: STORY_PADDING_TOP * t,
+      bottom: STORY_PADDING_BOTTOM * t,
+      right: storyPaddingRight * t,
+    };
   }
 
   // hanoi-complete: no story panel remains open — ramp the reserved space back out so the
   // chapter-complete overlay (no card, full-width) gets the whole frame back.
   if (progress < HANOI_DEPARTURE.start) {
     const t = smoothstep(clamp01((progress - HANOI_PIN_5.end) / STORY_PADDING_RAMP));
-    return { ...ZERO_PADDING, right: STORY_PADDING_RIGHT * (1 - t) };
+    const storyPaddingRight = computeStoryPanelWidth(viewportWidth) + STORY_PADDING_BUFFER;
+    const remaining = 1 - t;
+    return {
+      left: STORY_PADDING_LEFT * remaining,
+      top: STORY_PADDING_TOP * remaining,
+      bottom: STORY_PADDING_BOTTOM * remaining,
+      right: storyPaddingRight * remaining,
+    };
   }
 
   if (progress < US_OVERVIEW.start) {
     return ZERO_PADDING; // hanoi-departure through transpacific-flight: no panel visible yet
   }
 
-  // us-overview: clears JourneyUsIntroPanel, mirroring the Hanoi overview's own left-column padding
+  // us-overview: clears JourneyUsIntroPanel — reservation now ramps in only over the transition's
+  // own tail (see JourneyUsIntroPanel's identically-timed text fade), once the globe has actually
+  // flattened into the U.S. map; through the rest of us-overview (still the cross-ocean globe
+  // rotating/zooming in) the camera stays centered with no reservation, matching the "globe centered
+  // ~50-55vw, no big shift" cross-ocean composition.
   if (progress < RIVERMONT_APPROACH.start) {
-    const weight = stageWeight(progress, US_OVERVIEW.start, US_OVERVIEW.end, INTRO_EDGE_FADE);
+    const weight = Math.min(
+      rampUpFrom(progress, US_OVERVIEW.end, US_INTRO_TEXT_ENTER_WIDTH),
+      rampDownTo(progress, US_OVERVIEW.end + INTRO_EDGE_FADE, INTRO_EDGE_FADE)
+    );
     return { ...ZERO_PADDING, left: US_INTRO_PADDING_LEFT * weight };
   }
 

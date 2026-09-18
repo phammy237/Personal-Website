@@ -16,48 +16,52 @@ import { usMemoriesCopy, type MemoryMarker } from "@/data/usJourney";
 export const JourneyUsMemoriesPanel = forwardRef<HTMLDivElement, { markers: MemoryMarker[]; loadMedia: boolean }>(
   function JourneyUsMemoriesPanel({ markers, loadMedia }, ref) {
     return (
-      <div className="pointer-events-none absolute inset-0 z-20 flex items-end justify-center pb-20">
-        <div
-          ref={ref}
-          role="region"
-          aria-label="More U.S. memories"
-          aria-hidden="true"
-          style={{ opacity: 0, pointerEvents: "none" }}
-          className="max-w-sm rounded-2xl border border-border bg-white/97 px-6 py-5 text-center shadow-2xl backdrop-blur dark:border-white/10 dark:bg-navy-mid/97"
-        >
-          {markers.length === 0 ? (
-            <>
-              <p className="font-mono text-[10px] uppercase tracking-wider text-accent">{usMemoriesCopy.eyebrow}</p>
-              <h2 className="mt-1.5 font-display text-lg leading-tight text-surface dark:text-white">
-                {usMemoriesCopy.heading}
-              </h2>
-              <p className="mt-2 font-body text-sm leading-relaxed text-muted dark:text-white/65">
-                {usMemoriesCopy.body}
-              </p>
-            </>
-          ) : (
-            <div className="flex flex-col gap-5 text-left">
-              {markers.map((marker) => (
-                <div key={marker.id}>
-                  {marker.image && (
-                    <div className="mb-2">
-                      <StoryMedia images={[marker.image]} alt={marker.title} loadMedia={loadMedia} />
-                    </div>
-                  )}
-                  <div className="flex items-baseline gap-2">
-                    <p className="font-display text-sm text-surface dark:text-white">{marker.title}</p>
-                    {marker.year && (
-                      <span className="font-mono text-[10px] uppercase tracking-wider text-accent/70 dark:text-accent-lavender/70">
-                        {marker.year}
-                      </span>
-                    )}
+      // Inline editorial annotation, lower-left — "it should look like annotation text on the map,"
+      // never a centered floating card (no rounded rectangle, no shadow, no blur, no dark panel).
+      <div
+        ref={ref}
+        role="region"
+        aria-label="More U.S. memories"
+        aria-hidden="true"
+        style={{ opacity: 0, pointerEvents: "none" }}
+        className="pointer-events-none absolute left-[8%] bottom-[16%] z-20 max-w-[360px]"
+      >
+        {markers.length === 0 ? (
+          <div className="flex flex-col items-start gap-3">
+            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent dark:text-[#9480D8]">
+              {usMemoriesCopy.eyebrow}
+            </p>
+            <h2 className="font-display text-[32px] leading-[1.05] text-surface dark:text-[#F3F0F6]">
+              {usMemoriesCopy.heading}
+            </h2>
+            <p className="max-w-[320px] font-body text-[15px] leading-[1.55] text-muted dark:text-[rgba(226,224,235,0.70)]">
+              {usMemoriesCopy.body}
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-col items-start gap-5">
+            {markers.map((marker) => (
+              <div key={marker.id}>
+                {marker.image && (
+                  <div className="mb-2 w-[220px]">
+                    <StoryMedia images={[marker.image]} alt={marker.title} loadMedia={loadMedia} />
                   </div>
-                  <p className="mt-0.5 font-body text-xs leading-relaxed text-muted dark:text-white/60">{marker.caption}</p>
+                )}
+                <div className="flex items-baseline gap-2">
+                  <p className="font-display text-[15px] text-surface dark:text-[#F3F0F6]">{marker.title}</p>
+                  {marker.year && (
+                    <span className="font-mono text-[10px] uppercase tracking-wider text-accent/70 dark:text-[#9480D8]/70">
+                      {marker.year}
+                    </span>
+                  )}
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+                <p className="mt-0.5 max-w-[320px] font-body text-[13px] leading-relaxed text-muted dark:text-[rgba(226,224,235,0.70)]">
+                  {marker.caption}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     );
   }

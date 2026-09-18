@@ -57,57 +57,56 @@ export function JourneyHanoiIntroPanel({
   }, [handleRef, reducedMotion]);
 
   return (
-    <div
-      ref={rootRef}
-      className="pointer-events-none absolute inset-y-0 left-0 z-20 flex w-full max-w-sm items-center px-6 opacity-0 md:px-12 lg:px-16"
-    >
-      {/* Subtle readability backdrop, not a card — a soft fade toward the page's own dark tone
-          behind the text, no border/rounded-rectangle edge anywhere. */}
-      <div
-        className="pointer-events-none absolute inset-y-0 left-0 -z-10 w-[130%] dark:opacity-100"
-        style={{
-          background:
-            "linear-gradient(to right, rgba(24,35,63,0.55) 0%, rgba(24,35,63,0.28) 55%, transparent 100%)",
-        }}
-      />
-      <div className="flex flex-col gap-5">
-        <p className="font-mono text-[11px] uppercase leading-relaxed tracking-[0.25em] text-accent dark:text-accent-lavender">
-          {journeyHanoiIntroContent.eyebrow}
-        </p>
-        <h2 className="font-display text-5xl leading-[1.05] text-surface dark:text-white md:text-6xl">
-          {journeyHanoiIntroContent.heading}
-        </h2>
-        <p className="max-w-sm font-body text-sm leading-relaxed text-muted dark:text-white/60">{journeyHanoiIntroContent.body}</p>
-        <div className="flex flex-col items-start gap-3">
-          <button
-            type="button"
-            onClick={onStart}
-            className="group flex w-fit items-center gap-3 font-mono text-xs uppercase tracking-[0.2em] text-surface transition-colors hover:text-accent dark:text-white/80 dark:hover:text-white"
-          >
-            {journeyHanoiIntroContent.ctaLabel}
-            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-accent/50 transition-colors group-hover:border-accent dark:border-accent-lavender/50 dark:group-hover:border-accent-lavender">
-              →
-            </span>
-          </button>
-          {/* deliberately quiet — must not compete with the primary CTA above */}
-          <button
-            type="button"
-            onClick={onSkip}
-            className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted/60 transition-colors hover:text-muted dark:text-white/35 dark:hover:text-white/60"
-          >
-            Skip to next chapter
-          </button>
-          {showReturnLink && onReturnToSummary && (
+    <div ref={rootRef} className="pointer-events-none absolute inset-0 z-20 opacity-0">
+      {/* "Map should remain visible behind the copy" — no dark panel/backdrop obscuring it; the
+          shared edge vignette (JourneyEdgeFade) already gives the map's own left side enough
+          contrast for the text to read. */}
+      <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 px-6 md:left-[5%] md:right-auto md:top-[45%] md:w-[360px] md:translate-y-0 md:px-0">
+        <div className="flex flex-col gap-5">
+          <p className="font-mono text-[11px] uppercase leading-relaxed tracking-[0.24em] text-accent dark:text-[#9480D8]">
+            {journeyHanoiIntroContent.eyebrow}
+          </p>
+          <h2 className="font-display text-[54px] leading-[0.98] text-surface dark:text-[#F3F0F6] md:text-[58px]">
+            {journeyHanoiIntroContent.heading}
+          </h2>
+          <p className="max-w-[320px] font-body text-[16px] leading-[1.55] text-muted dark:text-[rgba(226,224,235,0.70)]">
+            {journeyHanoiIntroContent.body}
+          </p>
+          <div className="flex flex-col items-start gap-3">
             <button
               type="button"
-              onClick={onReturnToSummary}
-              className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted/60 transition-colors hover:text-muted dark:text-white/35 dark:hover:text-white/60"
+              onClick={onStart}
+              className="group flex w-fit items-center gap-2 font-mono text-[11px] uppercase tracking-[0.16em] text-surface opacity-100 transition-colors hover:text-accent dark:text-[#F3F0F6] dark:hover:text-[#A28BE8]"
             >
-              Back to chapter summary
+              {journeyHanoiIntroContent.ctaLabel}
+              <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[rgba(148,128,216,0.4)] transition-colors group-hover:border-[#A28BE8]">
+                →
+              </span>
             </button>
-          )}
+            {/* deliberately quiet — opacity .42, must not compete with the primary CTA above */}
+            <button
+              type="button"
+              onClick={onSkip}
+              className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted opacity-[.42] transition-opacity hover:opacity-70 dark:text-[rgba(210,205,225,0.6)]"
+            >
+              Skip to next chapter
+            </button>
+            {showReturnLink && onReturnToSummary && (
+              <button
+                type="button"
+                onClick={onReturnToSummary}
+                className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted opacity-[.42] transition-opacity hover:opacity-70 dark:text-[rgba(210,205,225,0.6)]"
+              >
+                Back to chapter summary
+              </button>
+            )}
+          </div>
         </div>
       </div>
+      {/* subtle coordinate line, bottom-left of the screen */}
+      <p className="absolute bottom-8 left-[5%] hidden font-mono text-[10px] tracking-[0.1em] text-[rgba(210,205,225,0.42)] md:block">
+        {journeyHanoiIntroContent.coordinates}
+      </p>
     </div>
   );
 }

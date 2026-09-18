@@ -40,65 +40,70 @@ export function JourneyPinPreviewCard({
   onNext: () => void;
 }) {
   return (
-    <div className="flex w-full flex-col gap-3 p-5">
-      <div className="flex items-start gap-2.5">
-        <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent font-mono text-[11px] font-medium text-white dark:bg-[#6F4DD6]">
+    <div className="flex w-full flex-col px-[30px] pb-[26px] pt-[30px]">
+      <div className="flex items-center gap-3">
+        <span
+          className="flex h-[29px] w-[29px] shrink-0 items-center justify-center rounded-full font-mono text-[10px] text-white"
+          style={{ background: "#8D78D8" }}
+        >
           {String(number).padStart(2, "0")}
         </span>
         <div className="min-w-0">
-          <h2 className="font-display text-[17px] leading-tight text-surface dark:text-[#F4F1FB]">{title}</h2>
-          <p className="mt-0.5 truncate font-mono text-[10px] uppercase tracking-wider text-accent dark:text-[#A98CFF]">{metaLabel}</p>
+          <h2 className="font-display text-[21px] leading-tight text-surface dark:text-[#F3F0F6]">{title}</h2>
+          <p className="mt-0.5 truncate font-mono text-[10px] uppercase tracking-[0.18em] text-accent dark:text-[#9480D8]">{metaLabel}</p>
         </div>
       </div>
-
-      <p className="line-clamp-3 font-body text-sm leading-relaxed text-muted dark:text-[rgba(238,236,246,0.75)]">{description}</p>
 
       {image ? (
         loadMedia ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={image} alt={title} className="aspect-[16/8.5] w-full rounded-[12px] object-cover" loading="lazy" />
-        ) : (
-          <div className="aspect-[16/8.5] w-full rounded-[12px] bg-accent-light/40 dark:bg-white/[0.04]" />
-        )
-      ) : (
-        mediaPlaceholder && (
-          <JourneyMediaPlaceholder
-            number={number}
-            title={title}
-            eyebrow={mediaPlaceholder.eyebrow}
-            description={mediaPlaceholder.description}
-            className="aspect-[16/8.5] w-full rounded-[12px]"
+          <img
+            src={image}
+            alt={title}
+            className="mt-5 aspect-video w-full rounded-[3px] object-cover md:min-h-[220px]"
+            loading="lazy"
           />
+        ) : (
+          <div className="mt-5 aspect-video w-full rounded-[3px] bg-accent-light/40 dark:bg-white/[0.04] md:min-h-[220px]" />
         )
-      )}
+      ) : mediaPlaceholder ? (
+        <JourneyMediaPlaceholder
+          number={number}
+          title={title}
+          eyebrow={mediaPlaceholder.eyebrow}
+          description={mediaPlaceholder.description}
+          className="mt-5 aspect-video w-full rounded-[3px] md:min-h-[220px]"
+        />
+      ) : null}
+
+      <p className="mt-5 font-body text-[17px] leading-[1.6] text-muted dark:text-[rgba(226,224,235,0.70)]">{description}</p>
 
       <button
         type="button"
         onClick={onLearnMore}
-        style={{ background: "linear-gradient(135deg, #6847B8, #8E6BFF)" }}
-        className="flex h-11 w-full items-center justify-center gap-2 rounded-[11px] font-mono text-[11px] uppercase tracking-[0.12em] text-white transition-all hover:brightness-110 hover:shadow-[0_0_18px_rgba(142,107,255,0.4)]"
+        className="mt-5 flex w-fit items-center gap-2 font-mono text-[11px] uppercase tracking-[0.16em] text-surface transition-colors hover:text-accent dark:text-[#FFFFFF] dark:hover:text-[#B09DF2]"
       >
-        Learn More
+        Read the story
         <span aria-hidden="true">→</span>
       </button>
 
-      <div className="flex items-center justify-between border-t border-border/40 pt-3 dark:border-white/[0.05]">
+      <div className="mt-[22px] flex items-center justify-between border-t border-[rgba(180,174,205,0.16)] pt-4">
         <button
           type="button"
           onClick={onPrev}
           aria-label="Previous location"
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(180,160,255,0.18)] text-muted transition-colors hover:bg-[rgba(142,107,255,0.1)] dark:text-[rgba(205,200,225,0.7)]"
+          className="-m-2 p-2 font-mono text-[13px] text-muted transition-colors hover:text-accent dark:text-[rgba(210,205,225,0.55)] dark:hover:text-[#B09DF2]"
         >
           ←
         </button>
-        <span className="font-mono text-[11px] tracking-[0.14em] text-muted dark:text-[rgba(205,200,225,0.5)]">
+        <span className="font-mono text-[10px] tracking-[0.14em] text-muted dark:text-[rgba(210,205,225,0.42)]">
           {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
         </span>
         <button
           type="button"
           onClick={onNext}
           aria-label="Next location"
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(180,160,255,0.18)] text-muted transition-colors hover:bg-[rgba(142,107,255,0.1)] dark:text-[rgba(205,200,225,0.7)]"
+          className="-m-2 p-2 font-mono text-[13px] text-muted transition-colors hover:text-accent dark:text-[rgba(210,205,225,0.55)] dark:hover:text-[#B09DF2]"
         >
           →
         </button>

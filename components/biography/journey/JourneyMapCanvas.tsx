@@ -1,10 +1,11 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { Map as MapLibreMap, AttributionControl, setWorkerUrl, type MapGeoJSONFeature } from "maplibre-gl";
+import { Map as MapLibreMap, AttributionControl, setWorkerUrl, type MapGeoJSONFeature, type GeoJSONSource } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { getJourneyMapStyle } from "@/lib/biography/mapStyle";
 import { EARTH_PRESET, type JourneyCameraState } from "@/lib/biography/mapCameraPresets";
 import { computeJourneyMapPadding } from "@/lib/biography/journeyMapPadding";
+import { FLIGHT_ORIGIN } from "@/lib/biography/transpacificCamera";
 import type { EarthRasterCrossfadeState } from "@/lib/biography/earthRasterCrossfade";
 import { lerp } from "@/lib/biography/journeyMotion";
 import {
@@ -15,8 +16,9 @@ import {
   transpacificRouteGeoJSON,
   hanoiAnchorGeoJSON,
   hanoiChapterLabelGeoJSON,
+  usAnchorGeoJSON,
+  transpacificTravelPointGeoJSON,
 } from "@/lib/biography/journeyGeoData";
-import { hanoiJourneyPins } from "@/data/hanoiJourney";
 
 // MapLibre derives its worker script URL from `import.meta.url` at runtime (see
 // maplibre-gl-dev.mjs's `defaultWorkerUrl()`), expecting a sibling `maplibre-gl-worker.mjs` next
@@ -40,21 +42,58 @@ export type JourneyMapHandle = {
   setPinStatus: (pinId: string, status: JourneyPinStatus) => void;
   setHanoiRouteProgress: (fraction: number) => void;
   setDomesticRouteProgress: (fraction: number) => void;
+  /** 1 = normal, 0 = chapter-complete's dimmed "the point is the text, not the map" treatment —
+   *  crossfades over ROUTE_OPACITY_TRANSITION via each layer's own built-in paint transition. */
+  setRouteEmphasis: (routeId: "hanoi" | "domestic", emphasis: number) => void;
+  /** overall visibility (0-1) for the cross-ocean route + its travel point — see
+   *  crossOceanCamera.ts's computeCrossOceanRouteVisibility, the single source of truth for when
+   *  this route is on screen at all. */
   setTranspacificRouteOpacity: (opacity: number) => void;
+  /** the cross-ocean route's own progressive "comet trail" reveal (0 = not yet traveled, 1 =
+   *  arrived) — see crossOceanCamera.ts's computeCrossOceanRouteProgress, the same value driving
+   *  the travel point below, so the line and the point can never drift apart. */
+  setTranspacificRouteProgress: (fraction: number) => void;
+  /** the cross-ocean route's single moving marker — `coordinate` follows the same great-circle
+   *  geometry as the route itself (crossOceanCamera.ts's computeTravelPointCoordinate); `opacity`
+   *  mirrors the route's own overall visibility. */
+  setTranspacificTravelPoint: (coordinate: [number, number], opacity: number) => void;
+  /** 0 = normal (numbered Hanoi/U.S. pins + generic basemap labels all show as usual), 1 = the
+   *  cross-ocean transition's "clean globe" — every numbered pin and generic place/water label
+   *  hidden, leaving only the dedicated departure/arrival anchor markers below. See
+   *  crossOceanCamera.ts's computeCrossOceanCleanWeight. */
+  setCrossOceanImmersion: (weight: number) => void;
+  /** the cross-ocean transition's own single "United States" arrival marker — mirrors
+   *  setHanoiAnchorGlowOpacity's existing "Hanoi" marker exactly, just the departure/arrival pair. */
+  setUsAnchorGlowOpacity: (opacity: number) => void;
   /** the Earth-hero-stage "glowing Hanoi" marker — fades out well before the real Hanoi pins take
    *  over, see GeographicJourney's hero-weight fade. */
   setHanoiAnchorGlowOpacity: (opacity: number) => void;
   /** the understated "Hanoi" chapter label shown during hanoi-overview, fading out once pin
    *  stories start so it never competes with the location labels. */
   setHanoiChapterLabelOpacity: (opacity: number) => void;
-  /** starts/stops the extremely-subtle Pin-01 pulse hint — a self-contained time-based loop (not
-   *  scroll-tick-driven), only running while the hanoi-overview stage is actually on screen. */
-  setHanoiOverviewPulseActive: (active: boolean) => void;
   /** the Earth-hero satellite raster <-> editorial vector atlas crossfade — see
    *  lib/biography/earthRasterCrossfade.ts, the single source of truth for these three numbers.
    *  Also toggles the two raster layers' own visibility off once fully faded, so they stop costing
    *  any GPU work for the rest of the journey (re-enabled automatically on scrolling back). */
   setEarthRasterCrossfade: (state: EarthRasterCrossfadeState) => void;
+  /** The actual on-screen center + apparent radius of the rendered globe right now, from the same
+   *  camera state driving the map itself (map.project + the standard Mercator-style
+   *  radius≈worldSize/2π formula) — the single source of truth JourneyEarthGlow's decorative
+   *  atmosphere layers anchor to, so they visually track the globe instead of sitting at a
+   *  hardcoded CSS position that only matched its very first frame. Null once the globe projection
+   *  itself is no longer active (e.g. after the Hanoi mercator handoff) or before the map is ready. */
+  getEarthGlowGeometry: () => { xPx: number; yPx: number; diameterPx: number } | null;
+  /** Explicit projection ownership — "globe" for the Earth-hero/approach beats AND (see
+   *  crossOceanCamera.ts's computeCrossOceanProjectionMode) the cross-ocean transition's own globe
+   *  rotation window; "mercator" everywhere else (Hanoi, the interlude's reflective beats, the
+   *  whole U.S. chapter, Today). Root-cause fix for the globe's curved silhouette leaking into
+   *  flat-map stages: the style used to set `projection: {type:"globe"}` once, statically, for the
+   *  map's entire lifetime, relying on MapLibre's own automatic globe->mercator crossover — which
+   *  only triggers above ~zoom 5. Several flat-map stages (US overview zoom 3.6) sit well below
+   *  that, so the sphere kept rendering when it shouldn't have; conversely the cross-ocean window
+   *  now deliberately FORCES globe at similarly low zoom, on purpose. Idempotent — safe to call
+   *  every tick, only actually touches the map when the mode changes. */
+  setProjectionMode: (mode: "globe" | "mercator") => void;
 };
 
 export type JourneyMapCanvasProps = {
@@ -80,89 +119,257 @@ const PIN_LAYER_GROUPS = [
   { source: "us-pins", prefix: "us-pin", data: usPinsGeoJSON },
 ] as const;
 
-// Polish pass, three concentric layers (`-glow`, `-ring`, `-circle`) plus the number — active pin is
-// the strongest map element while a preview is open, per the map-hierarchy pass:
-// ACTIVE:    halo 38px rgba(142,107,255,.18) / ring 24px 2px #A98CFF / inner 14px #8E6BFF / number white 11px
-// COMPLETED: 18px filled rgba(142,107,255,.55), no ring, no glow — quiet
-// FUTURE:    14px transparent fill, 1px ring rgba(180,160,255,.45), no glow — very quiet
+// setPinStatus (and the persisted-state replay after a theme swap) is called with the pin's real
+// string id (e.g. "home-early-childhood") — this resolves that to the {source, numeric feature id}
+// pair the GeoJSON sources actually use for feature-state (see journeyGeoData.ts's own note on why
+// the feature id has to be numeric). Built once at module load, not per call/tick.
+const PIN_FEATURE_REF_BY_ID = new Map<string, { source: string; id: number }>();
+for (const group of PIN_LAYER_GROUPS) {
+  for (const feature of group.data.features) {
+    PIN_FEATURE_REF_BY_ID.set(feature.properties.id, { source: group.source, id: feature.id as number });
+  }
+}
+
+// Editorial-cartography pin system — real map-pin/teardrop silhouettes (rounded circular top,
+// small clean point at the bottom), not circles. Two icon images (active/inactive), each built
+// once via <canvas> and registered with map.addImage — MapLibre symbol layers can't draw a
+// teardrop natively, and this is far cheaper than a per-feature fill-layer polygon. "Completed"
+// reuses the inactive icon at reduced opacity — same shape, never a different (hollow) look.
 const STATUS = ["feature-state", "status"];
+// completed reads as quietly "done" via opacity alone — never a different (hollow) shape
+const PIN_OPACITY = ["case", ["==", STATUS, "completed"], 0.56, 1];
+const PIN_NUMBER_SIZE = 10;
 
-const PIN_CIRCLE_COLOR = ["case", ["==", STATUS, "active"], "#8E6BFF", ["==", STATUS, "completed"], "rgba(142,107,255,0.55)", "transparent"];
-const PIN_RADIUS = ["case", ["==", STATUS, "active"], 7, ["==", STATUS, "completed"], 9, 7];
+/** wraps any paint-opacity expression with the cross-ocean "clean globe" suppression multiplier —
+ *  see crossOceanCamera.ts's computeCrossOceanCleanWeight. suppression=0 (the common case) is a
+ *  literal no-op multiply, never a behavior change outside that one transition. */
+function withPinSuppression(expression: unknown, suppression: number): unknown {
+  if (suppression <= 0) return expression;
+  return ["*", expression, 1 - suppression];
+}
 
-// the ring is the ONLY visible edge for future pins (transparent fill); for completed pins it's
-// switched off entirely (a plain filled dot, no ring) via PIN_RING_OPACITY below
-const PIN_RING_RADIUS = ["case", ["==", STATUS, "active"], 12, 7];
-const PIN_RING_STROKE_WIDTH = ["case", ["==", STATUS, "active"], 2, 1];
-const PIN_RING_COLOR = ["case", ["==", STATUS, "active"], "#A98CFF", "rgba(180,160,255,0.45)"];
-const PIN_RING_OPACITY = ["case", ["==", STATUS, "completed"], 0, 1];
+type PinIconSpec = {
+  id: string;
+  /** total silhouette width/height in CSS px — the circular top's diameter is `pinWidth`. */
+  pinWidth: number;
+  pinHeight: number;
+  fill: string;
+  stroke: string;
+  halo?: { diameter: number; color: string; blurPx: number };
+};
 
-const PIN_GLOW_RADIUS = ["case", ["==", STATUS, "active"], 19, 0];
-const PIN_GLOW_OPACITY = ["case", ["==", STATUS, "active"], 0.18, 0]; // "only active pin glows strongly"
+const PIN_ICON_SPECS: PinIconSpec[] = [
+  {
+    id: "journey-pin-active",
+    pinWidth: 22,
+    pinHeight: 28,
+    fill: "#9A82E8",
+    stroke: "rgba(235,228,255,0.88)",
+    halo: { diameter: 34, color: "rgba(154,130,232,0.18)", blurPx: 7 },
+  },
+  {
+    id: "journey-pin-inactive",
+    pinWidth: 18,
+    pinHeight: 23,
+    fill: "#1B2340",
+    stroke: "rgba(180,165,225,0.56)",
+  },
+];
 
-const PIN_NUMBER_COLOR = "#FFFFFF";
+/** How far above its own anchor point (the tail tip, since icon-anchor is "bottom") the pin's
+ *  circular top sits, in ems of PIN_NUMBER_SIZE — used as the number layer's own text-offset so it
+ *  centers inside the circular part regardless of which icon (active/inactive) is showing. Kept as
+ *  a plain map (not baked into the icon) since the number text is a separate symbol layer. */
+const PIN_NUMBER_OFFSET_EM: Record<string, number> = {};
+
+/**
+ * Draws one teardrop pin silhouette onto a canvas: a circular top tapering to a small point at the
+ * bottom (the classic map-pin shape), optionally with a soft blurred halo behind the circular part
+ * only — never the tail, per spec. Returns the canvas sized so `icon-anchor:"bottom"` places the
+ * tail's tip exactly on the feature's geographic point, matching how real map pins point at a
+ * location instead of centering a circle over it.
+ */
+function drawPinIcon(spec: PinIconSpec): ImageData {
+  const r = spec.pinWidth / 2;
+  const haloOuterRadius = spec.halo ? spec.halo.diameter / 2 + spec.halo.blurPx * 1.5 : 0;
+  const canvasWidth = Math.ceil(Math.max(spec.pinWidth, haloOuterRadius * 2));
+  const canvasHeight = Math.ceil(Math.max(spec.pinHeight, spec.pinHeight - r + haloOuterRadius));
+
+  const canvas = document.createElement("canvas");
+  canvas.width = canvasWidth;
+  canvas.height = canvasHeight;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return new ImageData(canvasWidth, canvasHeight);
+
+  const centerX = canvasWidth / 2;
+  const pinTopY = canvasHeight - spec.pinHeight;
+  const circleCenterY = pinTopY + r;
+  const tailTipY = canvasHeight;
+
+  if (spec.halo) {
+    ctx.save();
+    ctx.filter = `blur(${spec.halo.blurPx}px)`;
+    ctx.beginPath();
+    ctx.arc(centerX, circleCenterY, spec.halo.diameter / 2, 0, Math.PI * 2);
+    ctx.fillStyle = spec.halo.color;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // Standard teardrop parametrization: the body tapers from two "shoulder" points (just below the
+  // circle's own center) down to a single point at the tail tip, with the rounded top drawn as the
+  // long way around the circle between those two shoulders (through the top), leaving the short
+  // way (through the bottom) open as the gap the tail point fills.
+  const shoulderDX = r * 0.55;
+  const shoulderDY = r * 0.5;
+  const leftShoulder = { x: centerX - shoulderDX, y: circleCenterY + shoulderDY };
+  const leftAngle = Math.atan2(shoulderDY, -shoulderDX);
+  const rightAngle = Math.atan2(shoulderDY, shoulderDX);
+
+  ctx.beginPath();
+  ctx.moveTo(centerX, tailTipY);
+  ctx.lineTo(leftShoulder.x, leftShoulder.y);
+  ctx.arc(centerX, circleCenterY, r, leftAngle, rightAngle + Math.PI * 2, false);
+  ctx.lineTo(centerX, tailTipY);
+  ctx.closePath();
+  ctx.fillStyle = spec.fill;
+  ctx.fill();
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = spec.stroke;
+  ctx.stroke();
+
+  PIN_NUMBER_OFFSET_EM[spec.id] = -(spec.pinHeight - r) / PIN_NUMBER_SIZE;
+  return ctx.getImageData(0, 0, canvasWidth, canvasHeight);
+}
+
+/** Registers both pin icon images with the map — idempotent-safe (guarded by hasImage) but must be
+ *  called again after every setStyle() theme swap, since custom images don't survive a style
+ *  reload the way GeoJSON sources/layers persist. */
+function registerPinIcons(map: MapLibreMap) {
+  for (const spec of PIN_ICON_SPECS) {
+    if (map.hasImage(spec.id)) continue;
+    map.addImage(spec.id, drawPinIcon(spec));
+  }
+}
 
 /** title: active 1, completed .45, future 0 (hover reveals it — see PIN_TITLE_OPACITY_MOBILE) */
-function titleOpacityExpression(isMobile: boolean) {
-  if (isMobile) return ["case", ["==", STATUS, "active"], 1, 0];
-  return [
-    "case",
-    ["==", STATUS, "active"],
-    1,
-    ["==", STATUS, "completed"],
-    0.45,
-    ["boolean", ["feature-state", "hover"], false],
-    0.85,
-    0,
-  ];
+function titleOpacityExpression(isMobile: boolean, suppression = 0) {
+  if (isMobile) return withPinSuppression(["case", ["==", STATUS, "active"], 1, 0], suppression);
+  return withPinSuppression(
+    [
+      "case",
+      ["==", STATUS, "active"],
+      1,
+      ["==", STATUS, "completed"],
+      0.45,
+      ["boolean", ["feature-state", "hover"], false],
+      0.85,
+      0,
+    ],
+    suppression
+  );
 }
 
 /** subtitle: active only — "Completed: title only" / "Future: hidden unless hover" */
-function subtitleOpacityExpression(isMobile: boolean) {
+function subtitleOpacityExpression(isMobile: boolean, suppression = 0) {
   if (isMobile) return 0;
-  return ["case", ["==", STATUS, "active"], 1, ["boolean", ["feature-state", "hover"], false], 0.85, 0];
+  return withPinSuppression(["case", ["==", STATUS, "active"], 1, ["boolean", ["feature-state", "hover"], false], 0.85, 0], suppression);
 }
 
-// Three states along the core line: completed (.92), a narrow full-brightness band right at the
-// leading edge ("current segment"), future (.12) — the glow layer underneath is flat/constant, not
-// gradient-driven (see setupJourneyLayers), so only the core needs this per-frame update. Completed
-// bumped from .85 -> .92 (map-hierarchy polish: "route is second-strongest element" behind the
-// active pin) — future stays faint on purpose, this should read as elegant, not neon.
-const ROUTE_COMPLETED = "rgba(169,140,255,0.92)";
-const ROUTE_CURRENT = "#A98CFF";
-const ROUTE_FUTURE = "rgba(169,140,255,0.12)";
+// Three states, both for the core line AND (separately) the glow underneath it — "selective glow":
+// only the CURRENT segment clearly reads purple/luminous; completed and future stay quiet.
+// core:  completed .26 / current .92 (#B09DF2) / future .10
+// glow:  completed .05 / current .20 (#8E73E6) / future 0 (no visible glow)
+const ROUTE_CORE_RGB = "176,157,242"; // #B09DF2
+const ROUTE_GLOW_RGB = "142,115,230"; // #8E73E6
+const ROUTE_COMPLETED = `rgba(${ROUTE_CORE_RGB},0.26)`;
+const ROUTE_CURRENT = `rgba(${ROUTE_CORE_RGB},0.92)`;
+const ROUTE_FUTURE = `rgba(${ROUTE_CORE_RGB},0.10)`;
+const ROUTE_GLOW_COMPLETED = `rgba(${ROUTE_GLOW_RGB},0.05)`;
+const ROUTE_GLOW_CURRENT = `rgba(${ROUTE_GLOW_RGB},0.20)`;
+const ROUTE_GLOW_FUTURE = `rgba(${ROUTE_GLOW_RGB},0)`;
 const CURRENT_BAND_WIDTH = 0.015;
 
-function routeGradient(fraction: number) {
+// Chapter-complete dim: "route should remain visible but faded" — half the normal core/glow
+// emphasis, applied as a line-opacity multiplier on top of the gradient's own baked-in alpha.
+const ROUTE_EMPHASIS_DIMMED_CORE_OPACITY = 0.5;
+const ROUTE_EMPHASIS_DIMMED_GLOW_OPACITY = 0.3;
+const ROUTE_OPACITY_TRANSITION = { duration: 350, delay: 0 };
+
+/** Shared 3-state (completed/current/future) progress gradient — used for both the core line and
+ *  the glow line underneath it, each with its own color triple, so the glow is exactly as
+ *  segment-aware as the core ("completed route: glow opacity .05... future: no visible glow").
+ *  `bandWidth` is how far back from the current point the "current" color still reads — a razor-
+ *  thin band for the short pin-to-pin routes below, a wider "comet trail" for the cross-ocean route
+ *  (see transpacificRouteGradient). */
+function progressGradient(fraction: number, completed: string, current: string, future: string, bandWidth: number) {
   const f = Math.max(0.0001, Math.min(0.9999, fraction));
   // strictly greater than the leading "0" breakpoint below — at very small f (e.g. fraction=0,
-  // the route's own initial/reset state), f - CURRENT_BAND_WIDTH goes negative and clamping it to
-  // exactly 0 collided with that first breakpoint, which MapLibre's interpolate expression rejects
-  // ("input values in strictly ascending order"). Pre-existing bug, caught while verifying the
-  // Earth raster crossfade's own map errors were clean — unrelated to this route's own visuals.
-  const bandStart = Math.max(0.00005, f - CURRENT_BAND_WIDTH);
+  // the route's own initial/reset state), f - bandWidth goes negative and clamping it to exactly 0
+  // collided with that first breakpoint, which MapLibre's interpolate expression rejects ("input
+  // values in strictly ascending order"). Pre-existing bug, caught while verifying the Earth raster
+  // crossfade's own map errors were clean — unrelated to this route's own visuals.
+  const bandStart = Math.max(0.00005, f - bandWidth);
   return [
     "interpolate",
     ["linear"],
     ["line-progress"],
     0,
-    ROUTE_COMPLETED,
+    completed,
     bandStart,
-    ROUTE_COMPLETED,
+    completed,
     f,
-    ROUTE_CURRENT,
+    current,
     // strictly less than the trailing "1" breakpoint below — the mirror-image of bandStart's own
     // fix above: at f close to 1 (route fully/near-complete), f + 0.001 clamped to exactly 1
     // collided with that last breakpoint the same way. Only actually reachable once a route
     // finishes paging through every pin (fraction -> 1), which no earlier test happened to drive.
     Math.min(0.99995, f + 0.001),
-    ROUTE_FUTURE,
+    future,
     1,
-    ROUTE_FUTURE,
+    future,
   ];
 }
 
+function routeGradient(fraction: number) {
+  return progressGradient(fraction, ROUTE_COMPLETED, ROUTE_CURRENT, ROUTE_FUTURE, CURRENT_BAND_WIDTH);
+}
+function routeGlowGradient(fraction: number) {
+  return progressGradient(fraction, ROUTE_GLOW_COMPLETED, ROUTE_GLOW_CURRENT, ROUTE_GLOW_FUTURE, CURRENT_BAND_WIDTH);
+}
+
 const INITIAL_DIM_GRADIENT = routeGradient(0);
+const INITIAL_DIM_GLOW_GRADIENT = routeGlowGradient(0);
+
+// Cross-ocean "comet trail" route — a SHORT travel trace, never the whole Hanoi->U.S. line at full
+// brightness. Hanoi and the first U.S. stop are close to antipodal, so even a "traveled so far, held
+// at a constant dim opacity forever" treatment (the local pin-to-pin routes' own shape) reproduces
+// the forbidden giant-arc look once enough of that near-hemispheric line has been traveled — a
+// dim-but-nonzero line is still clearly visible once it spans a big enough fraction of the globe.
+// Instead, both the "older" and "future" ends fade to FULLY transparent, and only a short window
+// immediately behind the current point ever renders at all — its own length (not just its opacity)
+// is what keeps this "a subtle path being drawn," never a dominant static arc, regardless of how far
+// along the crossing is.
+const TRANSPACIFIC_TRAIL_WINDOW = 0.14;
+const TRANSPACIFIC_CORE_TRANSPARENT = `rgba(${ROUTE_CORE_RGB},0)`;
+const TRANSPACIFIC_CORE_CURRENT = `rgba(${ROUTE_CORE_RGB},0.72)`;
+const TRANSPACIFIC_GLOW_TRANSPARENT = `rgba(${ROUTE_GLOW_RGB},0)`;
+const TRANSPACIFIC_GLOW_CURRENT = `rgba(${ROUTE_GLOW_RGB},0.12)`;
+
+function transpacificRouteGradient(fraction: number) {
+  return progressGradient(fraction, TRANSPACIFIC_CORE_TRANSPARENT, TRANSPACIFIC_CORE_CURRENT, TRANSPACIFIC_CORE_TRANSPARENT, TRANSPACIFIC_TRAIL_WINDOW);
+}
+function transpacificRouteGlowGradient(fraction: number) {
+  return progressGradient(fraction, TRANSPACIFIC_GLOW_TRANSPARENT, TRANSPACIFIC_GLOW_CURRENT, TRANSPACIFIC_GLOW_TRANSPARENT, TRANSPACIFIC_TRAIL_WINDOW);
+}
+
+const INITIAL_TRANSPACIFIC_GRADIENT = transpacificRouteGradient(0);
+const INITIAL_TRANSPACIFIC_GLOW_GRADIENT = transpacificRouteGlowGradient(0);
+
+/** the travel point's own two layers — a soft blurred halo underneath a small solid dot, both
+ *  driven by the same overall route-visibility opacity (see setTranspacificTravelPoint). */
+const TRAVEL_POINT_COLOR = "#C3B2FF";
+const TRAVEL_POINT_GLOW_COLOR = "rgba(163,138,255,0.40)";
 
 function applyHanoiAnchorOpacity(map: MapLibreMap, opacity: number) {
   if (!map.getLayer("hanoi-anchor-glow")) return;
@@ -172,9 +379,64 @@ function applyHanoiAnchorOpacity(map: MapLibreMap, opacity: number) {
   map.setPaintProperty("hanoi-anchor-label", "text-opacity", opacity);
 }
 
+/** the cross-ocean transition's arrival marker — identical shape/treatment to the Hanoi anchor
+ *  above, just the "United States" departure-side counterpart. */
+function applyUsAnchorOpacity(map: MapLibreMap, opacity: number) {
+  if (!map.getLayer("us-anchor-glow")) return;
+  map.setPaintProperty("us-anchor-glow", "circle-opacity", opacity * 0.3);
+  map.setPaintProperty("us-anchor-ring", "circle-stroke-opacity", opacity * 0.9);
+  map.setPaintProperty("us-anchor-dot", "circle-opacity", opacity);
+  map.setPaintProperty("us-anchor-label", "text-opacity", opacity);
+}
+
 function applyHanoiChapterLabelOpacity(map: MapLibreMap, opacity: number) {
   if (!map.getLayer("hanoi-chapter-label")) return;
   map.setPaintProperty("hanoi-chapter-label", "text-opacity", opacity * 0.75); // spec ceiling: opacity .75
+}
+
+/** overall visibility for the cross-ocean route + travel point — the per-segment comet-trail shape
+ *  itself lives in the line-gradient (see transpacificRouteGradient/setTranspacificRouteProgress);
+ *  this is purely "is this route on screen at all right now." */
+function applyTranspacificOpacity(map: MapLibreMap, opacity: number) {
+  if (map.getLayer("transpacific-route")) map.setPaintProperty("transpacific-route", "line-opacity", opacity);
+  if (map.getLayer("transpacific-route-glow")) map.setPaintProperty("transpacific-route-glow", "line-opacity", opacity);
+  if (map.getLayer("transpacific-travel-dot")) map.setPaintProperty("transpacific-travel-dot", "circle-opacity", opacity);
+  if (map.getLayer("transpacific-travel-glow")) map.setPaintProperty("transpacific-travel-glow", "circle-opacity", opacity);
+}
+
+/** re-applies every pin layer's opacity expression at the current suppression level — called both
+ *  from the cross-ocean immersion setter (suppression itself changing) and the mobile-breakpoint
+ *  resize handler (isMobile changing), so the two never fight over which one "wins." */
+function applyPinSuppressionOpacities(map: MapLibreMap, isMobile: boolean, suppression: number) {
+  for (const group of PIN_LAYER_GROUPS) {
+    if (!map.getLayer(`${group.prefix}-label-title`)) continue;
+    map.setPaintProperty(`${group.prefix}-label-title`, "text-opacity", titleOpacityExpression(isMobile, suppression) as never);
+    map.setPaintProperty(`${group.prefix}-label-subtitle`, "text-opacity", subtitleOpacityExpression(isMobile, suppression) as never);
+    map.setPaintProperty(`${group.prefix}-icon-active`, "icon-opacity", withPinSuppression(["case", ["==", STATUS, "active"], 1, 0], suppression) as never);
+    map.setPaintProperty(
+      `${group.prefix}-icon-inactive`,
+      "icon-opacity",
+      withPinSuppression(["case", ["!=", STATUS, "active"], PIN_OPACITY, 0], suppression) as never
+    );
+    map.setPaintProperty(`${group.prefix}-number-active`, "text-opacity", withPinSuppression(["case", ["==", STATUS, "active"], 1, 0], suppression) as never);
+    map.setPaintProperty(
+      `${group.prefix}-number-inactive`,
+      "text-opacity",
+      withPinSuppression(["case", ["!=", STATUS, "active"], PIN_OPACITY, 0], suppression) as never
+    );
+  }
+}
+
+/** the same suppression weight also hides generic basemap text (country/city + water names) AND the
+ *  major-road network during the cross-ocean transition — "almost all normal labels should
+ *  disappear... the globe should feel clean," and a dense visible highway mesh reads just as
+ *  cluttered as text labels would at this zoom. Combined multiplicatively with the Earth-hero raster
+ *  crossfade's own vectorOpacity (see applyEarthRasterCrossfade) so the two independent fades never
+ *  clobber each other. */
+function applyBaseLabelSuppression(map: MapLibreMap, vectorOpacity: number, suppression: number) {
+  if (map.getLayer("place-label-major")) map.setPaintProperty("place-label-major", "text-opacity", vectorOpacity * (1 - suppression));
+  if (map.getLayer("water-label")) map.setPaintProperty("water-label", "text-opacity", 1 - suppression);
+  if (map.getLayer("road-major")) map.setPaintProperty("road-major", "line-opacity", vectorOpacity * (1 - suppression));
 }
 
 /**
@@ -189,44 +451,88 @@ function setupJourneyLayers(
   isMobile: boolean,
   onPinClickRef: React.MutableRefObject<(pinId: string) => void>,
   onPinHoverRef: React.MutableRefObject<(pinId: string | null) => void>,
-  hoveredPinRef: React.MutableRefObject<{ source: string; id: string } | null>
+  hoveredPinRef: React.MutableRefObject<{ source: string; id: number } | null>,
+  pinSuppression: number
 ) {
+  registerPinIcons(map);
   map.addSource("hanoi-route", { type: "geojson", data: hanoiRouteGeoJSON, lineMetrics: true });
   map.addSource("domestic-route", { type: "geojson", data: domesticRouteGeoJSON, lineMetrics: true });
-  map.addSource("transpacific-route", { type: "geojson", data: transpacificRouteGeoJSON });
+  map.addSource("transpacific-route", { type: "geojson", data: transpacificRouteGeoJSON, lineMetrics: true });
 
   for (const [id, source] of [
     ["hanoi-route", "hanoi-route"],
     ["domestic-route", "domestic-route"],
   ] as const) {
-    // Flat/constant — doesn't itself track progress; the core line below carries the
-    // future/completed/current distinction via its gradient. Opacity bumped .14 -> .17 (~20%
-    // stronger, map-hierarchy polish) so the route reads as the second-strongest element behind the
-    // active pin without tipping into neon.
+    // Editorial-cartography 2-layer route system — ONE subtle glow underneath + a thin core line,
+    // BOTH gradient-driven per-segment (completed/current/future) so only the CURRENT segment ever
+    // clearly glows/reads purple — "selective glow," not a uniformly-lit road. Each layer's own
+    // line-opacity is also given a short built-in transition so setRouteEmphasis's chapter-complete
+    // dim ("route remains visible but faded") crossfades instead of snapping.
     map.addLayer({
       id: `${id}-glow`,
       type: "line",
       source,
       layout: { "line-cap": "round", "line-join": "round" },
-      paint: { "line-color": "#8E6BFF", "line-width": 10, "line-blur": 3, "line-opacity": 0.17 },
+      paint: {
+        "line-width": 6,
+        "line-blur": 4,
+        "line-gradient": INITIAL_DIM_GLOW_GRADIENT as never,
+        "line-opacity": 1,
+        "line-opacity-transition": ROUTE_OPACITY_TRANSITION,
+      },
     });
     map.addLayer({
       id,
       type: "line",
       source,
       layout: { "line-cap": "round", "line-join": "round" },
-      paint: { "line-width": 2.8, "line-gradient": INITIAL_DIM_GRADIENT as never },
+      paint: {
+        "line-width": 1.6,
+        "line-gradient": INITIAL_DIM_GRADIENT as never,
+        "line-opacity": 1,
+        "line-opacity-transition": ROUTE_OPACITY_TRANSITION,
+      },
     });
   }
-  // trans-Pacific: visually distinct from the two local routes — thinner, no glow, broader arc,
-  // atmospheric (low fixed opacity rather than a progress gradient), only meaningfully visible
-  // during the transition/global stage (opacity driven imperatively — see setTranspacificRouteOpacity)
+  // trans-Pacific: a SHORT, progressively-drawn "comet trail" (see transpacificRouteGradient) —
+  // never the whole Hanoi->U.S. line at full brightness, never a giant static arc. Two layers
+  // (core + glow), same shape as the local routes, but its own dimmer opacity ratios and wider
+  // "current" band so it reads as "a subtle path being drawn around Earth," not an airline map.
+  map.addLayer({
+    id: "transpacific-route-glow",
+    type: "line",
+    source: "transpacific-route",
+    layout: { "line-cap": "round", "line-join": "round" },
+    paint: {
+      "line-width": 4,
+      "line-blur": 3,
+      "line-gradient": INITIAL_TRANSPACIFIC_GLOW_GRADIENT as never,
+      "line-opacity": 0,
+    },
+  });
   map.addLayer({
     id: "transpacific-route",
     type: "line",
     source: "transpacific-route",
     layout: { "line-cap": "round", "line-join": "round" },
-    paint: { "line-color": "#9B8BB5", "line-width": 1, "line-opacity": 0 },
+    paint: { "line-width": 1.4, "line-gradient": INITIAL_TRANSPACIFIC_GRADIENT as never, "line-opacity": 0 },
+  });
+
+  // the route's single moving travel point — a soft blurred halo underneath a small solid dot, no
+  // plane icon, no pulse/ring. Coordinates + opacity are both overwritten every scroll tick (see
+  // setTranspacificTravelPoint); this is just the initial seed state.
+  map.addSource("transpacific-travel-point", { type: "geojson", data: transpacificTravelPointGeoJSON });
+  map.addLayer({
+    id: "transpacific-travel-glow",
+    type: "circle",
+    source: "transpacific-travel-point",
+    paint: { "circle-radius": 8, "circle-color": TRAVEL_POINT_GLOW_COLOR, "circle-blur": 1, "circle-opacity": 0 },
+  });
+  map.addLayer({
+    id: "transpacific-travel-dot",
+    type: "circle",
+    source: "transpacific-travel-point",
+    paint: { "circle-radius": 3, "circle-color": TRAVEL_POINT_COLOR, "circle-opacity": 0 },
   });
 
   // Earth-hero-stage "glowing Hanoi" marker — visible only while zoomed out near the globe, before
@@ -273,8 +579,61 @@ function setupJourneyLayers(
       "text-ignore-placement": true,
     },
     paint: {
-      "text-color": theme === "dark" ? "#F4F1FB" : "#121A33",
-      "text-halo-color": theme === "dark" ? "#121A33" : "#F7F3FA",
+      // "important labels such as Hanoi": rgba(235,232,244,.52) baked into the color itself, so it
+      // reads correctly even before the per-tick text-opacity multiplier (applyHanoiAnchorOpacity)
+      // reaches 1.
+      "text-color": theme === "dark" ? "rgba(235,232,244,0.52)" : "#121A33",
+      "text-halo-color": theme === "dark" ? "#0C1228" : "#F7F3FA",
+      "text-halo-width": 1.4,
+      "text-opacity": 0,
+    },
+  });
+
+  // the cross-ocean transition's own single "United States" arrival marker — identical shape and
+  // treatment to the Hanoi anchor above, just the departure/arrival pair (see
+  // setUsAnchorGlowOpacity). Same reasoning: one clean geographic pin + label, never the numbered
+  // Rivermont/Gainesville pins (hidden during this transition — see setCrossOceanImmersion).
+  map.addSource("us-anchor", { type: "geojson", data: usAnchorGeoJSON });
+  map.addLayer({
+    id: "us-anchor-glow",
+    type: "circle",
+    source: "us-anchor",
+    paint: { "circle-radius": 15, "circle-color": "#8E6BFF", "circle-blur": 1.2, "circle-opacity": 0 },
+  });
+  map.addLayer({
+    id: "us-anchor-ring",
+    type: "circle",
+    source: "us-anchor",
+    paint: {
+      "circle-radius": 8,
+      "circle-color": "transparent",
+      "circle-stroke-color": "#A98CFF",
+      "circle-stroke-width": 2,
+      "circle-stroke-opacity": 0,
+    },
+  });
+  map.addLayer({
+    id: "us-anchor-dot",
+    type: "circle",
+    source: "us-anchor",
+    paint: { "circle-radius": 4, "circle-color": "#F4F1FB", "circle-opacity": 0 },
+  });
+  map.addLayer({
+    id: "us-anchor-label",
+    type: "symbol",
+    source: "us-anchor",
+    layout: {
+      "text-field": ["get", "title"],
+      "text-font": ["Noto Sans Regular"],
+      "text-size": 13.5,
+      "text-anchor": "left",
+      "text-offset": [1.1, 0],
+      "text-allow-overlap": true,
+      "text-ignore-placement": true,
+    },
+    paint: {
+      "text-color": theme === "dark" ? "rgba(235,232,244,0.52)" : "#121A33",
+      "text-halo-color": theme === "dark" ? "#0C1228" : "#F7F3FA",
       "text-halo-width": 1.4,
       "text-opacity": 0,
     },
@@ -299,8 +658,9 @@ function setupJourneyLayers(
       "text-ignore-placement": true,
     },
     paint: {
-      "text-color": theme === "dark" ? "rgba(244,241,251,0.75)" : "rgba(18,26,51,0.75)",
-      "text-halo-color": theme === "dark" ? "#121A33" : "#F7F3FA",
+      // major heading, crisp near-white — not gray (global typography rule)
+      "text-color": theme === "dark" ? "rgba(244,241,248,0.88)" : "rgba(18,26,51,0.75)",
+      "text-halo-color": theme === "dark" ? "#0C1228" : "#F7F3FA",
       "text-halo-width": 1.6,
       "text-opacity": 0,
     },
@@ -329,7 +689,7 @@ function setupJourneyLayers(
         "text-color": "#F4F1FB",
         "text-halo-color": "#121A33",
         "text-halo-width": 1.4,
-        "text-opacity": titleOpacityExpression(isMobile) as never,
+        "text-opacity": titleOpacityExpression(isMobile, pinSuppression) as never,
       },
     });
     map.addLayer({
@@ -350,75 +710,92 @@ function setupJourneyLayers(
         "text-color": "rgba(205,200,225,0.7)",
         "text-halo-color": "#121A33",
         "text-halo-width": 1.4,
-        "text-opacity": subtitleOpacityExpression(isMobile) as never,
+        "text-opacity": subtitleOpacityExpression(isMobile, pinSuppression) as never,
       },
     });
 
+    // The teardrop silhouette — icon-anchor "bottom" so the tail's actual point (not a circle's
+    // center) sits on the feature's geographic coordinate, like a real map pin. Halo is baked into
+    // the "active" icon image itself (see drawPinIcon), so it only ever appears behind the
+    // circular top, never the tail. icon-image can't be a feature-state expression either (same
+    // layout-vs-paint restriction as text-offset below) — split by status, same pattern.
     map.addLayer({
-      id: `${group.prefix}-glow`,
-      type: "circle",
+      id: `${group.prefix}-icon-active`,
+      type: "symbol",
       source: group.source,
-      paint: {
-        "circle-radius": PIN_GLOW_RADIUS as never,
-        "circle-color": "#8E6BFF",
-        "circle-blur": 1,
-        "circle-opacity": PIN_GLOW_OPACITY as never,
-      },
+      layout: { "icon-image": "journey-pin-active", "icon-anchor": "bottom", "icon-allow-overlap": true, "icon-ignore-placement": true },
+      paint: { "icon-opacity": withPinSuppression(["case", ["==", STATUS, "active"], 1, 0], pinSuppression) as never },
+    });
+    map.addLayer({
+      id: `${group.prefix}-icon-inactive`,
+      type: "symbol",
+      source: group.source,
+      layout: { "icon-image": "journey-pin-inactive", "icon-anchor": "bottom", "icon-allow-overlap": true, "icon-ignore-placement": true },
+      paint: { "icon-opacity": withPinSuppression(["case", ["!=", STATUS, "active"], PIN_OPACITY, 0], pinSuppression) as never },
     });
 
-    // stroke-only ring — the ONLY visible edge for future pins (transparent fill below); switched
-    // off for completed (plain filled dot, no ring)
+    // Number text-offset can't be a feature-state expression (text-offset is a layout, not paint,
+    // property — feature-state expressions are paint-only) — split into one layer per status
+    // instead, each with its own fixed offset centering it inside that status's own icon, matching
+    // title/subtitle's existing split-by-status pattern for the same underlying reason.
     map.addLayer({
-      id: `${group.prefix}-ring`,
-      type: "circle",
-      source: group.source,
-      paint: {
-        "circle-radius": PIN_RING_RADIUS as never,
-        "circle-color": "transparent",
-        "circle-stroke-color": PIN_RING_COLOR as never,
-        "circle-stroke-width": PIN_RING_STROKE_WIDTH as never,
-        "circle-stroke-opacity": PIN_RING_OPACITY as never,
-      },
-    });
-
-    map.addLayer({
-      id: `${group.prefix}-circle`,
-      type: "circle",
-      source: group.source,
-      paint: { "circle-radius": PIN_RADIUS as never, "circle-color": PIN_CIRCLE_COLOR as never },
-    });
-
-    map.addLayer({
-      id: `${group.prefix}-number`,
+      id: `${group.prefix}-number-active`,
       type: "symbol",
       source: group.source,
       layout: {
         "text-field": ["get", "numberLabel"],
         "text-font": ["Noto Sans Regular"],
-        "text-size": 11,
+        "text-size": PIN_NUMBER_SIZE,
+        "text-offset": [0, PIN_NUMBER_OFFSET_EM["journey-pin-active"] ?? -1.7],
         "text-allow-overlap": true,
         "text-ignore-placement": true,
       },
-      paint: { "text-color": PIN_NUMBER_COLOR },
+      paint: {
+        "text-color": "#FFFFFF",
+        "text-opacity": withPinSuppression(["case", ["==", STATUS, "active"], 1, 0], pinSuppression) as never,
+      },
+    });
+    map.addLayer({
+      id: `${group.prefix}-number-inactive`,
+      type: "symbol",
+      source: group.source,
+      layout: {
+        "text-field": ["get", "numberLabel"],
+        "text-font": ["Noto Sans Regular"],
+        "text-size": PIN_NUMBER_SIZE,
+        "text-offset": [0, PIN_NUMBER_OFFSET_EM["journey-pin-inactive"] ?? -1.4],
+        "text-allow-overlap": true,
+        "text-ignore-placement": true,
+      },
+      paint: {
+        "text-color": "rgba(235,230,245,0.76)",
+        "text-opacity": withPinSuppression(["case", ["!=", STATUS, "active"], PIN_OPACITY, 0], pinSuppression) as never,
+      },
     });
 
-    const circleLayerId = `${group.prefix}-circle`;
-    map.on("click", circleLayerId, (e) => {
+    // Only one of the two icon layers is ever actually visible for a given feature at a time
+    // (opacity is mutually exclusive by status), but both need the same click/hover wiring since
+    // either one might be the hit-tested layer.
+    const iconLayerIds = [`${group.prefix}-icon-active`, `${group.prefix}-icon-inactive`];
+    map.on("click", iconLayerIds, (e) => {
       const feature = e.features?.[0] as MapGeoJSONFeature | undefined;
       const id = feature?.properties?.id as string | undefined;
       if (id) onPinClickRef.current(id);
     });
-    map.on("mouseenter", circleLayerId, (e) => {
+    map.on("mouseenter", iconLayerIds, (e) => {
       map.getCanvas().style.cursor = "pointer";
       const feature = e.features?.[0] as MapGeoJSONFeature | undefined;
       const id = feature?.properties?.id as string | undefined;
-      if (!id) return;
+      // feature-state needs the feature's own (numeric) id, not properties.id — see
+      // journeyGeoData.ts's note on why a non-numeric string id silently fails to register
+      const featureId = feature?.id as number | undefined;
+      if (!id || featureId === undefined) return;
       if (hoveredPinRef.current) map.setFeatureState(hoveredPinRef.current, { hover: false });
-      hoveredPinRef.current = { source: group.source, id };
-      map.setFeatureState({ source: group.source, id }, { hover: true });
+      hoveredPinRef.current = { source: group.source, id: featureId };
+      map.setFeatureState({ source: group.source, id: featureId }, { hover: true });
       onPinHoverRef.current(id);
     });
-    map.on("mouseleave", circleLayerId, () => {
+    map.on("mouseleave", iconLayerIds, () => {
       map.getCanvas().style.cursor = "";
       if (hoveredPinRef.current) {
         map.setFeatureState(hoveredPinRef.current, { hover: false });
@@ -428,23 +805,7 @@ function setupJourneyLayers(
     });
   }
 
-  // Pin-01's "extremely subtle" overview hint — a slow, time-based pulse (not scroll-tick-driven,
-  // since the visitor may sit still reading the intro), started/stopped via
-  // setHanoiOverviewPulseActive. Filtered from the same hanoi-pins source rather than a new one —
-  // no new/fake geometry, just an extra decorative layer over the real Pin 01 feature.
-  map.addLayer({
-    id: "hanoi-pin-1-hint",
-    type: "circle",
-    source: "hanoi-pins",
-    filter: ["==", ["get", "id"], hanoiJourneyPins[0].id],
-    paint: { "circle-radius": 10, "circle-color": "#9B8BB5", "circle-blur": 1, "circle-opacity": 0 },
-  });
 }
-
-const PIN_1_HINT_MIN_RADIUS = 8;
-const PIN_1_HINT_MAX_RADIUS = 15;
-const PIN_1_HINT_MAX_OPACITY = 0.22;
-const PIN_1_HINT_PERIOD_MS = 2600;
 
 /**
  * The one persistent MapLibre instance for the whole biography journey — mounted once, for the
@@ -476,16 +837,26 @@ export function JourneyMapCanvas({
   onPinClickRef.current = onPinClick;
   const onPinHoverRef = useRef(onPinHover);
   onPinHoverRef.current = onPinHover;
-  const hoveredPinRef = useRef<{ source: string; id: string } | null>(null);
+  const hoveredPinRef = useRef<{ source: string; id: number } | null>(null);
   const isMobileRef = useRef(typeof window !== "undefined" && window.innerWidth < MOBILE_WIDTH_THRESHOLD);
   // last-known values, re-applied after every setupJourneyLayers call (including post-theme-swap
   // re-adds, which otherwise silently reset every pin/route to its default unstyled state)
   const pinStatusesRef = useRef(new Map<string, JourneyPinStatus>());
   const hanoiRouteProgressRef = useRef(0);
   const domesticRouteProgressRef = useRef(0);
+  // matches the style's own initial `projection: {type:"globe"}` — see setProjectionMode
+  const projectionModeRef = useRef<"globe" | "mercator">("globe");
   const transpacificOpacityRef = useRef(0);
+  const transpacificRouteProgressRef = useRef(0);
+  const travelPointCoordinateRef = useRef<[number, number]>([FLIGHT_ORIGIN.lon, FLIGHT_ORIGIN.lat]);
   const hanoiAnchorOpacityRef = useRef(0);
+  const usAnchorOpacityRef = useRef(0);
   const hanoiChapterLabelOpacityRef = useRef(0);
+  // vectorOpacity (Earth-hero raster crossfade) and the cross-ocean "clean globe" suppression both
+  // multiply the SAME basemap label layers — tracked separately so whichever setter fires last
+  // combines both instead of one clobbering the other (see applyBaseLabelSuppression).
+  const vectorOpacityRef = useRef(1);
+  const crossOceanSuppressionRef = useRef(0);
   // starts true (matching the raster layers' own initial "visible" layout default in mapStyle.ts)
   // so the very first setEarthRasterCrossfade call, if it happens to already be fully faded (e.g. a
   // mid-journey page refresh), correctly flips visibility off instead of a no-op "already false".
@@ -504,11 +875,6 @@ export function JourneyMapCanvas({
   // MapLibre's style-reevaluation cost on every single scroll tick regardless of whether anything
   // actually changed since the last one.
   const lastAppliedRasterRef = useRef<EarthRasterCrossfadeState | null>(null);
-  // Pin-01 hint pulse: a self-contained rAF loop, entirely separate from the scroll-progress
-  // pipeline (a visitor sitting still reading the intro still sees it breathe). Only ever running
-  // while GeographicJourney says the hanoi-overview stage is actually on screen.
-  const pulseRafRef = useRef<number | null>(null);
-  const pulseActiveRef = useRef(false);
 
   // Shared by the handle's setEarthRasterCrossfade (live scroll ticks) and applyPersistedState
   // (re-applying the last known state after a theme swap rebuilds the whole style) — see those two
@@ -535,10 +901,12 @@ export function JourneyMapCanvas({
       if (map.getLayer("earth-raster-night")) map.setLayoutProperty("earth-raster-night", "visibility", visibility);
     }
     const v = state.vectorOpacity;
+    vectorOpacityRef.current = v;
     if (map.getLayer("water")) map.setPaintProperty("water", "fill-opacity", v);
     if (map.getLayer("waterway")) map.setPaintProperty("waterway", "line-opacity", v);
-    if (map.getLayer("road-major")) map.setPaintProperty("road-major", "line-opacity", v);
-    if (map.getLayer("place-label-major")) map.setPaintProperty("place-label-major", "text-opacity", v);
+    // road-major/place-label-major/water-label all combine this raster crossfade's own vectorOpacity
+    // with the cross-ocean "clean globe" suppression in one place — see applyBaseLabelSuppression.
+    applyBaseLabelSuppression(map, v, crossOceanSuppressionRef.current);
     // boundary-country/state already carry their own zoom-based ramp (see mapStyle.ts's "tiny
     // outlined circles in the ocean" fix) — rebuilding the same zoom breakpoints scaled by v
     // preserves that fix while layering the raster crossfade on top, rather than one overwriting
@@ -552,56 +920,37 @@ export function JourneyMapCanvas({
   };
 
   const applyPersistedState = (map: MapLibreMap) => {
+    // A full style reload (theme swap) resets projection to the style JSON's own static default
+    // ("globe") regardless of where the journey actually is — re-apply unconditionally (not
+    // through the handle's own guarded setProjectionMode, whose ref already thinks it's correct).
+    map.setProjection({ type: projectionModeRef.current });
     for (const [pinId, status] of Array.from(pinStatusesRef.current.entries())) {
-      for (const group of PIN_LAYER_GROUPS) {
-        if (group.data.features.some((f) => f.id === pinId)) {
-          map.setFeatureState({ source: group.source, id: pinId }, { status });
-        }
-      }
+      const ref = PIN_FEATURE_REF_BY_ID.get(pinId);
+      if (ref) map.setFeatureState(ref, { status });
     }
     map.setPaintProperty("hanoi-route", "line-gradient", routeGradient(hanoiRouteProgressRef.current) as never);
+    map.setPaintProperty("hanoi-route-glow", "line-gradient", routeGlowGradient(hanoiRouteProgressRef.current) as never);
     map.setPaintProperty("domestic-route", "line-gradient", routeGradient(domesticRouteProgressRef.current) as never);
-    map.setPaintProperty("transpacific-route", "line-opacity", transpacificOpacityRef.current * 0.55);
+    map.setPaintProperty(
+      "domestic-route-glow",
+      "line-gradient",
+      routeGlowGradient(domesticRouteProgressRef.current) as never
+    );
+    map.setPaintProperty("transpacific-route", "line-gradient", transpacificRouteGradient(transpacificRouteProgressRef.current) as never);
+    map.setPaintProperty("transpacific-route-glow", "line-gradient", transpacificRouteGlowGradient(transpacificRouteProgressRef.current) as never);
+    applyTranspacificOpacity(map, transpacificOpacityRef.current);
+    if (map.getSource("transpacific-travel-point")) {
+      (map.getSource("transpacific-travel-point") as GeoJSONSource).setData({
+        type: "Feature",
+        properties: {},
+        geometry: { type: "Point", coordinates: travelPointCoordinateRef.current },
+      });
+    }
     applyHanoiAnchorOpacity(map, hanoiAnchorOpacityRef.current);
+    applyUsAnchorOpacity(map, usAnchorOpacityRef.current);
     applyHanoiChapterLabelOpacity(map, hanoiChapterLabelOpacityRef.current);
+    applyPinSuppressionOpacities(map, isMobileRef.current, crossOceanSuppressionRef.current);
     applyEarthRasterCrossfade(map, lastEarthRasterStateRef.current);
-  };
-
-  const stopPulse = () => {
-    pulseActiveRef.current = false;
-    if (pulseRafRef.current !== null) {
-      cancelAnimationFrame(pulseRafRef.current);
-      pulseRafRef.current = null;
-    }
-    const m = mapRef.current;
-    if (m && m.getLayer("hanoi-pin-1-hint")) m.setPaintProperty("hanoi-pin-1-hint", "circle-opacity", 0);
-  };
-
-  const startPulse = () => {
-    if (pulseActiveRef.current) return;
-    pulseActiveRef.current = true;
-    if (reducedMotion) {
-      // static hint, no animation loop — matches this codebase's existing "skip the animated paint
-      // expression under reduced motion" convention for pin pulses
-      const m = mapRef.current;
-      if (m && m.getLayer("hanoi-pin-1-hint")) {
-        m.setPaintProperty("hanoi-pin-1-hint", "circle-radius", PIN_1_HINT_MIN_RADIUS);
-        m.setPaintProperty("hanoi-pin-1-hint", "circle-opacity", PIN_1_HINT_MAX_OPACITY * 0.6);
-      }
-      return;
-    }
-    const tick = (now: number) => {
-      if (!pulseActiveRef.current) return;
-      const m = mapRef.current;
-      if (m && m.getLayer("hanoi-pin-1-hint")) {
-        const phase = (now % PIN_1_HINT_PERIOD_MS) / PIN_1_HINT_PERIOD_MS; // 0..1
-        const wave = (Math.sin(phase * Math.PI * 2) + 1) / 2; // 0..1, smooth breathing
-        m.setPaintProperty("hanoi-pin-1-hint", "circle-radius", lerp(PIN_1_HINT_MIN_RADIUS, PIN_1_HINT_MAX_RADIUS, wave));
-        m.setPaintProperty("hanoi-pin-1-hint", "circle-opacity", lerp(0.06, PIN_1_HINT_MAX_OPACITY, 1 - wave));
-      }
-      pulseRafRef.current = requestAnimationFrame(tick);
-    };
-    pulseRafRef.current = requestAnimationFrame(tick);
   };
 
   useEffect(() => {
@@ -645,7 +994,7 @@ export function JourneyMapCanvas({
     // `.once`, not `.on` — the theme-swap effect below registers its own `.once("style.load", ...)`
     // for every later swap; a persistent listener here would double-run setup on every swap too.
     map.once("style.load", () => {
-      setupJourneyLayers(map, constructedThemeRef.current, isMobileRef.current, onPinClickRef, onPinHoverRef, hoveredPinRef);
+      setupJourneyLayers(map, constructedThemeRef.current, isMobileRef.current, onPinClickRef, onPinHoverRef, hoveredPinRef, crossOceanSuppressionRef.current);
       applyPersistedState(map);
     });
 
@@ -663,30 +1012,61 @@ export function JourneyMapCanvas({
         pinStatusesRef.current.set(pinId, status);
         const m = mapRef.current;
         if (!m) return;
-        for (const group of PIN_LAYER_GROUPS) {
-          if (!m.getSource(group.source)) continue;
-          if (group.data.features.some((f) => f.id === pinId)) {
-            m.setFeatureState({ source: group.source, id: pinId }, { status });
-          }
-        }
+        const ref = PIN_FEATURE_REF_BY_ID.get(pinId);
+        if (ref && m.getSource(ref.source)) m.setFeatureState(ref, { status });
       },
       setHanoiRouteProgress: (fraction) => {
         hanoiRouteProgressRef.current = fraction;
         const m = mapRef.current;
         if (!m || !m.getLayer("hanoi-route")) return;
         m.setPaintProperty("hanoi-route", "line-gradient", routeGradient(fraction) as never);
+        m.setPaintProperty("hanoi-route-glow", "line-gradient", routeGlowGradient(fraction) as never);
       },
       setDomesticRouteProgress: (fraction) => {
         domesticRouteProgressRef.current = fraction;
         const m = mapRef.current;
         if (!m || !m.getLayer("domestic-route")) return;
         m.setPaintProperty("domestic-route", "line-gradient", routeGradient(fraction) as never);
+        m.setPaintProperty("domestic-route-glow", "line-gradient", routeGlowGradient(fraction) as never);
+      },
+      setRouteEmphasis: (routeId, emphasis) => {
+        const layerId = routeId === "hanoi" ? "hanoi-route" : "domestic-route";
+        const m = mapRef.current;
+        if (!m || !m.getLayer(layerId)) return;
+        const e = Math.max(0, Math.min(1, emphasis));
+        m.setPaintProperty(layerId, "line-opacity", lerp(ROUTE_EMPHASIS_DIMMED_CORE_OPACITY, 1, e));
+        m.setPaintProperty(`${layerId}-glow`, "line-opacity", lerp(ROUTE_EMPHASIS_DIMMED_GLOW_OPACITY, 1, e));
       },
       setTranspacificRouteOpacity: (opacity) => {
         transpacificOpacityRef.current = opacity;
         const m = mapRef.current;
         if (!m || !m.getLayer("transpacific-route")) return;
-        m.setPaintProperty("transpacific-route", "line-opacity", opacity * 0.55);
+        applyTranspacificOpacity(m, opacity);
+      },
+      setTranspacificRouteProgress: (fraction) => {
+        transpacificRouteProgressRef.current = fraction;
+        const m = mapRef.current;
+        if (!m || !m.getLayer("transpacific-route")) return;
+        m.setPaintProperty("transpacific-route", "line-gradient", transpacificRouteGradient(fraction) as never);
+        m.setPaintProperty("transpacific-route-glow", "line-gradient", transpacificRouteGlowGradient(fraction) as never);
+      },
+      setTranspacificTravelPoint: (coordinate, opacity) => {
+        travelPointCoordinateRef.current = coordinate;
+        const m = mapRef.current;
+        if (!m) return;
+        const source = m.getSource("transpacific-travel-point") as GeoJSONSource | undefined;
+        if (source) source.setData({ type: "Feature", properties: {}, geometry: { type: "Point", coordinates: coordinate } });
+        if (m.getLayer("transpacific-travel-dot")) {
+          m.setPaintProperty("transpacific-travel-dot", "circle-opacity", opacity);
+          m.setPaintProperty("transpacific-travel-glow", "circle-opacity", opacity);
+        }
+      },
+      setCrossOceanImmersion: (weight) => {
+        crossOceanSuppressionRef.current = weight;
+        const m = mapRef.current;
+        if (!m) return;
+        applyPinSuppressionOpacities(m, isMobileRef.current, weight);
+        applyBaseLabelSuppression(m, vectorOpacityRef.current, weight);
       },
       setHanoiAnchorGlowOpacity: (opacity) => {
         hanoiAnchorOpacityRef.current = opacity;
@@ -694,20 +1074,47 @@ export function JourneyMapCanvas({
         if (!m) return;
         applyHanoiAnchorOpacity(m, opacity);
       },
+      setUsAnchorGlowOpacity: (opacity) => {
+        usAnchorOpacityRef.current = opacity;
+        const m = mapRef.current;
+        if (!m) return;
+        applyUsAnchorOpacity(m, opacity);
+      },
       setHanoiChapterLabelOpacity: (opacity) => {
         hanoiChapterLabelOpacityRef.current = opacity;
         const m = mapRef.current;
         if (!m) return;
         applyHanoiChapterLabelOpacity(m, opacity);
       },
-      setHanoiOverviewPulseActive: (active) => {
-        if (active) startPulse();
-        else stopPulse();
-      },
       setEarthRasterCrossfade: (rawState) => {
         const m = mapRef.current;
         if (!m) return;
         applyEarthRasterCrossfade(m, rawState);
+      },
+      getEarthGlowGeometry: () => {
+        const m = mapRef.current;
+        // Null once mercator has taken over — the atmosphere glow describes a sphere that, by this
+        // point, is no longer what's actually rendered.
+        if (!m || projectionModeRef.current !== "globe") return null;
+        const centerPx = m.project(m.getCenter());
+        // standard Mercator-tile-derived radius: the world's full circumference, in screen pixels
+        // at the current zoom, is 512 * 2^zoom; a sphere's radius is that circumference / 2π. Same
+        // formula MapLibre's own globe examples use to size a screen-space circle around the globe.
+        const worldSizePx = 512 * Math.pow(2, m.getZoom());
+        const radiusPx = worldSizePx / (2 * Math.PI);
+        return { xPx: centerPx.x, yPx: centerPx.y, diameterPx: radiusPx * 2 };
+      },
+      setProjectionMode: (mode) => {
+        const m = mapRef.current;
+        if (!m || projectionModeRef.current === mode) return;
+        // `setProjection` throws ("Style is not done loading") if called before the style has
+        // finished its initial load — a real crash caught earlier via a hard refresh, where the
+        // very first applyProgress replay can land before that. Deliberately does NOT update
+        // projectionModeRef here, so the next scroll tick's call retries — self-healing, same
+        // pattern this file already uses for the raster crossfade's own first-tick race.
+        if (!m.isStyleLoaded()) return;
+        projectionModeRef.current = mode;
+        m.setProjection({ type: mode });
       },
     };
     onReadyRef.current?.();
@@ -729,19 +1136,13 @@ export function JourneyMapCanvas({
       const nextIsMobile = window.innerWidth < MOBILE_WIDTH_THRESHOLD;
       if (nextIsMobile === isMobileRef.current) return;
       isMobileRef.current = nextIsMobile;
-      for (const group of PIN_LAYER_GROUPS) {
-        if (map.getLayer(`${group.prefix}-label-title`)) {
-          map.setPaintProperty(`${group.prefix}-label-title`, "text-opacity", titleOpacityExpression(nextIsMobile) as never);
-          map.setPaintProperty(`${group.prefix}-label-subtitle`, "text-opacity", subtitleOpacityExpression(nextIsMobile) as never);
-        }
-      }
+      applyPinSuppressionOpacities(map, nextIsMobile, crossOceanSuppressionRef.current);
     };
     window.addEventListener("resize", onMobileBreakpointResize);
 
     return () => {
       window.removeEventListener("resize", onCanvasResize);
       window.removeEventListener("resize", onMobileBreakpointResize);
-      stopPulse();
       handleRef.current = null;
       map.remove();
       mapRef.current = null;
@@ -765,7 +1166,7 @@ export function JourneyMapCanvas({
     // what was already cached from before the swap — the map itself was just reset underneath it.
     lastAppliedRasterRef.current = null;
     map.once("style.load", () => {
-      setupJourneyLayers(map, theme, isMobileRef.current, onPinClickRef, onPinHoverRef, hoveredPinRef);
+      setupJourneyLayers(map, theme, isMobileRef.current, onPinClickRef, onPinHoverRef, hoveredPinRef, crossOceanSuppressionRef.current);
       applyPersistedState(map);
       // same race as the initial mount (see the matching comment there): the rebuilt earth-day/
       // earth-night image-sourced layers aren't reliably queryable via getLayer() the instant

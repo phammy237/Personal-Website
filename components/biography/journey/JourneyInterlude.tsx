@@ -2,6 +2,7 @@
 import { useEffect, useRef } from "react";
 import { getStageById } from "@/lib/biography/journeyStages";
 import { stageWeight } from "@/lib/biography/journeyMotion";
+import { computeInterludeNowTextWeight, computeAcrossPacificLabelWeight } from "@/lib/biography/crossOceanCamera";
 import { applyStageWeightStyle } from "@/components/biography/journey/journeyPanelStyle";
 import { notYetInterludeCopy } from "@/data/hanoiJourney";
 
@@ -14,14 +15,17 @@ export type JourneyInterludeHandle = {
 // so two full-bleed centered text beats never linger visibly on top of each other.
 const EDGE_FADE = 0.006;
 const NOT_YET = getStageById("hanoi-interlude-not-yet");
-const NOW = getStageById("hanoi-interlude-now");
 
 /**
  * The between-chapters interlude — two beats sharing one minimal, cinematic, no-card shell:
  * "not yet" (hanoi-interlude-not-yet) crossfades into "now" (hanoi-interlude-now) as the camera
- * itself drifts wider (see journeyMapCamera.ts's Hanoi -> Vietnam -> regional-Asia sequence for
- * this same window). Only the second beat carries a CTA ("Cross the Ocean") — the first is purely
- * reflective, matching "keep this reflective, not resentful or dramatic."
+ * itself drifts wider (see journeyMapCamera.ts's Hanoi -> Vietnam sequence for this window). Only
+ * the second beat carries a CTA ("Cross the Ocean") — the first is purely reflective, matching
+ * "keep this reflective, not resentful or dramatic." The "now" beat's own copy is deliberately
+ * short-lived (see computeInterludeNowTextWeight) — it overlaps the start of the redesigned
+ * cross-ocean globe transition (crossOceanCamera.ts) and must be long gone before the globe starts
+ * rotating in earnest, not linger for its whole old stage window. A third, much smaller "Across the
+ * Pacific" label appears later, near arrival, as that same transition's only other copy.
  */
 export function JourneyInterlude({
   handleRef,
@@ -34,6 +38,7 @@ export function JourneyInterlude({
 }) {
   const notYetRef = useRef<HTMLDivElement | null>(null);
   const nowRef = useRef<HTMLDivElement | null>(null);
+  const acrossPacificRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const apply = (el: HTMLDivElement | null, weight: number) => {
@@ -43,7 +48,8 @@ export function JourneyInterlude({
     handleRef.current = {
       update: (progress) => {
         apply(notYetRef.current, stageWeight(progress, NOT_YET.start, NOT_YET.end, EDGE_FADE));
-        apply(nowRef.current, stageWeight(progress, NOW.start, NOW.end, EDGE_FADE));
+        apply(nowRef.current, computeInterludeNowTextWeight(progress));
+        apply(acrossPacificRef.current, computeAcrossPacificLabelWeight(progress));
       },
     };
     return () => {
@@ -55,36 +61,53 @@ export function JourneyInterlude({
     <>
       <div
         ref={notYetRef}
-        className="pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center gap-5 px-6 text-center opacity-0"
+        className="pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 px-6 text-center opacity-0 md:items-start md:px-[12%]"
       >
-        <p className="font-mono text-[11px] uppercase leading-relaxed tracking-[0.25em] text-accent dark:text-accent-lavender">
+        {/* "darken the map more than normal here" — a local overlay, not a second vignette system;
+            shares this block's own opacity fade automatically (no separate ref needed). */}
+        <div className="pointer-events-none absolute inset-0 -z-10 dark:bg-[rgba(4,7,20,0.22)]" aria-hidden="true" />
+        <p className="font-mono text-[10px] uppercase leading-relaxed tracking-[0.2em] text-accent dark:text-[#9480D8]">
           Between Chapters
         </p>
-        <h2 className="max-w-lg font-display text-4xl leading-[1.12] text-surface dark:text-white md:text-5xl">
+        <h2 className="max-w-[540px] font-display text-[44px] leading-[1.02] text-surface dark:text-[#F3F0F6] md:text-left md:text-[50px]">
           {notYetInterludeCopy.heading}
         </h2>
-        <p className="max-w-md font-body text-sm leading-relaxed text-muted dark:text-white/60">
+        <p className="max-w-[480px] font-body text-[16px] leading-relaxed text-muted dark:text-[rgba(226,224,235,0.70)] md:text-left">
           {notYetInterludeCopy.paragraph}
         </p>
       </div>
 
+      {/* Positioned low and left, never centered over Earth — this beat overlaps the cross-ocean
+          globe's own entry (see crossOceanCamera.ts), which needs the frame clear. */}
       <div
         ref={nowRef}
-        className="pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center gap-6 px-6 text-center opacity-0"
+        className="pointer-events-none absolute bottom-[14vh] left-[7vw] z-20 flex max-w-[420px] flex-col items-start gap-4 px-6 text-left opacity-0 md:bottom-[16vh] md:left-[8vw] md:px-0"
       >
-        <h2 className="max-w-lg font-display text-4xl leading-[1.12] text-surface dark:text-white md:text-5xl">
+        <p className="font-mono text-[10px] uppercase leading-relaxed tracking-[0.2em] text-accent dark:text-[#9480D8]">
+          Between Chapters
+        </p>
+        <h2 className="max-w-[440px] font-display text-[34px] leading-[1.05] text-surface dark:text-[#F3F0F6] md:text-[38px]">
           {notYetInterludeCopy.resolution}
         </h2>
         <button
           type="button"
           onClick={onCrossOcean}
-          className="group mt-2 flex w-fit items-center gap-3 font-mono text-xs uppercase tracking-[0.2em] text-surface transition-colors hover:text-accent dark:text-white/80 dark:hover:text-white"
+          className="group mt-1 flex w-fit items-center gap-2 font-mono text-[11px] uppercase tracking-[0.16em] text-surface transition-colors hover:text-accent dark:text-[#F3F0F6] dark:hover:text-[#A28BE8]"
         >
           {notYetInterludeCopy.cta}
-          <span className="flex h-8 w-8 items-center justify-center rounded-full border border-accent/50 transition-colors group-hover:border-accent dark:border-accent-lavender/50 dark:group-hover:border-accent-lavender">
-            →
-          </span>
+          <span aria-hidden="true">→</span>
         </button>
+      </div>
+
+      {/* The cross-ocean transition's only other copy — a tiny mono label near arrival, gone before
+          the real U.S. intro text takes over. No paragraph, no card. */}
+      <div
+        ref={acrossPacificRef}
+        className="pointer-events-none absolute bottom-[14vh] left-[7vw] z-20 opacity-0 md:bottom-[16vh] md:left-[8vw]"
+      >
+        <p className="font-mono text-[10px] uppercase leading-relaxed tracking-[0.2em] text-muted opacity-70 dark:text-[rgba(210,205,225,0.6)]">
+          Across the Pacific
+        </p>
       </div>
     </>
   );

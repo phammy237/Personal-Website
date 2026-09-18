@@ -65,30 +65,28 @@ export function JourneyChapterComplete({
   }, [handleRef, reducedMotion, stage.start, stage.end]);
 
   return (
+    // Quiet, lower-left editorial ending — deliberately NOT centered/full-bleed. "The point is the
+    // map remaining the dominant object," not a giant inspirational sentence taking over the frame.
     <div
       ref={rootRef}
-      className="pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center gap-6 px-6 text-center opacity-0"
+      className="pointer-events-none absolute left-[8%] bottom-[16%] z-20 flex max-w-[360px] flex-col items-start gap-3 opacity-0"
     >
-      <p className="font-mono text-[11px] uppercase leading-relaxed tracking-[0.25em] text-accent dark:text-accent-lavender">
-        {eyebrow}
-      </p>
-      <h2 className="max-w-xl font-display text-4xl leading-[1.1] text-surface dark:text-white md:text-5xl">{heading}</h2>
-      <p className="max-w-md font-body text-sm leading-relaxed text-muted dark:text-white/60">{paragraph}</p>
-      <div className="mt-2 flex flex-col items-center gap-4">
+      <p className="font-mono text-[10px] uppercase leading-relaxed tracking-[0.2em] text-accent dark:text-[#9480D8]">{eyebrow}</p>
+      <h2 className="font-display text-[40px] leading-[1.05] text-surface dark:text-[#F3F0F6] md:text-[46px]">{heading}</h2>
+      <p className="max-w-[320px] font-body text-[15px] leading-[1.55] text-muted dark:text-[rgba(226,224,235,0.70)]">{paragraph}</p>
+      <div className="mt-[10px] flex flex-col items-start gap-3">
         <button
           type="button"
           onClick={onPrimary}
-          className="group flex w-fit items-center gap-3 font-mono text-xs uppercase tracking-[0.2em] text-surface transition-colors hover:text-accent dark:text-white/80 dark:hover:text-white"
+          className="group flex w-fit items-center gap-2 font-mono text-[11px] uppercase tracking-[0.16em] text-surface transition-colors hover:text-accent dark:text-[#F3F0F6] dark:hover:text-[#A28BE8]"
         >
           {primaryLabel}
-          <span className="flex h-8 w-8 items-center justify-center rounded-full border border-accent/50 transition-colors group-hover:border-accent dark:border-accent-lavender/50 dark:group-hover:border-accent-lavender">
-            →
-          </span>
+          <span aria-hidden="true">→</span>
         </button>
         <button
           type="button"
           onClick={onSecondary}
-          className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted/60 transition-colors hover:text-muted dark:text-white/35 dark:hover:text-white/60"
+          className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted opacity-40 transition-opacity hover:opacity-70 dark:text-[rgba(210,205,225,0.6)]"
         >
           {secondaryLabel}
         </button>

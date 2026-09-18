@@ -22,39 +22,27 @@ export function JourneyProgressRail({ chapters, activeChapterId, activeChapterIn
       >
         {/* faint vertical connector spanning all four stops — sits behind the dots, not a card */}
         <div
-          className="pointer-events-none absolute right-[4px] top-3 bottom-3 w-px bg-[rgba(180,160,255,0.14)]"
+          className="pointer-events-none absolute right-[4px] top-3 bottom-3 w-px bg-[rgba(180,174,205,0.12)]"
           aria-hidden="true"
         />
-        {chapters.map((chapter, i) => {
+        {chapters.map((chapter) => {
           const isActive = chapter.id === activeChapterId;
-          const isCompleted = i < activeChapterIndex;
           return (
-            <button key={chapter.id} type="button" onClick={() => onNavigate(chapter.id)} aria-current={isActive ? "step" : undefined} className="group relative flex items-center gap-2.5">
+            <button
+              key={chapter.id}
+              type="button"
+              onClick={() => onNavigate(chapter.id)}
+              aria-current={isActive ? "step" : undefined}
+              className={`group relative flex items-center gap-2.5 transition-opacity ${isActive ? "opacity-85" : "opacity-[.28] hover:opacity-50"}`}
+            >
+              <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-surface dark:text-[#F3F0F6]">{chapter.label}</span>
               <span
-                className={`font-mono text-[10px] uppercase tracking-[0.14em] transition-colors ${
-                  isActive ? "text-[rgba(244,241,251,0.85)]" : "text-[rgba(205,200,225,0.32)] group-hover:text-[rgba(205,200,225,0.55)]"
+                className={`h-1.5 w-1.5 rounded-full transition-all ${
+                  isActive
+                    ? "bg-[#A28BE8] shadow-[0_0_6px_rgba(148,128,216,0.25)]"
+                    : "border border-[rgba(180,174,205,0.34)] bg-transparent group-hover:border-[#A28BE8]"
                 }`}
-              >
-                {chapter.label}
-              </span>
-              <span className="relative flex h-[18px] w-[18px] items-center justify-center">
-                {isActive && (
-                  <span
-                    className="absolute h-[18px] w-[18px] rounded-full bg-[rgba(199,186,255,0.28)]"
-                    style={{ filter: "blur(4px)" }}
-                    aria-hidden="true"
-                  />
-                )}
-                <span
-                  className={`relative rounded-full transition-all ${
-                    isActive
-                      ? "h-[11px] w-[11px] bg-[#C7BAFF]"
-                      : isCompleted
-                        ? "h-[7px] w-[7px] border border-[rgba(180,160,255,0.5)] bg-[rgba(142,107,255,0.35)]"
-                        : "h-[7px] w-[7px] border border-[rgba(180,160,255,0.4)] bg-transparent group-hover:border-[#A98CFF]"
-                  }`}
-                />
-              </span>
+              />
             </button>
           );
         })}

@@ -88,6 +88,10 @@ const RIVERMONT_COMPLETE_AT = RIVERMONT_STORY_EXIT_AT;
 
 const CAMERA_PULLBACK_AT = lerp(FLORIDA_FLIGHT.start, FLORIDA_FLIGHT.end, DEPARTURE_CAMERA_PULLBACK_FRACTION);
 
+// How far the domestic route must have drawn (computeUsRouteProgress) before Gainesville is
+// allowed to read as "active" — mirrors hanoiCamera.ts's own PIN_ACTIVATION_THRESHOLD.
+const PIN_ACTIVATION_THRESHOLD = 0.95;
+
 // --- domestic route: starts only once the pullback has visibly settled (never mid-camera-move,
 // i.e. never reads as a snap), finishes partway into gainesville-approach ---
 const ROUTE_START_BUFFER = 0.005;
@@ -95,11 +99,11 @@ const ROUTE_START_AT = CAMERA_PULLBACK_AT + ROUTE_START_BUFFER;
 const ROUTE_END_FRACTION = 0.5;
 const ROUTE_END_AT = lerp(GAINESVILLE_APPROACH.start, GAINESVILLE_APPROACH.end, ROUTE_END_FRACTION);
 
-// --- Gainesville approach camera: starts right as the route finishes, settles with enough of the
-// stage's own remainder left for a real story-entrance window ---
-const GAINESVILLE_CAMERA_START_AT = ROUTE_END_AT;
-const GAINESVILLE_CAMERA_END_FRACTION = 0.75;
-const GAINESVILLE_CAMERA_END_AT = lerp(GAINESVILLE_APPROACH.start, GAINESVILLE_APPROACH.end, GAINESVILLE_CAMERA_END_FRACTION);
+// --- Gainesville approach camera: pans across the SAME window the domestic route draws in (not
+// after it finishes — "camera should move WITH the route," never camera-then-line or line-then-
+// camera), settling exactly as the route completes and Gainesville activates. ---
+const GAINESVILLE_CAMERA_START_AT = ROUTE_START_AT;
+const GAINESVILLE_CAMERA_END_AT = ROUTE_END_AT;
 
 export type UsCameraFrame = {
   fromId: UsCameraTargetId;
@@ -130,11 +134,14 @@ export function computeUsCameraFrame(progress: number): UsCameraFrame {
     const t = smoothstep(clamp01((progress - FLORIDA_FLIGHT.start) / (CAMERA_PULLBACK_AT - FLORIDA_FLIGHT.start)));
     return { fromId: "rivermont", toId: "flight-overview", t };
   }
-  // holds at the flight overview through the domestic route
+  // brief hold at the flight overview (just the route's own start buffer) before the pan to
+  // Gainesville begins alongside the domestic route
   if (progress < GAINESVILLE_CAMERA_START_AT) {
     return { fromId: "flight-overview", toId: "flight-overview", t: 1 };
   }
   if (progress < GAINESVILLE_CAMERA_END_AT) {
+    // same window as computeUsRouteProgress below (ROUTE_START_AT..ROUTE_END_AT) — camera arrives
+    // exactly as the route finishes drawing, not before and not after
     const t = smoothstep(clamp01((progress - GAINESVILLE_CAMERA_START_AT) / (GAINESVILLE_CAMERA_END_AT - GAINESVILLE_CAMERA_START_AT)));
     return { fromId: "flight-overview", toId: "gainesville", t };
   }
@@ -213,10 +220,14 @@ export function deriveRivermontStatus(progress: number): JourneyPinStatus {
   return "completed";
 }
 
-/** Gainesville: upcoming until its own approach stage begins, active from then on — mirrors
- *  Rivermont's Phase 8 precedent of flipping active immediately at its approach stage's start. */
+/** Gainesville: upcoming until the domestic route has nearly finished drawing to it — "do not
+ *  activate the next pin while the line is only partway there." Used to flip active immediately at
+ *  its approach stage's start, before ROUTE_END_AT (route-drawing target, 50% into that same
+ *  stage) — a real instance of the same "pin activates before the route arrives" bug this pass
+ *  fixes for Hanoi, gated here on computeUsRouteProgress instead. */
 export function deriveGainesvilleStatus(progress: number): JourneyPinStatus {
-  return progress < GAINESVILLE_APPROACH.start ? "upcoming" : "active";
+  if (progress < GAINESVILLE_APPROACH.start) return "upcoming";
+  return computeUsRouteProgress(progress) >= PIN_ACTIVATION_THRESHOLD ? "active" : "upcoming";
 }
 
 export function toUsMapPinStatus(status: JourneyPinStatus): PinStatus {

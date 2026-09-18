@@ -36,19 +36,19 @@ export type USJourneyPin = {
 };
 
 export const usJourneyCopy = {
-  eyebrow: "Chapter 02 · Becoming",
+  eyebrow: "Chapter 02",
   heading: "United States",
   instruction: "Follow the main route or select a location.",
   body: "Two schools on opposite ends of the country, and the slow work of turning unfamiliar places into home.",
-  ctaLabel: "Start the chapter",
+  ctaLabel: "Explore chapter",
   secondaryCtaLabel: "Explore freely",
 };
 
 export const usCheckpointCopy = {
-  heading: "A bigger world, another home.",
-  paragraph:
-    "Rivermont taught me how to build community somewhere new. Gainesville has given me the space to keep becoming — and the story is still being written.",
-  continueCta: "Continue to today",
+  eyebrow: "02 / U.S. — Complete",
+  heading: "Another home.",
+  paragraph: "Rivermont taught me how to begin again. Gainesville became the place where I kept becoming.",
+  continueCta: "Continue",
   stayCta: "Explore the U.S. chapter again",
 };
 

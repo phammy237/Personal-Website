@@ -39,9 +39,10 @@ export type HanoiJourneyPin = {
 };
 
 export const hanoiCheckpointCopy = {
-  heading: "You've reached the end of Hanoi.",
-  paragraph: "This city gave me my roots, my curiosity, and the confidence to imagine a life beyond it.",
-  continueCta: "Continue to the next chapter",
+  eyebrow: "01 / Hanoi — Complete",
+  heading: "Roots.",
+  paragraph: "This city gave me the curiosity to imagine a life beyond it.",
+  continueCta: "Continue",
   stayCta: "Stay and explore Hanoi",
   skipCta: "Skip directly to the United States",
 };

@@ -29,48 +29,53 @@ type ThemeColors = {
   background: string;
   water: string;
   waterway: string;
+  waterLabel: string;
   boundaryCountry: string;
   boundaryState: string;
   roadMinor: string;
+  roadMedium: string;
   roadMajor: string;
-  label: string;
+  cityLabel: string;
+  majorGeoLabel: string;
   labelHalo: string;
   skyColor: string;
   horizonColor: string;
 };
 
-// Exact design-system palette (see lib/biography/journeyPalette.ts) — dark theme only, this is the
-// cinematic-atlas redesign's palette, not the site's shared brand tokens.
+// Exact design-system palette — editorial cartography / digital atlas pass (mockup-matched, not
+// the earlier cinematic-atlas palette, not the site's shared brand tokens).
 const DARK: ThemeColors = {
-  background: "#121A33",
-  water: "#0A1227",
-  waterway: "rgba(170,160,210,0.28)",
-  boundaryCountry: "rgba(170,160,210,0.35)",
-  boundaryState: "rgba(170,160,210,0.13)",
-  // ~17% quieter than before (map-hierarchy polish: "normal roads: background only") — ordinary
-  // streets should read as texture, not compete with the active pin/route while a story is open.
-  roadMinor: "rgba(190,185,220,0.10)",
-  roadMajor: "rgba(200,190,230,0.28)",
-  // "default map labels: opacity .20-.35 max" — curated named labels (Hồ Tây, Sông Hồng, etc.)
-  // get their own brighter, hand-placed layer; this is the baseline for everything else.
-  label: "rgba(238,236,246,0.32)",
-  labelHalo: "#121A33",
+  background: "#080D1B",
+  water: "#0A1020",
+  waterway: "rgba(170,175,200,0.12)",
+  waterLabel: "rgba(190,190,210,0.24)",
+  boundaryCountry: "rgba(160,160,180,0.10)",
+  boundaryState: "rgba(160,160,180,0.08)",
+  roadMinor: "rgba(170,170,195,0.10)",
+  roadMedium: "rgba(190,188,210,0.15)",
+  roadMajor: "rgba(210,205,225,0.23)",
+  cityLabel: "rgba(225,220,235,0.32)",
+  majorGeoLabel: "rgba(235,230,242,0.48)",
+  labelHalo: "#080D1B",
   // Deliberately darker than `background` — the globe's sphere and the void around it
   // (MapLibre's "sky" in globe projection) must never share a color, or the sphere's
   // edge disappears against it. See mapStyle.ts fog/sky regression notes.
-  skyColor: "#060910",
-  horizonColor: "#C7BAFF",
+  skyColor: "#03050D",
+  horizonColor: "#9480D8",
 };
 
 const LIGHT: ThemeColors = {
   background: "#F7F3FA",
   water: "#E4DDED",
   waterway: "rgba(91,58,142,0.25)",
+  waterLabel: "rgba(91,58,142,0.30)",
   boundaryCountry: "rgba(91,58,142,0.35)",
   boundaryState: "#E6E0EE",
   roadMinor: "#E6E0EE",
+  roadMedium: "rgba(91,58,142,0.16)",
   roadMajor: "rgba(91,58,142,0.28)",
-  label: "#676186",
+  cityLabel: "#676186",
+  majorGeoLabel: "#4A4468",
   labelHalo: "#F7F3FA",
   skyColor: "#DCD3EA",
   horizonColor: "#B9A8D6",
@@ -154,6 +159,22 @@ export function getJourneyMapStyle(theme: "light" | "dark"): StyleSpecification 
         paint: { "line-color": c.waterway, "line-width": 1, "line-opacity": 1 },
       },
       {
+        // named water bodies (seas/lakes/bays) — the generic OpenMapTiles "water_name" layer;
+        // Hanoi's own West Lake/Red River get their own brighter curated labels below, so this
+        // stays capped to a low maxzoom and never competes with those.
+        id: "water-label",
+        type: "symbol",
+        source: "openmaptiles",
+        "source-layer": "water_name",
+        maxzoom: 10,
+        layout: {
+          "text-field": ["get", "name"],
+          "text-font": ["Noto Sans Italic"],
+          "text-size": ["interpolate", ["linear"], ["zoom"], 2, 10, 8, 13],
+        },
+        paint: { "text-color": c.waterLabel, "text-halo-color": c.background, "text-halo-width": 1 },
+      },
+      {
         // admin_level=4 (state/province) boundaries. At globe/Pacific-crossing zoom, OpenMapTiles'
         // boundary polygons for small island nations/territories trace their full outline even
         // though the landmass itself is a handful of pixels — with no zoom floor, that reads as
@@ -194,15 +215,27 @@ export function getJourneyMapStyle(theme: "light" | "dark"): StyleSpecification 
         },
       },
       {
-        // "reduce minor road contrast" — a touch thinner/dimmer, and doesn't appear until genuinely
-        // zoomed into a pin (minzoom nudged 12→12.5), not while still panning around the overview
+        // Three-tier road hierarchy (cinematic-atlas spec): minor/medium/major, each its own
+        // filter+minzoom+width/color tier — "deliberate road texture," not a flat two-tone split.
         id: "road-minor",
         type: "line",
         source: "openmaptiles",
         "source-layer": "transportation",
-        filter: ["!", ["in", ["get", "class"], ["literal", ["motorway", "trunk", "primary"]]]],
+        filter: [
+          "!",
+          ["in", ["get", "class"], ["literal", ["motorway", "trunk", "primary", "secondary", "tertiary"]]],
+        ],
         minzoom: 12.5,
-        paint: { "line-color": c.roadMinor, "line-width": 0.6 },
+        paint: { "line-color": c.roadMinor, "line-width": 0.75 },
+      },
+      {
+        id: "road-medium",
+        type: "line",
+        source: "openmaptiles",
+        "source-layer": "transportation",
+        filter: ["in", ["get", "class"], ["literal", ["secondary", "tertiary"]]],
+        minzoom: 8,
+        paint: { "line-color": c.roadMedium, "line-width": ["interpolate", ["linear"], ["zoom"], 8, 1, 14, 1.25] },
       },
       {
         id: "road-major",
@@ -211,7 +244,11 @@ export function getJourneyMapStyle(theme: "light" | "dark"): StyleSpecification 
         "source-layer": "transportation",
         filter: ["in", ["get", "class"], ["literal", ["motorway", "trunk", "primary"]]],
         minzoom: 4,
-        paint: { "line-color": c.roadMajor, "line-width": 1.1, "line-opacity": 1 },
+        paint: {
+          "line-color": c.roadMajor,
+          "line-width": ["interpolate", ["linear"], ["zoom"], 4, 1.25, 14, 1.75],
+          "line-opacity": 1,
+        },
       },
       // Country/city labels for the globe/Vietnam-approach zooms — fades out (maxzoom) well before
       // Hanoi's own overview zoom (11.3), where the curated labels below take over instead of a
@@ -231,7 +268,12 @@ export function getJourneyMapStyle(theme: "light" | "dark"): StyleSpecification 
           "text-font": ["Noto Sans Regular"],
           "text-size": ["interpolate", ["linear"], ["zoom"], 2, 10, 12, 14],
         },
-        paint: { "text-color": c.label, "text-halo-color": c.labelHalo, "text-halo-width": 1.2, "text-opacity": 1 },
+        paint: {
+          "text-color": ["case", ["==", ["get", "class"], "country"], c.majorGeoLabel, c.cityLabel],
+          "text-halo-color": c.labelHalo,
+          "text-halo-width": 1.2,
+          "text-opacity": 1,
+        },
       },
       // Curated Hanoi labels only — no generic town/POI/commercial labels at city scale. Named,
       // real OSM features (district place points + West Lake + the Red River), not fabricated
