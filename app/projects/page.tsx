@@ -83,7 +83,7 @@ const AWARD_BADGE: Record<string, string> = {
   "Best Finance Project": "bg-yellow-500/20 text-yellow-300 border-yellow-500/40",
   "3rd Place Overall": "bg-orange-500/20 text-orange-300 border-orange-500/40",
   "Top 20": "bg-blue-500/20 text-blue-300 border-blue-500/40",
-  "Outstanding Award": "bg-purple-500/20 text-purple-300 border-purple-500/40",
+  "Outstanding Award": "bg-[#7b2cbf]/20 text-[#c77dff] border-[#7b2cbf]/40",
 };
 
 const MODAL_TABS: { key: Tab; label: string }[] = [
@@ -248,7 +248,7 @@ function WorkCard({ project, onSelect }: { project: Project; onSelect: (p: Proje
     <motion.div className="relative flex-shrink-0 w-[220px] md:w-[260px]" onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
       <motion.div
         className="relative w-full aspect-video rounded-xl overflow-hidden cursor-pointer"
-        animate={{ scale: hovered ? 1.05 : 1 }}
+        animate={{ scale: hovered ? 1.015 : 1 }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
         onClick={() => onSelect(project, hasMedia ? "media" : "overview")}
       >

@@ -377,7 +377,7 @@ function InvCard({ inv, onSelect }: { inv: Involvement; onSelect: (inv: Involvem
     >
       <motion.div
         className="relative w-full aspect-video rounded-xl overflow-hidden cursor-pointer"
-        animate={{ scale: hovered ? 1.05 : 1 }}
+        animate={{ scale: hovered ? 1.015 : 1 }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
         onClick={() => onSelect(inv)}
       >
@@ -440,7 +440,7 @@ function InvHero({ onSelect }: { onSelect: (inv: Involvement) => void }) {
 
   return (
     <div
-      className="relative w-full h-[48vh] md:h-[62vh] overflow-hidden"
+      className="relative w-full h-[42vh] md:h-[52vh] overflow-hidden"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
