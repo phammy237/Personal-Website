@@ -1,6 +1,6 @@
 "use client";
 import { motion, useReducedMotion } from "framer-motion";
-import { notYetInterludeCopy } from "@/data/hanoiJourney";
+import { notYetInterludeCopy } from "@/data/biography/hanoiJourney";
 
 /** A handful of faint arcs that curve outward and stop short — repeated attempts that didn't land. */
 function AttemptArcs({ reducedMotion }: { reducedMotion: boolean }) {

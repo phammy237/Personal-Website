@@ -3,7 +3,7 @@ import { Component, type ReactNode, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { useReducedMotion } from "framer-motion";
 import type { FeatureCollection, Geometry } from "geojson";
-import type { GeoPoint } from "@/data/biography";
+import type { GeoPoint } from "@/data/biography/biography";
 import { AbstractGlobeFallback } from "@/components/biography/AbstractGlobeFallback";
 import type { GlobeMarker, GlobeViewState, SatelliteGlobeHandle, SatelliteGlobeProps } from "@/components/biography/SatelliteGlobeCanvas";
 

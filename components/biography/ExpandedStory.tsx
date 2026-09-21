@@ -2,7 +2,7 @@
 import { ModalShell } from "@/components/ui/ModalShell";
 import { ImagePlaceholder } from "@/components/biography/ImagePlaceholder";
 import { StorySection } from "@/components/biography/StorySection";
-import type { USJourneyPin } from "@/data/usJourney";
+import type { USJourneyPin } from "@/data/biography/usJourney";
 
 /**
  * Multi-section expanded photo story for a U.S. location — the richer,

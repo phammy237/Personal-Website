@@ -1,5 +1,5 @@
 import { geoInterpolate } from "d3-geo";
-import { usJourneyPins } from "@/data/usJourney";
+import { usJourneyPins } from "@/data/biography/usJourney";
 import { getStageById } from "@/lib/biography/journeyStages";
 import { clamp01, lerp, localProgress, rampDownTo, rampUpFrom, smoothstep } from "@/lib/biography/journeyMotion";
 import { toMapPinStatus, type JourneyPinStatus } from "@/lib/biography/hanoiCamera";

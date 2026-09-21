@@ -2,8 +2,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { computeHanoiCameraFrame, deriveStoryWeights } from "@/lib/biography/hanoiCamera";
 import { deriveRivermontStoryWeight, deriveGainesvilleStoryWeight, deriveUsMemoriesWeight } from "@/lib/biography/usCamera";
-import { hanoiJourneyPins } from "@/data/hanoiJourney";
-import { usJourneyPins, usMemoryMarkers } from "@/data/usJourney";
+import { hanoiJourneyPins } from "@/data/biography/hanoiJourney";
+import { usJourneyPins, usMemoryMarkers } from "@/data/biography/usJourney";
 import { JourneyPinStoryPanel } from "@/components/biography/journey/JourneyPinStoryPanel";
 import { JourneyUsStoryPanel } from "@/components/biography/journey/JourneyUsStoryPanel";
 import { JourneyUsMemoriesPanel } from "@/components/biography/journey/JourneyUsMemoriesPanel";

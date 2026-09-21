@@ -64,12 +64,12 @@ export type Chapter = {
 };
 
 const placeholderImages = [
-  "/headshot.jpg",
-  "/IMG_3794.JPG",
-  "/IMG_4610.JPG",
-  "/IMG_7605.JPG",
-  "/IMG_7729.JPG",
-  "/IMG_9501.JPG",
+  "/images/headshot.jpg",
+  "/images/IMG_3794.JPG",
+  "/images/IMG_4610.JPG",
+  "/images/IMG_7605.JPG",
+  "/images/IMG_7729.JPG",
+  "/images/IMG_9501.JPG",
 ];
 
 function placeholderPin(number: number, x: number, y: number, chapterLabel: string, geo?: GeoPoint): StoryPin {

@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { ModalShell } from "@/components/ui/ModalShell";
 import { ImagePlaceholder } from "@/components/biography/ImagePlaceholder";
-import type { HanoiJourneyPin } from "@/data/hanoiJourney";
+import type { HanoiJourneyPin } from "@/data/biography/hanoiJourney";
 
 const isVideo = (src: string) => /\.(mp4|webm|mov)$/i.test(src);
 

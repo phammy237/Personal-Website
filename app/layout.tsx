@@ -3,7 +3,7 @@ import dynamic from "next/dynamic";
 import { DM_Serif_Display, Inter, JetBrains_Mono, Roboto } from "next/font/google";
 import { CustomCursor } from "@/components/layout/CustomCursor";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
-import "@/styles/globals.css";
+import "./globals.css";
 
 const ChatBot = dynamic(() => import("@/components/ui/ChatBot").then((m) => m.ChatBot), { ssr: false });
 

@@ -3,7 +3,7 @@ import { startTransition, useCallback, useEffect, useMemo, useRef, useState } fr
 import { geoInterpolate, geoOrthographic, geoPath } from "d3-geo";
 import { useReducedMotion } from "framer-motion";
 import type { FeatureCollection, Geometry } from "geojson";
-import type { GeoPoint } from "@/data/biography";
+import type { GeoPoint } from "@/data/biography/biography";
 import { clamp01, smoothstep } from "@/lib/biography/journeyMotion";
 // type-only: erased at compile time, so this never pulls the three.js/@react-three WebGL bundle
 // into this fallback's chunk (GlobeHero already relies on the same type-only import pattern)

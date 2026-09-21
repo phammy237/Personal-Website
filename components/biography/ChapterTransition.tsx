@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useReducedMotion } from "framer-motion";
 import type { FeatureCollection, Geometry } from "geojson";
 import { GlobeHero } from "@/components/biography/GlobeHero";
-import { chapters, routeArc } from "@/data/biography";
+import { chapters, routeArc } from "@/data/biography/biography";
 
 const FROM = chapters[0]; // vietnam
 const TO = chapters[1]; // united-states

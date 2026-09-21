@@ -1,4 +1,4 @@
-import { chapters } from "@/data/biography";
+import { chapters } from "@/data/biography/biography";
 import { getStageById } from "@/lib/biography/journeyStages";
 import { clamp01, lerp, localProgress, rampDownTo, rampUpFrom, smoothstep, stageWeight } from "@/lib/biography/journeyMotion";
 import { GLOBE_DEFAULT_DISTANCE, GLOBE_ZOOMED_DISTANCE, type GlobeViewState } from "@/components/biography/SatelliteGlobeCanvas";

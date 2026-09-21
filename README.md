@@ -102,16 +102,23 @@ The design system focuses on:
 
 ```text
 .
-├── app/                    # Next.js routes and pages
-├── components/             # Shared UI components
-│   └── biography/
-│       └── journey/        # Interactive journey experience
-├── data/                   # Biography and journey content
+├── app/                     # Next.js routes and pages (incl. globals.css)
+├── components/
+│   ├── biography/
+│   │   └── journey/         # Interactive journey experience
+│   ├── layout/               # Navbar, Footer, theme provider
+│   └── ui/                   # Shared UI primitives
+├── data/
+│   └── biography/            # Hanoi/U.S. journey + biography content
 ├── lib/
-│   ├── biography/          # Journey themes and map utilities
-│   └── three/              # Geographic helpers
-├── public/                 # Images and static assets
-└── scripts/                # Validation and development utilities
+│   ├── biography/            # Journey themes and map/camera utilities
+│   └── three/                # Three.js-dependent geometry helpers
+├── public/
+│   ├── biography/             # Journey + globe imagery (Hanoi, U.S., Earth)
+│   ├── projects/               # Project screenshots
+│   ├── involvements/           # Involvement photos
+│   └── images/                 # General site photos
+└── scripts/                    # Validation and development utilities
 ```
 
 ## Interactive Journey Architecture

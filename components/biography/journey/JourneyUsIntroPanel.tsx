@@ -4,7 +4,7 @@ import { getStageById } from "@/lib/biography/journeyStages";
 import { rampDownTo, rampUpFrom } from "@/lib/biography/journeyMotion";
 import { US_INTRO_TEXT_ENTER_WIDTH } from "@/lib/biography/crossOceanCamera";
 import { applyStageWeightStyle } from "@/components/biography/journey/journeyPanelStyle";
-import { usJourneyCopy } from "@/data/usJourney";
+import { usJourneyCopy } from "@/data/biography/usJourney";
 
 export type JourneyUsIntroPanelHandle = {
   /** ref-driven, safe to call every scroll tick — no React state involved */

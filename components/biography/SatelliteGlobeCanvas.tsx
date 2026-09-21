@@ -9,7 +9,7 @@ import { useEarthTextures } from "@/components/biography/earth/textures";
 import { latLonToVector3, quaternionFacingCamera } from "@/lib/three/latLon";
 import { findCountry } from "@/lib/hooks/useWorldTopology";
 import { clamp01, smoothstep } from "@/lib/biography/journeyMotion";
-import type { GeoPoint } from "@/data/biography";
+import type { GeoPoint } from "@/data/biography/biography";
 
 const RADIUS = 1;
 // fov=42° => half-fov≈21° => tan(21°)≈0.384; distance so the sphere fills ~78% of the frame height
