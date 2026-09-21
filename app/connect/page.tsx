@@ -121,6 +121,7 @@ export default function ConnectPage() {
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
   const [message, setMessage] = useState("");
+  const [website, setWebsite] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
   const selectedOpt = options.find((o) => o.title === selected)!;
@@ -137,6 +138,7 @@ export default function ConnectPage() {
         body: JSON.stringify({
           name,
           contact,
+          website,
           subject: selectedOpt.subject,
           message: `${selectedOpt.title} · ${selectedMode.title}\n\n${message}`,
         }),
@@ -318,12 +320,16 @@ export default function ConnectPage() {
                   className="overflow-hidden"
                 >
                   <form onSubmit={handleSend} className="mt-6 flex flex-col gap-4 rounded-2xl border border-border dark:border-white/10 bg-card dark:bg-white/5 p-6">
+                    <div className="hidden" aria-hidden="true">
+                      <label>Website<input name="website" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} /></label>
+                    </div>
                     <div className="flex flex-col sm:flex-row gap-4">
                       <input
                         type="text"
                         placeholder="Your name"
                         required
                         value={name}
+                        maxLength={100}
                         onChange={(e) => setName(e.target.value)}
                         className={`flex-1 ${fieldClass}`}
                       />
@@ -332,6 +338,7 @@ export default function ConnectPage() {
                         placeholder="Your email or phone number"
                         required
                         value={contact}
+                        maxLength={254}
                         onChange={(e) => setContact(e.target.value)}
                         className={`flex-1 ${fieldClass}`}
                       />
@@ -339,6 +346,7 @@ export default function ConnectPage() {
                     <textarea
                       placeholder="Tell me a bit about what you have in mind..."
                       value={message}
+                      maxLength={4800}
                       required
                       onChange={(e) => setMessage(e.target.value)}
                       rows={3}

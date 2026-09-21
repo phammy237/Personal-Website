@@ -19,14 +19,23 @@ export default function BiographyPage() {
   const countries = useWorldTopology();
   const [zoomingIntoVietnam, setZoomingIntoVietnam] = useState(false);
   const reducedMotion = !!useReducedMotion();
+  const beginTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => {
+    if (beginTimerRef.current !== null) clearTimeout(beginTimerRef.current);
+  }, []);
 
   const handleBeginJourney = () => {
+    if (beginTimerRef.current !== null || zoomingIntoVietnam) return;
     if (reducedMotion) {
       story.beginJourney();
       return;
     }
     setZoomingIntoVietnam(true);
-    setTimeout(() => story.beginJourney(), 1100);
+    beginTimerRef.current = setTimeout(() => {
+      beginTimerRef.current = null;
+      story.beginJourney();
+    }, 1100);
   };
 
   // Scrolling past the hero starts the same "begin in Vietnam" transition, exactly once — a
@@ -113,7 +122,11 @@ export default function BiographyPage() {
               className="mx-auto max-w-[1400px] py-6"
             >
               <button
-                onClick={story.back}
+                onClick={() => {
+                  setZoomingIntoVietnam(false);
+                  wheelTriggeredRef.current = false;
+                  story.back();
+                }}
                 className="mb-5 inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-wider text-muted transition-colors hover:text-accent dark:text-white/40 dark:hover:text-accent"
               >
                 ← Back to globe

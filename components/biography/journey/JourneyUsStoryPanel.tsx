@@ -42,7 +42,7 @@ export const JourneyUsStoryPanel = forwardRef<
         aria-label={`Preview: ${pin.preview.title}`}
         aria-hidden="true"
         style={{ opacity: 0, pointerEvents: "none" }}
-        className="relative flex max-h-[56vh] w-full flex-col overflow-y-auto overflow-x-hidden rounded-t-[28px] border-t border-r border-l border-[rgba(38,49,91,0.12)] bg-[#FBFAFD] shadow-[0_24px_64px_-20px_rgba(38,49,91,0.28)] dark:!rounded-none dark:!border-t dark:!border-r-0 dark:!border-b-0 dark:!border-l-0 dark:!border-[rgba(180,174,205,0.14)] dark:!bg-[rgba(8,13,27,0.94)] dark:!shadow-none md:fixed md:right-6 md:top-[96px] md:bottom-10 md:max-h-none md:w-[440px] md:min-w-[400px] md:max-w-[30vw] md:rounded-[28px] md:border-b dark:md:!right-0 dark:md:!top-[80px] dark:md:!bottom-6 dark:md:!border-t-0 dark:md:!border-r-0 dark:md:!border-b-0 dark:md:!border-l"
+        className="journey-preview-panel journey-scrollbar"
       >
         <JourneyPinPreviewCard
           number={pin.number}

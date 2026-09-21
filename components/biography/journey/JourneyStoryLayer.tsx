@@ -155,7 +155,8 @@ export function JourneyStoryLayer({
     const applyStoryWeight = (panelEl: HTMLDivElement | null, weight: number) => {
       if (!panelEl) return;
       const visible = weight > 0.5;
-      panelEl.style.opacity = String(weight);
+      // Only one readable card at a time, even when scrolling stops mid-transition.
+      panelEl.style.opacity = visible ? "1" : "0";
       panelEl.style.transform = reducedMotion ? "none" : `translateY(${(1 - weight) * STORY_SLIDE_PX}px)`;
       panelEl.style.pointerEvents = visible ? "auto" : "none";
       panelEl.setAttribute("aria-hidden", visible ? "false" : "true");

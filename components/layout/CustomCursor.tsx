@@ -6,6 +6,7 @@ export function CustomCursor() {
   const ringRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const hoveredRef = useRef(false);
   const pos = useRef({ x: -100, y: -100 });
   const ring = useRef({ x: -100, y: -100 });
   const raf = useRef<number>();
@@ -16,11 +17,16 @@ export function CustomCursor() {
 
     const onMove = (e: MouseEvent) => {
       pos.current = { x: e.clientX, y: e.clientY };
-      if (!visible) setVisible(true);
+      setVisible(true);
     };
 
-    const onEnter = () => setHovered(true);
-    const onLeave = () => setHovered(false);
+    const updateHover = (target: EventTarget | null) => {
+      const next = target instanceof Element && !!target.closest("a, button, [data-cursor-hover]");
+      hoveredRef.current = next;
+      setHovered(next);
+    };
+    const onOver = (e: MouseEvent) => updateHover(e.target);
+    const onOut = (e: MouseEvent) => updateHover(e.relatedTarget);
 
     const animate = () => {
       // Dot follows instantly
@@ -31,7 +37,7 @@ export function CustomCursor() {
       ring.current.x += (pos.current.x - ring.current.x) * 0.28;
       ring.current.y += (pos.current.y - ring.current.y) * 0.28;
       if (ringRef.current) {
-        const size = hovered ? 44 : 28;
+        const size = hoveredRef.current ? 44 : 28;
         ringRef.current.style.transform = `translate(${ring.current.x - size / 2}px, ${ring.current.y - size / 2}px)`;
       }
       raf.current = requestAnimationFrame(animate);
@@ -40,22 +46,16 @@ export function CustomCursor() {
     window.addEventListener("mousemove", onMove);
     raf.current = requestAnimationFrame(animate);
 
-    const addHoverListeners = () => {
-      document.querySelectorAll("a, button, [data-cursor-hover]").forEach((el) => {
-        el.addEventListener("mouseenter", onEnter);
-        el.addEventListener("mouseleave", onLeave);
-      });
-    };
-    addHoverListeners();
-    const observer = new MutationObserver(addHoverListeners);
-    observer.observe(document.body, { childList: true, subtree: true });
+    document.addEventListener("mouseover", onOver);
+    document.addEventListener("mouseout", onOut);
 
     return () => {
       window.removeEventListener("mousemove", onMove);
       if (raf.current) cancelAnimationFrame(raf.current);
-      observer.disconnect();
+      document.removeEventListener("mouseover", onOver);
+      document.removeEventListener("mouseout", onOut);
     };
-  }, [hovered, visible]);
+  }, []);
 
   if (typeof window !== "undefined" && !window.matchMedia("(pointer: fine)").matches) return null;
 

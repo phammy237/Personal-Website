@@ -34,7 +34,7 @@ const destinations = [
     num: "02",
     title: "Biography",
     desc: "My story, values, and the journey that shapes my work.",
-    href: "/biography",
+    href: "/biography/journey",
     image: "/biography-globe-preview.png",
   },
   {

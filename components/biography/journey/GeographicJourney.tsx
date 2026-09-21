@@ -467,6 +467,18 @@ export function GeographicJourney() {
           />
           <JourneyEarthGlow handleRef={earthGlowHandleRef} theme={theme} />
           <JourneyEdgeFade handleRef={edgeFadeHandleRef} theme={theme} />
+          {PIN_PREVIEW_STAGE_IDS.has(activeStage.id) && !isStoryModalOpen && (
+            <div className="journey-map-marginalia pointer-events-none" aria-hidden="true">
+              <div className="journey-map-caption">
+                <span className="mb-7 block font-mono text-[10px] tracking-[0.3em]">N<br />＋</span>
+                <p className="font-display text-xl">{activeStage.chapter === "hanoi" ? "HANOI" : "UNITED STATES"}</p>
+                <p className="mt-2 font-mono text-[9px] uppercase leading-relaxed tracking-[0.24em]">Places make<br />people</p>
+              </div>
+              <p className="journey-map-footnote font-mono text-[9px] uppercase leading-loose tracking-[0.2em]">
+                Same places.<br />A different me.
+              </p>
+            </div>
+          )}
           <JourneyStoryLayer
             handleRef={storyLayerHandleRef}
             reducedMotion={reducedMotion}
@@ -543,17 +555,11 @@ export function GeographicJourney() {
         </ul>
       </nav>
 
-      {/* Hides once the journey resolves into "Today & Ahead" — past that point there's no more
-          chapter to navigate to, and leaving it up would float the rail over the site's own
-          footer for the rest of the page. Also hides while the full story modal is open, during
-          the between-chapters interlude, and — since the story panel is now a full-height
-          right-edge column (see JourneyPinStoryPanel) rather than a narrower floating card — while
-          any story panel could be on screen, matching the mockup (no rail visible in story view)
-          and Skip Journey's own identical hide rule. Chapter-complete states stay visible. */}
+      {/* The floating preview leaves a dedicated right gutter for chapter navigation.
+          Hide the rail only during the modal, interludes, and the final Today section. */}
       {activeStage.id !== "today-ahead" &&
         !isStoryModalOpen &&
-        !INTERLUDE_STAGE_IDS.has(activeStage.id) &&
-        !PIN_PREVIEW_STAGE_IDS.has(activeStage.id) && (
+        !INTERLUDE_STAGE_IDS.has(activeStage.id) && (
         <JourneyProgressRail
           chapters={journeyChapters}
           activeChapterId={activeStage.chapter}

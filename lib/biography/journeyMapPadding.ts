@@ -28,24 +28,22 @@ const EARTH_PADDING_LEFT_FRACTION = 0.3;
 const EARTH_PADDING_RIGHT = 30; // clears the right-side chapter rail (now narrow, right-30px)
 const HANOI_INTRO_PADDING_LEFT = 380; // clears the left-column Hanoi intro panel (max-w-sm)
 const US_INTRO_PADDING_LEFT = 380; // clears JourneyUsIntroPanel — same left-column shell as Hanoi's
-// Clears the right-edge-attached story panel (see JourneyPinStoryPanel — 440px preferred,
-// clamped between a 400px min-width and a 30vw max-width, matching its own Tailwind classes
-// exactly) plus a fixed clearance buffer, so the reserved camera padding stays panel-width-aware
-// instead of a single hardcoded number. left/top/bottom bias the active pin to the spec's own
-// suggested composition — roughly 35-42% across, 48-58% down.
-const STORY_PANEL_MIN_WIDTH = 400;
-const STORY_PANEL_PREFERRED_WIDTH = 440;
+// Match the floating preview's responsive width and rail gutter in globals.css.
+const STORY_PANEL_MIN_WIDTH = 320;
+const STORY_PANEL_PREFERRED_WIDTH = 500;
 const STORY_PANEL_MAX_WIDTH_VW = 0.3;
-const STORY_PADDING_BUFFER = 80;
 const STORY_PADDING_LEFT = 70;
 const STORY_PADDING_TOP = 90;
 const STORY_PADDING_BOTTOM = 70;
 
-/** Mirrors the story panel's own `w-[440px] min-w-[400px] max-w-[30vw]` CSS resolution exactly —
- *  clamp to the max-width first, then floor at the min-width — so the camera reservation always
- *  matches what's actually rendered, on any viewport width. */
+/** Mirrors .journey-preview-panel's clamp(320px, 30vw, 500px). */
 function computeStoryPanelWidth(viewportWidth: number): number {
   return Math.max(STORY_PANEL_MIN_WIDTH, Math.min(STORY_PANEL_PREFERRED_WIDTH, viewportWidth * STORY_PANEL_MAX_WIDTH_VW));
+}
+
+function storyPanelClearance(viewportWidth: number): number {
+  // Matches .journey-preview-panel width and right inset, plus breathing room.
+  return computeStoryPanelWidth(viewportWidth) + Math.min(128, Math.max(80, viewportWidth * 0.076)) + 24;
 }
 
 /**
@@ -80,7 +78,7 @@ export function computeJourneyMapPadding(progress: number, isMobile: boolean, vi
 
   if (progress < HANOI_PIN_5.end) {
     const t = smoothstep(clamp01((progress - HANOI_OVERVIEW.end) / STORY_PADDING_RAMP));
-    const storyPaddingRight = computeStoryPanelWidth(viewportWidth) + STORY_PADDING_BUFFER;
+    const storyPaddingRight = storyPanelClearance(viewportWidth);
     return {
       left: STORY_PADDING_LEFT * t,
       top: STORY_PADDING_TOP * t,
@@ -93,7 +91,7 @@ export function computeJourneyMapPadding(progress: number, isMobile: boolean, vi
   // chapter-complete overlay (no card, full-width) gets the whole frame back.
   if (progress < HANOI_DEPARTURE.start) {
     const t = smoothstep(clamp01((progress - HANOI_PIN_5.end) / STORY_PADDING_RAMP));
-    const storyPaddingRight = computeStoryPanelWidth(viewportWidth) + STORY_PADDING_BUFFER;
+    const storyPaddingRight = storyPanelClearance(viewportWidth);
     const remaining = 1 - t;
     return {
       left: STORY_PADDING_LEFT * remaining,

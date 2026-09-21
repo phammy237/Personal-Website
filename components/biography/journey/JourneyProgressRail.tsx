@@ -18,11 +18,11 @@ export function JourneyProgressRail({ chapters, activeChapterId, activeChapterIn
     <>
       <nav
         aria-label="Journey chapters"
-        className="fixed right-[30px] top-[40vh] z-40 hidden flex-col items-end gap-6 md:flex"
+        className="journey-desktop-rail fixed z-40 hidden md:flex"
       >
         {/* faint vertical connector spanning all four stops — sits behind the dots, not a card */}
         <div
-          className="pointer-events-none absolute right-[4px] top-3 bottom-3 w-px bg-[rgba(38,49,91,0.14)] dark:bg-[rgba(180,174,205,0.12)]"
+          className="journey-rail-line"
           aria-hidden="true"
         />
         {chapters.map((chapter) => {
@@ -35,13 +35,13 @@ export function JourneyProgressRail({ chapters, activeChapterId, activeChapterIn
               aria-current={isActive ? "step" : undefined}
               // Active/inactive are told apart by color (dark ink + filled accent dot vs. muted gray
               // + hollow dot), not by opacity — "do not make inactive states almost invisible."
-              className="group relative flex items-center gap-2.5 transition-colors"
+              className="journey-rail-stop group relative flex flex-col-reverse items-center gap-3 transition-colors"
             >
               <span
-                className={`font-mono text-[10px] uppercase tracking-[0.14em] transition-colors ${
+                className={`font-mono text-[10px] uppercase leading-none tracking-[0.18em] transition-colors ${
                   isActive
-                    ? "text-[#1D2340] dark:text-[#F3F0F6]"
-                    : "text-[#7D84A3] group-hover:text-[#4F5778] dark:text-[rgba(243,240,246,0.5)] dark:group-hover:text-[#F3F0F6]"
+                    ? "text-[#1D2340] dark:text-[rgba(244,241,248,0.92)]"
+                    : "text-[rgba(79,87,120,0.42)] group-hover:text-[rgba(79,87,120,0.65)] dark:text-[rgba(205,200,224,0.40)] dark:group-hover:text-[rgba(205,200,224,0.65)]"
                 }`}
               >
                 {chapter.label}
@@ -49,8 +49,8 @@ export function JourneyProgressRail({ chapters, activeChapterId, activeChapterIn
               <span
                 className={`h-1.5 w-1.5 rounded-full transition-all ${
                   isActive
-                    ? "bg-[#7C6AF2] shadow-[0_0_6px_rgba(124,106,242,0.35)] dark:bg-[#A28BE8] dark:shadow-[0_0_6px_rgba(148,128,216,0.25)]"
-                    : "border border-[#B7AEF6] bg-transparent group-hover:border-[#7C6AF2] dark:border-[rgba(180,174,205,0.34)] dark:group-hover:border-[#A28BE8]"
+                    ? "bg-[#7C6AF2] shadow-[0_0_8px_rgba(124,106,242,0.28)] dark:bg-[#A58AFF] dark:shadow-[0_0_8px_rgba(165,138,255,0.45)]"
+                    : "border border-[rgba(90,95,130,0.24)] bg-transparent group-hover:border-[#7C6AF2] dark:border-[rgba(180,172,215,0.28)] dark:group-hover:border-[#A58AFF]"
                 }`}
               />
             </button>

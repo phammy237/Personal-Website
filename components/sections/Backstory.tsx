@@ -311,7 +311,7 @@ export function Backstory() {
 
             {/* Arrow links */}
             <div className="flex flex-wrap gap-6 mt-3">
-              <Link href="/biography" className="font-mono text-sm text-muted dark:text-white/50 hover:text-surface dark:hover:text-white transition-colors duration-200">
+              <Link href="/biography/journey" className="font-mono text-sm text-muted dark:text-white/50 hover:text-surface dark:hover:text-white transition-colors duration-200">
                 wanna learn more → biography
               </Link>
               <Link href="/connect" className="font-mono text-sm text-muted dark:text-white/50 hover:text-surface dark:hover:text-white transition-colors duration-200">

@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { JourneyMediaPlaceholder } from "@/components/biography/journey/JourneyMediaPlaceholder";
 
 /** One block of the Overview tab — an optional short mono/purple section label (e.g. a Rivermont/
@@ -149,7 +150,7 @@ export function JourneyStoryModal({
     };
   }, [open, onClose]);
 
-  if (!data) return null;
+  if (!data || typeof document === "undefined") return null;
   const gallery = data.gallery;
   const hasGallery = gallery.length > 0;
   const activeMedia = gallery[mediaIndex] ?? gallery[0];
@@ -163,8 +164,9 @@ export function JourneyStoryModal({
       ? "opacity-0 transition-opacity duration-[160ms]"
       : "opacity-100 transition-opacity duration-[220ms]";
 
-  return (
+  return createPortal(
     <div
+      ref={(node) => { if (node) node.inert = !open; }}
       aria-hidden={!open}
       className={`fixed inset-0 z-[100] flex items-center justify-center transition-opacity duration-200 ${
         open ? "opacity-100" : "pointer-events-none opacity-0"
@@ -416,6 +418,7 @@ export function JourneyStoryModal({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

@@ -20,6 +20,14 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Contact form configuration
+
+Set `RESEND_API_KEY`, `UPSTASH_REDIS_REST_URL`, and `UPSTASH_REDIS_REST_TOKEN` in the server environment. The Redis token needs permission to run EVAL, GET, INCR, EXPIRE, and TTL. See the [Upstash REST API setup](https://upstash.com/docs/redis/features/restapi). Never expose these secrets with a `NEXT_PUBLIC_` prefix.
+
+The contact endpoint reserves a shared quota before sending: at most 20 send attempts per hour across all callers and server instances. Failed email attempts also consume quota. This global ceiling cannot be bypassed by changing IP headers or contact details; it can temporarily block legitimate messages during abuse. A filled honeypot is silently discarded. Over-quota requests return 429 with Retry-After. Missing or unavailable Redis returns 503 without sending email in production. Development and tests use an in-memory quota when Redis is not configured.
+
+Request bodies are limited to 32 KiB; name/contact/subject/message limits are 100/254/200/5000 characters. Contact accepts email or phone text. Malformed JSON, non-string fields, blank required fields, and excessive lengths return 400.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
