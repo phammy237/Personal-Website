@@ -66,13 +66,13 @@ export function JourneyInterlude({
         {/* "darken the map more than normal here" — a local overlay, not a second vignette system;
             shares this block's own opacity fade automatically (no separate ref needed). */}
         <div className="pointer-events-none absolute inset-0 -z-10 dark:bg-[rgba(4,7,20,0.22)]" aria-hidden="true" />
-        <p className="font-mono text-[10px] uppercase leading-relaxed tracking-[0.2em] text-accent dark:text-[#9480D8]">
+        <p className="font-mono text-[10px] uppercase leading-relaxed tracking-[0.2em] text-[#7C6AF2] dark:text-[#9480D8]">
           Between Chapters
         </p>
-        <h2 className="max-w-[540px] font-display text-[44px] leading-[1.02] text-surface dark:text-[#F3F0F6] md:text-left md:text-[50px]">
+        <h2 className="max-w-[540px] font-display text-[44px] leading-[1.02] text-[#1D2340] dark:text-[#F3F0F6] md:text-left md:text-[50px]">
           {notYetInterludeCopy.heading}
         </h2>
-        <p className="max-w-[480px] font-body text-[16px] leading-relaxed text-muted dark:text-[rgba(226,224,235,0.70)] md:text-left">
+        <p className="max-w-[480px] font-body text-[16px] leading-relaxed text-[#4F5778] dark:text-[rgba(226,224,235,0.70)] md:text-left">
           {notYetInterludeCopy.paragraph}
         </p>
       </div>
@@ -83,16 +83,16 @@ export function JourneyInterlude({
         ref={nowRef}
         className="pointer-events-none absolute bottom-[14vh] left-[7vw] z-20 flex max-w-[420px] flex-col items-start gap-4 px-6 text-left opacity-0 md:bottom-[16vh] md:left-[8vw] md:px-0"
       >
-        <p className="font-mono text-[10px] uppercase leading-relaxed tracking-[0.2em] text-accent dark:text-[#9480D8]">
+        <p className="font-mono text-[10px] uppercase leading-relaxed tracking-[0.2em] text-[#7C6AF2] dark:text-[#9480D8]">
           Between Chapters
         </p>
-        <h2 className="max-w-[440px] font-display text-[34px] leading-[1.05] text-surface dark:text-[#F3F0F6] md:text-[38px]">
+        <h2 className="max-w-[440px] font-display text-[34px] leading-[1.05] text-[#1D2340] dark:text-[#F3F0F6] md:text-[38px]">
           {notYetInterludeCopy.resolution}
         </h2>
         <button
           type="button"
           onClick={onCrossOcean}
-          className="group mt-1 flex w-fit items-center gap-2 font-mono text-[11px] uppercase tracking-[0.16em] text-surface transition-colors hover:text-accent dark:text-[#F3F0F6] dark:hover:text-[#A28BE8]"
+          className="group mt-1 flex w-fit items-center gap-2 font-mono text-[11px] uppercase tracking-[0.16em] text-[#1D2340] transition-colors hover:text-[#7C6AF2] dark:text-[#F3F0F6] dark:hover:text-[#A28BE8]"
         >
           {notYetInterludeCopy.cta}
           <span aria-hidden="true">→</span>
@@ -105,7 +105,7 @@ export function JourneyInterlude({
         ref={acrossPacificRef}
         className="pointer-events-none absolute bottom-[14vh] left-[7vw] z-20 opacity-0 md:bottom-[16vh] md:left-[8vw]"
       >
-        <p className="font-mono text-[10px] uppercase leading-relaxed tracking-[0.2em] text-muted opacity-70 dark:text-[rgba(210,205,225,0.6)]">
+        <p className="font-mono text-[10px] uppercase leading-relaxed tracking-[0.2em] text-[#7D84A3] dark:text-[rgba(210,205,225,0.6)] dark:opacity-70">
           Across the Pacific
         </p>
       </div>

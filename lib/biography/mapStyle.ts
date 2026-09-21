@@ -88,6 +88,16 @@ export function getJourneyMapStyle(theme: "light" | "dark"): StyleSpecification 
         paint: { "raster-opacity": 0, "raster-fade-duration": 0 },
       },
       {
+        // OpenMapTiles' dedicated "park" layer (distinct from "landuse") — new; drawn under
+        // water/roads so it reads as a quiet green tint rather than competing with them. Invisible
+        // in dark mode (park === background there).
+        id: "landuse-park",
+        type: "fill",
+        source: "openmaptiles",
+        "source-layer": "park",
+        paint: { "fill-color": c.park, "fill-opacity": 1 },
+      },
+      {
         // fill-opacity defaults to 1 (fully vector) but is driven down to near-0 at Earth/globe
         // zoom by JourneyMapCanvas's raster crossfade, so the satellite ocean shows through cleanly
         // instead of the two coastlines competing — see earthRasterCrossfade.ts.

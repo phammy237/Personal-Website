@@ -63,31 +63,31 @@ export function JourneyHanoiIntroPanel({
           contrast for the text to read. */}
       <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 px-6 md:left-[5%] md:right-auto md:top-[45%] md:w-[360px] md:translate-y-0 md:px-0">
         <div className="flex flex-col gap-5">
-          <p className="font-mono text-[11px] uppercase leading-relaxed tracking-[0.24em] text-accent dark:text-[#9480D8]">
+          <p className="font-mono text-[11px] uppercase leading-relaxed tracking-[0.24em] text-[#7C6AF2] dark:text-[#9480D8]">
             {journeyHanoiIntroContent.eyebrow}
           </p>
-          <h2 className="font-display text-[54px] leading-[0.98] text-surface dark:text-[#F3F0F6] md:text-[58px]">
+          <h2 className="font-display text-[54px] leading-[0.98] text-[#1D2340] dark:text-[#F3F0F6] md:text-[58px]">
             {journeyHanoiIntroContent.heading}
           </h2>
-          <p className="max-w-[320px] font-body text-[16px] leading-[1.55] text-muted dark:text-[rgba(226,224,235,0.70)]">
+          <p className="max-w-[320px] font-body text-[16px] leading-[1.55] text-[#4F5778] dark:text-[rgba(226,224,235,0.70)]">
             {journeyHanoiIntroContent.body}
           </p>
           <div className="flex flex-col items-start gap-3">
             <button
               type="button"
               onClick={onStart}
-              className="group flex w-fit items-center gap-2 font-mono text-[11px] uppercase tracking-[0.16em] text-surface opacity-100 transition-colors hover:text-accent dark:text-[#F3F0F6] dark:hover:text-[#A28BE8]"
+              className="group flex w-fit items-center gap-2 font-mono text-[11px] uppercase tracking-[0.16em] text-[#1D2340] opacity-100 transition-colors hover:text-[#7C6AF2] dark:text-[#F3F0F6] dark:hover:text-[#A28BE8]"
             >
               {journeyHanoiIntroContent.ctaLabel}
-              <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[rgba(148,128,216,0.4)] transition-colors group-hover:border-[#A28BE8]">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[rgba(38,49,91,0.18)] transition-colors group-hover:border-[#7C6AF2] dark:border-[rgba(148,128,216,0.4)] dark:group-hover:border-[#A28BE8]">
                 →
               </span>
             </button>
-            {/* deliberately quiet — opacity .42, must not compete with the primary CTA above */}
+            {/* deliberately quiet, but still readable — never faded past legibility */}
             <button
               type="button"
               onClick={onSkip}
-              className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted opacity-[.42] transition-opacity hover:opacity-70 dark:text-[rgba(210,205,225,0.6)]"
+              className="font-mono text-[10px] uppercase tracking-[0.15em] text-[#7D84A3] transition-opacity hover:opacity-80 dark:text-[rgba(210,205,225,0.6)] dark:opacity-[.42] dark:hover:opacity-70"
             >
               Skip to next chapter
             </button>
@@ -95,7 +95,7 @@ export function JourneyHanoiIntroPanel({
               <button
                 type="button"
                 onClick={onReturnToSummary}
-                className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted opacity-[.42] transition-opacity hover:opacity-70 dark:text-[rgba(210,205,225,0.6)]"
+                className="font-mono text-[10px] uppercase tracking-[0.15em] text-[#7D84A3] transition-opacity hover:opacity-80 dark:text-[rgba(210,205,225,0.6)] dark:opacity-[.42] dark:hover:opacity-70"
               >
                 Back to chapter summary
               </button>
@@ -103,10 +103,40 @@ export function JourneyHanoiIntroPanel({
           </div>
         </div>
       </div>
-      {/* subtle coordinate line, bottom-left of the screen */}
-      <p className="absolute bottom-8 left-[5%] hidden font-mono text-[10px] tracking-[0.1em] text-[rgba(78,84,112,0.55)] dark:text-[rgba(210,205,225,0.42)] md:block">
+
+      {/* Compass + scale bar + coordinates, bottom-left — light mode only (a new addition, not part
+          of the original dark-mode composition, so it stays out of dark mode's rendered output). */}
+      <div className="absolute bottom-8 left-[5%] hidden flex-col gap-3 dark:!hidden md:flex">
+        <div className="flex items-center gap-1.5 text-[#5E678D]">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 2 L15 12 L12 22 L9 12 Z" fill="currentColor" opacity="0.75" />
+          </svg>
+          <span className="font-mono text-[10px] tracking-[0.1em]">N</span>
+        </div>
+        <div className="flex flex-col gap-1">
+          <div className="relative h-[7px] w-[120px] border-x border-t border-[rgba(38,49,91,0.35)]">
+            <div className="absolute left-1/2 top-0 h-full w-px bg-[rgba(38,49,91,0.35)]" />
+          </div>
+          <div className="flex w-[120px] justify-between font-mono text-[9px] tracking-[0.05em] text-[#7D84A3]">
+            <span>0</span>
+            <span>2</span>
+            <span>4 km</span>
+          </div>
+        </div>
+        <p className="font-mono text-[10px] tracking-[0.1em] text-[#7D84A3]">{journeyHanoiIntroContent.coordinates}</p>
+      </div>
+
+      {/* dark-mode coordinate line — unchanged from the original composition */}
+      <p className="absolute bottom-8 left-[5%] hidden font-mono text-[10px] tracking-[0.1em] text-[rgba(210,205,225,0.42)] dark:md:block">
         {journeyHanoiIntroContent.coordinates}
       </p>
+
+      {/* small italic caption, bottom-right — light mode only */}
+      <div className="absolute bottom-8 right-[5%] hidden text-right font-display italic text-[15px] leading-[1.4] text-[#4F5778] dark:!hidden md:block">
+        {journeyHanoiIntroContent.captionLines.map((line) => (
+          <p key={line}>{line}</p>
+        ))}
+      </div>
     </div>
   );
 }

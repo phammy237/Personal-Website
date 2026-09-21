@@ -70,30 +70,30 @@ export function JourneyUsIntroPanel({
     >
       {/* full-bleed map behind the copy — no dark panel/circular crop obscuring it */}
       <div className="flex flex-col gap-5">
-        <p className="font-mono text-[11px] uppercase leading-relaxed tracking-[0.24em] text-accent dark:text-[#9480D8]">
+        <p className="font-mono text-[11px] uppercase leading-relaxed tracking-[0.24em] text-[#7C6AF2] dark:text-[#9480D8]">
           {usJourneyCopy.eyebrow}
         </p>
-        <h2 className="font-display text-[54px] leading-[0.98] text-surface dark:text-[#F3F0F6] md:text-[58px]">
+        <h2 className="font-display text-[54px] leading-[0.98] text-[#1D2340] dark:text-[#F3F0F6] md:text-[58px]">
           {usJourneyCopy.heading}
         </h2>
-        <p className="max-w-[320px] font-body text-[16px] leading-[1.55] text-muted dark:text-[rgba(226,224,235,0.70)]">
+        <p className="max-w-[320px] font-body text-[16px] leading-[1.55] text-[#4F5778] dark:text-[rgba(226,224,235,0.70)]">
           {usJourneyCopy.body}
         </p>
         <div className="flex flex-col items-start gap-3">
           <button
             type="button"
             onClick={onStartChapter}
-            className="group flex w-fit items-center gap-2 font-mono text-[11px] uppercase tracking-[0.16em] text-surface opacity-100 transition-colors hover:text-accent dark:text-[#F3F0F6] dark:hover:text-[#A28BE8]"
+            className="group flex w-fit items-center gap-2 font-mono text-[11px] uppercase tracking-[0.16em] text-[#1D2340] opacity-100 transition-colors hover:text-[#7C6AF2] dark:text-[#F3F0F6] dark:hover:text-[#A28BE8]"
           >
             {usJourneyCopy.ctaLabel}
-            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[rgba(148,128,216,0.4)] transition-colors group-hover:border-[#A28BE8]">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[rgba(38,49,91,0.18)] transition-colors group-hover:border-[#7C6AF2] dark:border-[rgba(148,128,216,0.4)] dark:group-hover:border-[#A28BE8]">
               →
             </span>
           </button>
           <button
             type="button"
             onClick={onExploreFreely}
-            className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted opacity-[.42] transition-opacity hover:opacity-70 dark:text-[rgba(210,205,225,0.6)]"
+            className="font-mono text-[10px] uppercase tracking-[0.15em] text-[#7D84A3] transition-opacity hover:opacity-80 dark:text-[rgba(210,205,225,0.6)] dark:opacity-[.42] dark:hover:opacity-70"
           >
             {usJourneyCopy.secondaryCtaLabel}
           </button>
@@ -101,7 +101,7 @@ export function JourneyUsIntroPanel({
             <button
               type="button"
               onClick={onReturnToSummary}
-              className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted opacity-[.42] transition-opacity hover:opacity-70 dark:text-[rgba(210,205,225,0.6)]"
+              className="font-mono text-[10px] uppercase tracking-[0.15em] text-[#7D84A3] transition-opacity hover:opacity-80 dark:text-[rgba(210,205,225,0.6)] dark:opacity-[.42] dark:hover:opacity-70"
             >
               Back to chapter summary
             </button>

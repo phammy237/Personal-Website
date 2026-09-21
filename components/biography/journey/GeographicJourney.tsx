@@ -570,7 +570,7 @@ export function GeographicJourney() {
         <button
           type="button"
           onClick={scrollToTodaySection}
-          className="fixed right-4 top-[76px] z-[25] font-mono text-[10px] uppercase tracking-[0.14em] text-muted opacity-[.35] transition-opacity hover:opacity-70 dark:text-[#F3F0F6] md:right-8 md:top-[72px]"
+          className="fixed right-4 top-[76px] z-[25] font-mono text-[10px] uppercase tracking-[0.14em] text-[#7D84A3] transition-opacity hover:opacity-80 dark:text-[#F3F0F6] dark:opacity-[.35] dark:hover:opacity-70 md:right-8 md:top-[72px]"
         >
           Skip Journey
         </button>
@@ -583,23 +583,23 @@ export function GeographicJourney() {
       <section
         ref={todaySectionRef}
         aria-label="Today & Ahead"
-        className="relative z-10 min-h-screen overflow-hidden bg-base dark:bg-[#080D1B]"
+        className="relative z-10 min-h-screen overflow-hidden bg-[#F4F2F8] dark:bg-[#080D1B]"
       >
         <div className="absolute left-6 bottom-[15vh] flex w-[calc(100%-48px)] max-w-[520px] flex-col items-start gap-4 md:left-[clamp(72px,7vw,120px)] md:bottom-[16vh]">
-          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[rgba(78,84,112,0.72)] dark:text-[rgba(185,170,225,0.72)]">Today / 2026</p>
-          <h2 className="font-display text-[46px] leading-[1.05] text-surface dark:text-[#F3F0F6] md:text-[56px]">
+          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[#7D84A3] dark:text-[rgba(185,170,225,0.72)]">Today / 2026</p>
+          <h2 className="font-display text-[46px] leading-[1.05] text-[#1D2340] dark:text-[#F3F0F6] md:text-[56px]">
             Still becoming.
           </h2>
-          <p className="max-w-[470px] font-body text-[16px] leading-[1.6] text-muted dark:text-[rgba(226,224,235,0.70)]">
+          <p className="max-w-[470px] font-body text-[16px] leading-[1.6] text-[#4F5778] dark:text-[rgba(226,224,235,0.70)]">
             Hanoi, Rivermont, Gainesville — the map ends here for now. The rest is still being written.
           </p>
           <Link
             href="/connect"
-            className="mt-2 font-mono text-[11px] uppercase tracking-[0.16em] text-surface transition-colors hover:text-[#B09DF2] dark:text-[#F3F0F6]"
+            className="mt-2 font-mono text-[11px] uppercase tracking-[0.16em] text-[#1D2340] transition-colors hover:text-[#7C6AF2] dark:text-[#F3F0F6] dark:hover:text-[#B09DF2]"
           >
             Let&apos;s Connect →
           </Link>
-          <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.14em] text-muted opacity-[.28] dark:text-[rgba(210,205,225,0.6)]">
+          <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.14em] text-[#7D84A3] dark:text-[rgba(210,205,225,0.6)] dark:opacity-[.28]">
             More places · More people · More to come
           </p>
         </div>

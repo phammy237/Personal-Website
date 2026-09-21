@@ -71,14 +71,14 @@ export function JourneyChapterComplete({
       ref={rootRef}
       className="pointer-events-none absolute left-[8%] bottom-[16%] z-20 flex max-w-[360px] flex-col items-start gap-3 opacity-0"
     >
-      <p className="font-mono text-[10px] uppercase leading-relaxed tracking-[0.2em] text-accent dark:text-[#9480D8]">{eyebrow}</p>
-      <h2 className="font-display text-[40px] leading-[1.05] text-surface dark:text-[#F3F0F6] md:text-[46px]">{heading}</h2>
-      <p className="max-w-[320px] font-body text-[15px] leading-[1.55] text-muted dark:text-[rgba(226,224,235,0.70)]">{paragraph}</p>
+      <p className="font-mono text-[10px] uppercase leading-relaxed tracking-[0.2em] text-[#7C6AF2] dark:text-[#9480D8]">{eyebrow}</p>
+      <h2 className="font-display text-[40px] leading-[1.05] text-[#1D2340] dark:text-[#F3F0F6] md:text-[46px]">{heading}</h2>
+      <p className="max-w-[320px] font-body text-[15px] leading-[1.55] text-[#4F5778] dark:text-[rgba(226,224,235,0.70)]">{paragraph}</p>
       <div className="mt-[10px] flex flex-col items-start gap-3">
         <button
           type="button"
           onClick={onPrimary}
-          className="group flex w-fit items-center gap-2 font-mono text-[11px] uppercase tracking-[0.16em] text-surface transition-colors hover:text-accent dark:text-[#F3F0F6] dark:hover:text-[#A28BE8]"
+          className="group flex w-fit items-center gap-2 font-mono text-[11px] uppercase tracking-[0.16em] text-[#1D2340] transition-colors hover:text-[#7C6AF2] dark:text-[#F3F0F6] dark:hover:text-[#A28BE8]"
         >
           {primaryLabel}
           <span aria-hidden="true">→</span>
@@ -86,7 +86,7 @@ export function JourneyChapterComplete({
         <button
           type="button"
           onClick={onSecondary}
-          className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted opacity-40 transition-opacity hover:opacity-70 dark:text-[rgba(210,205,225,0.6)]"
+          className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#7D84A3] transition-opacity hover:opacity-80 dark:text-[rgba(210,205,225,0.6)] dark:opacity-40 dark:hover:opacity-70"
         >
           {secondaryLabel}
         </button>

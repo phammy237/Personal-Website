@@ -898,6 +898,7 @@ export function JourneyMapCanvas({
     vectorOpacityRef.current = v;
     if (map.getLayer("water")) map.setPaintProperty("water", "fill-opacity", v);
     if (map.getLayer("waterway")) map.setPaintProperty("waterway", "line-opacity", v);
+    if (map.getLayer("landuse-park")) map.setPaintProperty("landuse-park", "fill-opacity", v);
     // road-major/place-label-major/water-label all combine this raster crossfade's own vectorOpacity
     // with the cross-ocean "clean globe" suppression in one place — see applyBaseLabelSuppression.
     applyBaseLabelSuppression(map, v, crossOceanSuppressionRef.current);

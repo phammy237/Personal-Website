@@ -28,13 +28,13 @@ export const JourneyUsMemoriesPanel = forwardRef<HTMLDivElement, { markers: Memo
       >
         {markers.length === 0 ? (
           <div className="flex flex-col items-start gap-3">
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent dark:text-[#9480D8]">
+            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#7C6AF2] dark:text-[#9480D8]">
               {usMemoriesCopy.eyebrow}
             </p>
-            <h2 className="font-display text-[32px] leading-[1.05] text-surface dark:text-[#F3F0F6]">
+            <h2 className="font-display text-[32px] leading-[1.05] text-[#1D2340] dark:text-[#F3F0F6]">
               {usMemoriesCopy.heading}
             </h2>
-            <p className="max-w-[320px] font-body text-[15px] leading-[1.55] text-muted dark:text-[rgba(226,224,235,0.70)]">
+            <p className="max-w-[320px] font-body text-[15px] leading-[1.55] text-[#4F5778] dark:text-[rgba(226,224,235,0.70)]">
               {usMemoriesCopy.body}
             </p>
           </div>
@@ -48,14 +48,14 @@ export const JourneyUsMemoriesPanel = forwardRef<HTMLDivElement, { markers: Memo
                   </div>
                 )}
                 <div className="flex items-baseline gap-2">
-                  <p className="font-display text-[15px] text-surface dark:text-[#F3F0F6]">{marker.title}</p>
+                  <p className="font-display text-[15px] text-[#1D2340] dark:text-[#F3F0F6]">{marker.title}</p>
                   {marker.year && (
-                    <span className="font-mono text-[10px] uppercase tracking-wider text-accent/70 dark:text-[#9480D8]/70">
+                    <span className="font-mono text-[10px] uppercase tracking-wider text-[#7C6AF2]/70 dark:text-[#9480D8]/70">
                       {marker.year}
                     </span>
                   )}
                 </div>
-                <p className="mt-0.5 max-w-[320px] font-body text-[13px] leading-relaxed text-muted dark:text-[rgba(226,224,235,0.70)]">
+                <p className="mt-0.5 max-w-[320px] font-body text-[13px] leading-relaxed text-[#4F5778] dark:text-[rgba(226,224,235,0.70)]">
                   {marker.caption}
                 </p>
               </div>

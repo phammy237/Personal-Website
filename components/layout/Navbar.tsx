@@ -59,6 +59,9 @@ export function Navbar() {
   const isDark = (isHome && !scrolled) || (isJourneyPage && theme === "dark");
   const solidBg = scrolled && isHome;
   const lightText = isDark && !solidBg;
+  // Scopes the reference mockup's active-nav underline + rounded Connect button to the journey
+  // page's own light mode specifically — every other page/state keeps its existing nav exactly.
+  const isJourneyLight = isJourneyPage && theme === "light";
 
   return (
     <>
@@ -120,7 +123,13 @@ export function Navbar() {
             return (
               <Link key={label} href={href}
                 className={`font-mono text-xs tracking-wider uppercase transition-colors duration-200 hidden md:block ${
-                  isActive ? "text-accent" : lightText ? "text-white/70 hover:text-white" : "text-surface/80 dark:text-white/50 hover:text-surface dark:hover:text-white"
+                  isActive
+                    ? isJourneyLight
+                      ? "border-b-2 border-[#7C6AF2] pb-0.5 text-[#7C6AF2]"
+                      : "text-accent"
+                    : lightText
+                    ? "text-white/70 hover:text-white"
+                    : "text-surface/80 dark:text-white/50 hover:text-surface dark:hover:text-white"
                 }`}
               >
                 {label}
@@ -147,7 +156,9 @@ export function Navbar() {
           </button>
           <Link href="/connect"
             className={`font-mono text-xs border px-3 py-1.5 transition-colors duration-200 ${
-              lightText
+              isJourneyLight
+                ? "rounded-md border-[rgba(38,49,91,0.18)] bg-[#FBFAFD] text-[#1D2340] hover:border-[#7C6AF2] focus-visible:border-[#7C6AF2]"
+                : lightText
                 ? "border-white/30 text-white hover:bg-white hover:text-navy"
                 : "border-accent/40 text-accent hover:bg-accent hover:text-white"
             }`}
