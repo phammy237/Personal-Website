@@ -1,44 +1,189 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# My Pham — Personal Portfolio
 
-## Getting Started
+Personal portfolio and interactive biography built to showcase my work across product, software, data, research, and community leadership.
 
-First, run the development server:
+Live at **[mypham.space](https://mypham.space)**.
+
+## About
+
+This site is more than a traditional portfolio. It combines project case studies, professional experience, campus involvement, and an interactive geographic biography into one personal experience.
+
+The site follows my journey from **Hanoi, Vietnam**, to studying in the United States, while highlighting the projects and communities that have shaped my work.
+
+## Features
+
+### Interactive Biography
+
+A scroll-driven geographic journey built around an interactive globe and map.
+
+* Animated transition from a global view into Hanoi
+* Location-based story chapters from Vietnam and the United States
+* Interactive map pins with previews, photos, and full stories
+* Route animations and camera transitions
+* NASA Blue Marble and VIIRS Earth-at-Night imagery
+* Light and dark map themes
+* Reduced-motion support
+* Responsive layouts across desktop and mobile
+
+### Work & Projects
+
+A visual showcase of projects across software engineering, product, data science, and AI, including:
+
+* **Career OS** — job discovery, application management, resume tailoring, and safe browser autofill
+* **SmartPrep AI** — intelligent grocery, pantry, recipe, and meal-planning mobile app
+* **Kite** — healthcare workflow platform for nurses
+* **CartCoach** — browser extension designed to reduce impulse spending
+* **BiasLens** — interactive ML fairness analysis dashboard
+* Additional research, hackathon, and engineering projects
+
+### Experience & Involvement
+
+Sections covering:
+
+* Professional experience
+* Research
+* Product management
+* Student organizations
+* Hackathons
+* Leadership and community involvement
+
+The interface uses a media-library-inspired browsing experience while maintaining the site's purple visual identity.
+
+## Design
+
+The site uses a custom purple palette:
+
+```text
+#10002B
+#240046
+#3C096C
+#5A189A
+#7B2CBF
+#9D4EDD
+#C77DFF
+#E0AAFF
+```
+
+The design system focuses on:
+
+* Strong typography and visual hierarchy
+* Dark and light modes
+* Consistent spacing and component sizing
+* Motion used for storytelling rather than decoration
+* Purple gradients, soft glow effects, and layered depth
+* Accessible interactive states
+
+## Tech Stack
+
+### Frontend
+
+* Next.js
+* React
+* TypeScript
+* Tailwind CSS
+
+### Maps & Visualization
+
+* MapLibre GL JS
+* OpenFreeMap / OpenMapTiles
+* NASA Blue Marble imagery
+* VIIRS Earth-at-Night imagery
+* Custom geographic animation and camera utilities
+
+### Development
+
+* Git / GitHub
+* Vercel
+* ESLint
+* TypeScript
+* Responsive and reduced-motion testing
+
+## Project Structure
+
+```text
+.
+├── app/                    # Next.js routes and pages
+├── components/             # Shared UI components
+│   └── biography/
+│       └── journey/        # Interactive journey experience
+├── data/                   # Biography and journey content
+├── lib/
+│   ├── biography/          # Journey themes and map utilities
+│   └── three/              # Geographic helpers
+├── public/                 # Images and static assets
+└── scripts/                # Validation and development utilities
+```
+
+## Interactive Journey Architecture
+
+The biography experience uses one persistent geographic environment rather than switching between disconnected map implementations.
+
+Journey state controls:
+
+* camera position
+* zoom and pitch
+* active location
+* map labels
+* route visibility
+* pin state
+* raster imagery crossfades
+* story previews and modals
+* chapter transitions
+
+This allows the map itself to act as part of the narrative instead of simply serving as a background.
+
+## Local Development
+
+Clone the repository:
+
+```bash
+git clone <repository-url>
+cd <repository-name>
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Scripts
 
-## Contact form configuration
+Common commands:
 
-Set `RESEND_API_KEY`, `UPSTASH_REDIS_REST_URL`, and `UPSTASH_REDIS_REST_TOKEN` in the server environment. The Redis token needs permission to run EVAL, GET, INCR, EXPIRE, and TTL. See the [Upstash REST API setup](https://upstash.com/docs/redis/features/restapi). Never expose these secrets with a `NEXT_PUBLIC_` prefix.
+```bash
+npm run dev
+npm run build
+npm run lint
+```
 
-The contact endpoint reserves a shared quota before sending: at most 20 send attempts per hour across all callers and server instances. Failed email attempts also consume quota. This global ceiling cannot be bypassed by changing IP headers or contact details; it can temporarily block legitimate messages during abuse. A filled honeypot is silently discarded. Over-quota requests return 429 with Retry-After. Missing or unavailable Redis returns 503 without sending email in production. Development and tests use an in-memory quota when Redis is not configured.
+Additional project-specific validation scripts are available under `scripts/`.
 
-Request bodies are limited to 32 KiB; name/contact/subject/message limits are 100/254/200/5000 characters. Contact accepts email or phone text. Malformed JSON, non-string fields, blank required fields, and excessive lengths return 400.
+## Deployment
 
-## Learn More
+The site is deployed through **Vercel** and automatically updated from the production branch.
 
-To learn more about Next.js, take a look at the following resources:
+Production:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**[mypham.space](https://mypham.space)**
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Author
 
-## Deploy on Vercel
+**My Pham**
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Data Science student at the University of Florida working across product, software engineering, data, AI, and human-centered technology.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+* Portfolio: [mypham.space](https://mypham.space)
+* GitHub: [github.com/phammy237](https://github.com/phammy237)
