@@ -47,8 +47,8 @@ import { JourneyInterlude, type JourneyInterludeHandle } from "@/components/biog
 import { JourneyEarthGlow, type JourneyEarthGlowHandle } from "@/components/biography/journey/JourneyEarthGlow";
 import { JourneyEdgeFade, type JourneyEdgeFadeHandle } from "@/components/biography/journey/JourneyEdgeFade";
 import { rampDownTo, easeOutCubic, lerp, stageWeight } from "@/lib/biography/journeyMotion";
-import { hanoiJourneyPins, hanoiCheckpointCopy } from "@/data/hanoiJourney";
-import { usJourneyPins, usCheckpointCopy } from "@/data/usJourney";
+import { hanoiJourneyPins, hanoiCheckpointCopy } from "@/data/biography/hanoiJourney";
+import { usJourneyPins, usCheckpointCopy } from "@/data/biography/usJourney";
 
 const HERO_FADE_COMPLETE_AT = getStageById("hanoi-approach").start;
 // Begin Journey's landing target: just inside hanoi-overview (city-wide Hanoi framing, before any

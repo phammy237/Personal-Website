@@ -1,7 +1,7 @@
 "use client";
 import { forwardRef } from "react";
 import { StoryMedia } from "@/components/biography/StoryMedia";
-import { usMemoriesCopy, type MemoryMarker } from "@/data/usJourney";
+import { usMemoriesCopy, type MemoryMarker } from "@/data/biography/usJourney";
 
 /**
  * The us-memories overlay — not anchored to a numbered pin, so it's a lighter sibling of

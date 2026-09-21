@@ -4,7 +4,7 @@ import { getStageById } from "@/lib/biography/journeyStages";
 import { stageWeight } from "@/lib/biography/journeyMotion";
 import { computeInterludeNowTextWeight, computeAcrossPacificLabelWeight } from "@/lib/biography/crossOceanCamera";
 import { applyStageWeightStyle } from "@/components/biography/journey/journeyPanelStyle";
-import { notYetInterludeCopy } from "@/data/hanoiJourney";
+import { notYetInterludeCopy } from "@/data/biography/hanoiJourney";
 
 export type JourneyInterludeHandle = {
   /** ref-driven, safe to call every scroll tick — no React state involved */

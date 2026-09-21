@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { hanoiJourneyCopy, hanoiJourneyPins } from "@/data/hanoiJourney";
+import { hanoiJourneyCopy, hanoiJourneyPins } from "@/data/biography/hanoiJourney";
 import { useJourneyState } from "@/lib/hooks/useJourneyState";
 import { useHanoiMapProjection } from "@/lib/hooks/useHanoiMapProjection";
 import { HanoiMap } from "@/components/biography/HanoiMap";

@@ -9,9 +9,9 @@
  * Usage: npm run verify:biography-data
  */
 import assert from "node:assert/strict";
-import { hanoiJourneyPins } from "../data/hanoiJourney";
-import { usJourneyPins } from "../data/usJourney";
-import { chapters, routeArc } from "../data/biography";
+import { hanoiJourneyPins } from "../data/biography/hanoiJourney";
+import { usJourneyPins } from "../data/biography/usJourney";
+import { chapters, routeArc } from "../data/biography/biography";
 
 type Snapshot = { id: string; number: number; lat: number; lon: number };
 

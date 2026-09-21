@@ -1,6 +1,6 @@
 "use client";
 import { StoryMedia } from "@/components/biography/StoryMedia";
-import type { StorySection as StorySectionData } from "@/data/usJourney";
+import type { StorySection as StorySectionData } from "@/data/biography/usJourney";
 
 /**
  * One editorial "moment" inside a location's expanded story. `layoutVariant` is a pacing/emphasis

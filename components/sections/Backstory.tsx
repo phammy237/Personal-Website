@@ -50,12 +50,12 @@ const principles = [
 
 
 const photos = [
-  { src: "/headshot.jpg",    caption: "UF Data Science · Class of 2028" },
-  { src: "/IMG_3794.JPG",   caption: "" },
-  { src: "/IMG_4610.JPG",   caption: "" },
-  { src: "/IMG_7605.JPG",   caption: "" },
-  { src: "/IMG_7729.JPG",   caption: "" },
-  { src: "/IMG_9501.JPG",   caption: "" },
+  { src: "/images/headshot.jpg",    caption: "UF Data Science · Class of 2028" },
+  { src: "/images/IMG_3794.JPG",   caption: "" },
+  { src: "/images/IMG_4610.JPG",   caption: "" },
+  { src: "/images/IMG_7605.JPG",   caption: "" },
+  { src: "/images/IMG_7729.JPG",   caption: "" },
+  { src: "/images/IMG_9501.JPG",   caption: "" },
 ];
 
 function PhotoSlider() {

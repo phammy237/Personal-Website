@@ -1,5 +1,5 @@
-import { chapters, type GeoPoint } from "@/data/biography";
-import { usJourneyPins } from "@/data/usJourney";
+import { chapters, type GeoPoint } from "@/data/biography/biography";
+import { usJourneyPins } from "@/data/biography/usJourney";
 import { getStageById } from "@/lib/biography/journeyStages";
 import { clamp01, lerp, localProgress, rampDownTo, rampUpFrom, smoothstep } from "@/lib/biography/journeyMotion";
 import { slerpLatLon } from "@/lib/three/latLon";

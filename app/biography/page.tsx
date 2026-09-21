@@ -12,7 +12,7 @@ import { USJourneySection } from "@/components/biography/USJourneySection";
 import { JourneyTimelineRail, railIndexFor } from "@/components/biography/JourneyTimelineRail";
 import { useStoryState } from "@/lib/hooks/useStoryState";
 import { useWorldTopology } from "@/lib/hooks/useWorldTopology";
-import { heroCopy } from "@/data/biography";
+import { heroCopy } from "@/data/biography/biography";
 
 export default function BiographyPage() {
   const story = useStoryState();

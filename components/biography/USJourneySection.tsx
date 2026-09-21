@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { geoMercator } from "d3-geo";
 import { AnimatePresence, useReducedMotion } from "framer-motion";
 import type { FeatureCollection, Point } from "geojson";
-import { usJourneyCopy, usJourneyPins } from "@/data/usJourney";
+import { usJourneyCopy, usJourneyPins } from "@/data/biography/usJourney";
 import { useJourneyState } from "@/lib/hooks/useJourneyState";
 import { HanoiMap, HANOI_MAP_WIDTH, HANOI_MAP_HEIGHT, type ProjectedPin } from "@/components/biography/HanoiMap";
 import { PinPreviewCard } from "@/components/biography/PinPreviewCard";

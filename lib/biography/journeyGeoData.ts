@@ -1,8 +1,8 @@
 import { geoInterpolate } from "d3-geo";
 import type { Feature, FeatureCollection, LineString, Point } from "geojson";
-import { hanoiJourneyPins } from "@/data/hanoiJourney";
-import { usJourneyPins } from "@/data/usJourney";
-import { chapters } from "@/data/biography";
+import { hanoiJourneyPins } from "@/data/biography/hanoiJourney";
+import { usJourneyPins } from "@/data/biography/usJourney";
+import { chapters } from "@/data/biography/biography";
 import { DOMESTIC_ROUTE_WAYPOINTS } from "@/lib/biography/usCamera";
 import { FLIGHT_ORIGIN, FLIGHT_DESTINATION } from "@/lib/biography/transpacificCamera";
 import { HANOI_PRESET } from "@/lib/biography/mapCameraPresets";

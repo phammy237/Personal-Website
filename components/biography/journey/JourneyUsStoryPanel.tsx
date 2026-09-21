@@ -1,7 +1,7 @@
 "use client";
 import { forwardRef } from "react";
 import { JourneyPinPreviewCard } from "@/components/biography/journey/JourneyPinPreviewCard";
-import type { USJourneyPin } from "@/data/usJourney";
+import type { USJourneyPin } from "@/data/biography/usJourney";
 
 /**
  * One U.S. location's compact preview card — same shell/behavior as JourneyPinStoryPanel (Hanoi),

@@ -1,4 +1,4 @@
-import { hanoiJourneyPins } from "@/data/hanoiJourney";
+import { hanoiJourneyPins } from "@/data/biography/hanoiJourney";
 import { getStageAtProgress, getStageById } from "@/lib/biography/journeyStages";
 import { clamp01, lerp, localProgress, smoothstep } from "@/lib/biography/journeyMotion";
 import { HANOI_COMPLETE_SETTLE_FRACTION } from "@/lib/biography/journeyMapCamera";

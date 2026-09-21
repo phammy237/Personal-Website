@@ -1,6 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
-import { hanoiCheckpointCopy } from "@/data/hanoiJourney";
+import { hanoiCheckpointCopy } from "@/data/biography/hanoiJourney";
 
 export function ChapterCheckpoint({
   onContinue,

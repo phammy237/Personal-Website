@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { geoMercator, geoPath } from "d3-geo";
 import type { FeatureCollection, Geometry, Point } from "geojson";
-import type { Chapter, StoryPin } from "@/data/biography";
+import type { Chapter, StoryPin } from "@/data/biography/biography";
 import { MapPin, type PinStatus } from "@/components/biography/MapPin";
 import { RoutePath } from "@/components/biography/RoutePath";
 import { MapBackdrop } from "@/components/biography/MapBackdrop";

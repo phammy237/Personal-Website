@@ -3,11 +3,11 @@ import { useTexture } from "@react-three/drei";
 import { SRGBColorSpace, RepeatWrapping, type Texture } from "three";
 
 export const EARTH_TEXTURE_PATHS = {
-  day: "/textures/earth/earth_atmos_2048.webp",
-  night: "/textures/earth/earth_lights_2048.webp",
-  normal: "/textures/earth/earth_normal_2048.webp",
-  specular: "/textures/earth/earth_specular_2048.webp",
-  clouds: "/textures/earth/earth_clouds_1024.png",
+  day: "/biography/earth/earth_atmos_2048.webp",
+  night: "/biography/earth/earth_lights_2048.webp",
+  normal: "/biography/earth/earth_normal_2048.webp",
+  specular: "/biography/earth/earth_specular_2048.webp",
+  clouds: "/biography/earth/earth_clouds_1024.png",
 };
 
 /** the lighter set used on mobile/low-power devices — skips the (already-small) cloud layer */

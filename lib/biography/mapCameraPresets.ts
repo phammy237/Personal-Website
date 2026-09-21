@@ -1,6 +1,6 @@
-import { hanoiJourneyPins } from "@/data/hanoiJourney";
-import { usJourneyPins } from "@/data/usJourney";
-import { chapters } from "@/data/biography";
+import { hanoiJourneyPins } from "@/data/biography/hanoiJourney";
+import { usJourneyPins } from "@/data/biography/usJourney";
+import { chapters } from "@/data/biography/biography";
 
 /**
  * Single source of truth for every named camera position the journey's persistent MapLibre

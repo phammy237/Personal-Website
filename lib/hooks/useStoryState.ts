@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useReducer } from "react";
-import { chapters } from "@/data/biography";
+import { chapters } from "@/data/biography/biography";
 
 export type StoryStage =
   | "globe"

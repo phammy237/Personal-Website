@@ -35,7 +35,7 @@ const destinations = [
     title: "Biography",
     desc: "My story, values, and the journey that shapes my work.",
     href: "/biography/journey",
-    image: "/biography-globe-preview.png",
+    image: "/biography/biography-globe-preview.png",
   },
   {
     num: "03",
@@ -264,7 +264,7 @@ export function Hero() {
       <SideRail />
 
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[url('/headshot.jpg')] bg-cover bg-[center_31%] opacity-55 dark:opacity-30" />
+        <div className="absolute inset-0 bg-[url('/images/headshot.jpg')] bg-cover bg-[center_31%] opacity-55 dark:opacity-30" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_45%_42%,rgba(91,58,142,0.08),transparent_28%),linear-gradient(90deg,rgba(243,236,223,0.12)_0%,rgba(243,236,223,0.08)_40%,rgba(243,236,223,0.03)_65%,transparent_85%)] dark:bg-[radial-gradient(circle_at_45%_42%,rgba(91,58,142,0.08),transparent_28%),linear-gradient(90deg,rgba(24,35,63,0.1)_0%,rgba(24,35,63,0.08)_36%,rgba(24,35,63,0.06)_58%,rgba(24,35,63,0.1)_100%)]" />
         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t dark:from-[#18233F] dark:via-[#18233F]/88 dark:to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#F7F3FA] to-transparent dark:hidden" />

@@ -1,7 +1,7 @@
 "use client";
 import { forwardRef } from "react";
 import { JourneyPinPreviewCard } from "@/components/biography/journey/JourneyPinPreviewCard";
-import type { HanoiJourneyPin } from "@/data/hanoiJourney";
+import type { HanoiJourneyPin } from "@/data/biography/hanoiJourney";
 
 /**
  * One Hanoi pin's compact preview card — small, map-first, a teaser only. This is NOT the full

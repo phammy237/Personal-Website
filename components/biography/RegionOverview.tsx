@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { geoMercator, geoPath } from "d3-geo";
 import type { FeatureCollection, Geometry } from "geojson";
-import type { Chapter } from "@/data/biography";
+import type { Chapter } from "@/data/biography/biography";
 import { findCountry } from "@/lib/hooks/useWorldTopology";
 
 export function RegionOverview({
