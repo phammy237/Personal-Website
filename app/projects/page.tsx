@@ -87,6 +87,12 @@ function visibleWork(filter: Cat) {
   return sortByDate(filter === "All" ? displayWork : displayWork.filter((p) => p.category === filter));
 }
 
+/** YouTube refuses to be framed from watch/short links — only /embed/ URLs load inside an iframe */
+function embedUrl(url: string) {
+  const id = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})/)?.[1];
+  return id ? `https://www.youtube.com/embed/${id}` : url;
+}
+
 type Tab = "overview" | "role" | "stack" | "media";
 
 const AWARD_BADGE: Record<string, string> = {
@@ -212,7 +218,7 @@ function ProjectModal({ project, initialTab, onClose }: { project: Project; init
                 <div>
                   <p className="font-mono text-xs text-white/40 uppercase tracking-widest mb-3">Demo Video</p>
                   <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black">
-                    <iframe src={project.video} title={`${project.title} demo`} className="absolute inset-0 w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+                    <iframe src={embedUrl(project.video)} title={`${project.title} demo`} className="absolute inset-0 w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
                   </div>
                 </div>
               )}
