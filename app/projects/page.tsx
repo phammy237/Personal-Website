@@ -62,7 +62,7 @@ const PM_PRIORITY = [
   "wnba-simulator", "scudem",
   "housing-model", "savills-analysis",
   "smartprep-ai", "biaslens",
-  "campus-compass", "vyspar", "artificial-reef",
+  "transpeaktation", "campus-compass", "vyspar", "artificial-reef",
 ];
 
 function sortByPriority(items: Project[]) {
@@ -83,6 +83,7 @@ type Tab = "overview" | "role" | "stack" | "media";
 
 const AWARD_BADGE: Record<string, string> = {
   "Best Finance Project": "bg-yellow-500/20 text-yellow-300 border-yellow-500/40",
+  "2nd Place Best Use of AWS · Best Use of Tiger Data": "bg-slate-300/20 text-slate-200 border-slate-300/40",
   "3rd Place Overall": "bg-orange-500/20 text-orange-300 border-orange-500/40",
   "Top 20": "bg-blue-500/20 text-blue-300 border-blue-500/40",
   "Outstanding Award": "bg-[#7b2cbf]/20 text-[#c77dff] border-[#7b2cbf]/40",
