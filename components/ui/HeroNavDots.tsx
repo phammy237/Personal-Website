@@ -25,11 +25,12 @@ export function HeroNavDots({
 }) {
   return (
     <>
-      <div className="absolute bottom-4 right-[5vw] flex items-center gap-3">
+      <div className="absolute bottom-5 right-[5vw] flex items-center gap-3">
         <button onClick={onPrev} className={navButtonClass}>‹</button>
+        <span className="font-mono text-[10px] tracking-[0.18em] text-white/75">{String(idx + 1).padStart(2, "0")} / {String(count).padStart(2, "0")}</span>
         {Array.from({ length: count }).map((_, i) => (
           <button key={i} onClick={() => onGoTo(i)}>
-            <div className={`rounded-full transition-all duration-300 ${i === idx ? "w-6 h-1.5 bg-white" : "w-1.5 h-1.5 bg-white/30"}`} />
+            <div className={`rounded-full transition-all duration-300 ${i === idx ? "w-6 h-1.5 bg-[#c77dff]" : "w-1.5 h-1.5 bg-white/30"}`} />
           </button>
         ))}
         <button onClick={onNext} className={navButtonClass}>›</button>

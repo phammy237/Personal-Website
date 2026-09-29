@@ -6,6 +6,8 @@ import { Footer } from "@/components/layout/Footer";
 import { ModalShell } from "@/components/ui/ModalShell";
 import { HeroNavDots } from "@/components/ui/HeroNavDots";
 import { useRotatingIndex } from "@/lib/hooks/useRotatingIndex";
+import styles from "@/components/browse/browse.module.css";
+import { FilterChip } from "@/components/browse/BrowseUI";
 
 type InvType = "Leadership" | "Professional" | "Mentorship";
 
@@ -371,12 +373,12 @@ function InvCard({ inv, onSelect }: { inv: Involvement; onSelect: (inv: Involvem
 
   return (
     <motion.div
-      className="relative flex-shrink-0 w-[220px] md:w-[260px]"
+      className={`${styles.card}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
       <motion.div
-        className="relative w-full aspect-video rounded-xl overflow-hidden cursor-pointer"
+        className={`${styles.cardVisual} ${styles.cardButton} relative w-full aspect-video rounded-xl overflow-hidden cursor-pointer`}
         animate={{ scale: hovered ? 1.015 : 1 }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
         onClick={() => onSelect(inv)}
@@ -385,7 +387,7 @@ function InvCard({ inv, onSelect }: { inv: Involvement; onSelect: (inv: Involvem
         {inv.image && (
           <div className="absolute inset-0 bg-cover bg-center opacity-70" style={{ backgroundImage: `url(${inv.image})` }} />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+        <div className={`${styles.cardShade} absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent`} />
 
         {/* Type badge */}
         <div className="absolute top-2 left-2">
@@ -440,7 +442,7 @@ function InvHero({ onSelect }: { onSelect: (inv: Involvement) => void }) {
 
   return (
     <div
-      className="relative w-full h-[42vh] md:h-[52vh] overflow-hidden"
+      className={`${styles.hero} relative w-full h-[42vh] md:h-[52vh] overflow-hidden`}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
@@ -451,15 +453,15 @@ function InvHero({ onSelect }: { onSelect: (inv: Involvement) => void }) {
             <div className="absolute inset-0 bg-cover bg-center opacity-70" style={{ backgroundImage: `url(${inv.image})` }} />
           )}
           <div className="absolute inset-0" style={{ background: "linear-gradient(to top, var(--page-bg) 0%, transparent 60%)" }} />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent" />
+          <div className={`${styles.heroShade} absolute inset-0`} />
         </motion.div>
       </AnimatePresence>
 
-      <div className="absolute inset-0 flex items-end px-[5vw] pb-12">
+      <div className={`${styles.heroContent} absolute inset-0 flex items-end px-[5vw] pb-12`}>
         <AnimatePresence mode="wait">
-          <motion.div key={inv.org + "-c"} className="max-w-xl" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.5 }}>
-            <span className="font-mono text-xs text-white/40 block mb-2">{inv.type} · {inv.period}</span>
-            <h2 className="font-display text-5xl md:text-7xl text-white leading-none mb-1">{inv.role}</h2>
+          <motion.div key={inv.org + "-c"} className={`${styles.heroCopy} max-w-xl`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.5 }}>
+            <span className={styles.eyebrow}>Leadership · Community · Impact</span>
+            <h2 className={`${styles.heroTitle} ${styles.roleTitle} font-display text-white`}>{inv.role}</h2>
             <p className="font-mono text-sm text-white/40 mb-3">{inv.org}</p>
             <p className="font-body text-white/60 max-w-md mb-5 leading-relaxed text-sm">{inv.description}</p>
             {inv.awards.length > 0 && (
@@ -470,9 +472,10 @@ function InvHero({ onSelect }: { onSelect: (inv: Involvement) => void }) {
               </div>
             )}
             <div className="flex gap-3">
-              <button onClick={() => onSelect(inv)} className="flex items-center gap-2 font-mono text-sm px-6 py-2.5 bg-white text-navy hover:bg-white/90 transition-colors rounded-full">
+              <button onClick={() => onSelect(inv)} className={styles.primary}>
                 ⓘ View Details
               </button>
+              <button type="button" onClick={() => document.getElementById("involvement-catalog")?.scrollIntoView({ behavior: "smooth" })} className={styles.secondary}>See Leadership Roles ↗</button>
             </div>
           </motion.div>
         </AnimatePresence>
@@ -494,23 +497,38 @@ function InvHero({ onSelect }: { onSelect: (inv: Involvement) => void }) {
 /* ─── Page ──────────────────────────────────────────── */
 export default function InvolvementsPage() {
   const [selected, setSelected] = useState<Involvement | null>(null);
+  const [activeFilter, setActiveFilter] = useState("All");
+  const filterItems = (items: Involvement[]) => activeFilter === "All"
+    ? items
+    : items.filter((inv) => activeFilter === inv.type || (activeFilter === "Community" && inv.type === "Professional") || (activeFilter === "Events" && /event|workshop|festival|hackathon/i.test(`${inv.role} ${inv.description}`)));
 
   return (
-    <main className="min-h-screen bg-base dark:bg-navy">
+    <main className={`${styles.page} min-h-screen bg-base dark:bg-navy`}>
       <Navbar />
 
       <div className="pt-16">
         <InvHero onSelect={setSelected} />
       </div>
 
-      <div className="pb-24 pt-4">
+      <dl className={styles.stats} aria-label="Leadership highlights">
+        <div className={styles.stat}><dd>350+</dd><dt>Members led</dt></div>
+        <div className={styles.stat}><dd>8+</dd><dt>Winning teams</dt></div>
+        <div className={styles.stat}><dd>5+</dd><dt>Industry tours</dt></div>
+        <div className={styles.stat}><dd>2</dd><dt>Named awards</dt></div>
+      </dl>
+
+      <div id="involvement-catalog" className={`${styles.catalog} pb-24 pt-4`}>
+        <div className={styles.catalogHeading}><p className={styles.sectionLabel}>Browse involvement</p><span className={styles.count}>Leadership, community, and mentorship</span></div>
+        <div className={styles.filters} role="group" aria-label="Filter involvements">
+          {["All", "Leadership", "Community", "Events", "Mentorship"].map((filter) => <FilterChip key={filter} selected={activeFilter === filter} onClick={() => setActiveFilter(filter)}>{filter}</FilterChip>)}
+        </div>
         {CATEGORIES.map((cat) => {
-          const items = orderedInvolvements.filter((inv) => inv.type === cat);
+          const items = filterItems(orderedInvolvements.filter((inv) => inv.type === cat));
           if (!items.length) return null;
           return (
             <motion.div key={cat} className="mb-10" initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-60px" }} transition={{ type: "spring", stiffness: 100, damping: 20 }}>
-              <p className="font-mono text-sm text-surface/60 dark:text-white/60 uppercase tracking-widest mb-3 px-[5vw]">{cat}</p>
-              <div className="flex gap-4 px-[5vw] overflow-x-auto pb-14 scrollbar-hide">
+              <p className={styles.sectionLabel}>{cat}</p>
+              <div className={styles.grid}>
                 {items.map((inv) => <InvCard key={`${inv.role}-${inv.org}`} inv={inv} onSelect={setSelected} />)}
               </div>
             </motion.div>
