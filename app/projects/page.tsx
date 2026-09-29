@@ -49,10 +49,19 @@ function isRealAward(award?: string) {
   return !!award && award !== "Participant";
 }
 
+const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+
+/** "Sep 2026" / "July 2026" → sortable number; a bare "2025" sorts after that year's dated entries */
+function dateValue(p: Project) {
+  const [first, second] = p.month.toLowerCase().split(" ");
+  const year = Number(second ?? first) || Number(p.year);
+  const month = second ? MONTHS.indexOf(first.slice(0, 3)) + 1 : 0;
+  return year * 100 + month;
+}
+
 /**
- * Lead each category with the strongest PM-facing signal — ownership + quantified outcome —
- * ahead of participation-only or purely technical entries. Anything not listed here keeps its
- * natural position at the end of its category, so new projects never go missing from the grid.
+ * Tiebreaker only, for projects from the same month: lead with the strongest PM-facing signal —
+ * ownership + quantified outcome — ahead of participation-only or purely technical entries.
  */
 const PM_PRIORITY = [
   "cartcoach", "kite", "wandr", "tiktok-redesign",
@@ -63,18 +72,19 @@ const PM_PRIORITY = [
   "transpeaktation", "campus-compass", "vyspar", "artificial-reef",
 ];
 
-function sortByPriority(items: Project[]) {
-  return [...items].sort((a, b) => {
-    const ai = PM_PRIORITY.indexOf(a.slug);
-    const bi = PM_PRIORITY.indexOf(b.slug);
-    return (ai === -1 ? Infinity : ai) - (bi === -1 ? Infinity : bi);
-  });
+function priority(slug: string) {
+  const i = PM_PRIORITY.indexOf(slug);
+  return i === -1 ? Infinity : i;
 }
 
-/** All → one combined list ordered by the category narrative; a single category → just that list */
+/** newest first */
+function sortByDate(items: Project[]) {
+  return [...items].sort((a, b) => dateValue(b) - dateValue(a) || priority(a.slug) - priority(b.slug));
+}
+
+/** All → every project newest first; a single category → just that list, newest first */
 function visibleWork(filter: Cat) {
-  if (filter !== "All") return sortByPriority(displayWork.filter((p) => p.category === filter));
-  return CATEGORY_ORDER.flatMap((cat) => sortByPriority(displayWork.filter((p) => p.category === cat)));
+  return sortByDate(filter === "All" ? displayWork : displayWork.filter((p) => p.category === filter));
 }
 
 type Tab = "overview" | "role" | "stack" | "media";
@@ -246,7 +256,7 @@ function WorkCard({ project, onSelect }: { project: Project; onSelect: (p: Proje
   ].filter(Boolean) as { key: string; href: string; label: string; icon: string }[];
 
   return (
-    <motion.div className="relative flex-shrink-0 w-[220px] md:w-[260px]" onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+    <motion.div className="relative min-w-0" onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
       <motion.div
         className="relative w-full aspect-video rounded-xl overflow-hidden cursor-pointer"
         animate={{ scale: hovered ? 1.015 : 1 }}
@@ -333,7 +343,7 @@ function WorkGrid({ items, onSelect }: { items: Project[]; onSelect: (p: Project
   if (items.length === 0) return null;
   return (
     <motion.div
-      className="flex flex-wrap gap-x-4 gap-y-20 px-[5vw]"
+      className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-4 gap-y-20 px-[5vw]"
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: "spring", stiffness: 100, damping: 20 }}
