@@ -9,8 +9,6 @@ import { HeroNavDots } from "@/components/ui/HeroNavDots";
 import { useRotatingIndex } from "@/lib/hooks/useRotatingIndex";
 import { allWork } from "@/data/projects";
 import type { Project } from "@/data/projects";
-import styles from "@/components/browse/browse.module.css";
-import { FilterChip } from "@/components/browse/BrowseUI";
 
 function GitHubIcon() {
   return (
@@ -248,16 +246,16 @@ function WorkCard({ project, onSelect }: { project: Project; onSelect: (p: Proje
   ].filter(Boolean) as { key: string; href: string; label: string; icon: string }[];
 
   return (
-    <motion.div className={`${styles.card} relative flex-shrink-0 w-[220px] md:w-[260px]`} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+    <motion.div className="relative flex-shrink-0 w-[220px] md:w-[260px]" onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
       <motion.div
-        className={`${styles.cardVisual} relative w-full aspect-video rounded-xl overflow-hidden cursor-pointer ${styles.cardButton}`}
+        className="relative w-full aspect-video rounded-xl overflow-hidden cursor-pointer"
         animate={{ scale: hovered ? 1.015 : 1 }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
         onClick={() => onSelect(project, hasMedia ? "media" : "overview")}
       >
         <div className="absolute inset-0" style={{ background: project.gradient }} />
         {project.image && <Image src={project.image} alt={project.title} fill className="object-contain opacity-50" />}
-        <div className={`${styles.cardShade} absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent`} />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
         {/* Center play/badge icon */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -299,7 +297,7 @@ function WorkCard({ project, onSelect }: { project: Project; onSelect: (p: Proje
           )}
         </AnimatePresence>
 
-        <div className="absolute bottom-0 left-0 right-0 p-3">
+        <div className="absolute bottom-0 left-0 right-0 p-2.5">
           <p className="font-display text-white text-sm leading-tight">{project.title}</p>
           {isRealAward(project.award) ? (
             <p className="font-mono text-[9px] text-yellow-400/70 mt-0.5 leading-tight">🏆 {project.award}</p>
@@ -335,7 +333,7 @@ function WorkGrid({ items, onSelect }: { items: Project[]; onSelect: (p: Project
   if (items.length === 0) return null;
   return (
     <motion.div
-      className={`${styles.grid} px-[5vw]`}
+      className="flex flex-wrap gap-x-4 gap-y-20 px-[5vw]"
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: "spring", stiffness: 100, damping: 20 }}
@@ -353,38 +351,36 @@ function WorkHero({ onSelect }: { onSelect: (p: Project, t: Tab) => void }) {
   const project = selectedWork[idx];
 
   return (
-    <div className={`${styles.hero} relative w-full h-[42vh] md:h-[52vh] overflow-hidden`} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+    <div className="relative w-full h-[42vh] md:h-[52vh] overflow-hidden" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       <AnimatePresence mode="sync">
         <motion.div key={project.slug} className="absolute inset-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.8 }}>
           <div className="absolute inset-0" style={{ background: project.gradient }} />
           {project.image && <Image src={project.image} alt={project.title} fill className="object-contain opacity-40" priority />}
           <div className="absolute inset-0" style={{ background: "linear-gradient(to top, var(--page-bg) 0%, transparent 60%)" }} />
-          <div className={`${styles.heroShade} absolute inset-0`} />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent" />
         </motion.div>
       </AnimatePresence>
 
-      <div className={`${styles.heroContent} absolute inset-0 flex items-end px-[5vw] pb-12 md:pb-16`}>
+      <div className="absolute inset-0 flex items-end px-[5vw] pb-12 md:pb-16">
         <AnimatePresence mode="wait">
-          <motion.div key={project.slug + "-c"} className={`${styles.heroCopy} max-w-xl`} initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.5 }}>
-            <span className={styles.eyebrow}>Featured project</span>
+          <motion.div key={project.slug + "-c"} className="max-w-xl" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.5 }}>
             {isRealAward(project.award) && (
               <span className={`inline-block font-mono text-xs px-3 py-1 rounded-full border mb-3 ${AWARD_BADGE[project.award!] ?? "bg-white/10 text-white/60 border-white/20"}`}>
                 🏆 {project.award}
               </span>
             )}
-            <h2 className={`${styles.heroTitle} font-display text-white`}>{project.title}</h2>
+            <h2 className="font-display text-5xl md:text-7xl text-white leading-none mb-2">{project.title}</h2>
             <p className="font-mono text-xs text-white/40 mb-3">{project.competition ?? project.category} · {project.month}</p>
             <p className="font-body text-white/60 max-w-md mb-5 leading-relaxed text-sm">{project.logline}</p>
-            {project.tags && <div className={styles.metadata}>{project.tags.slice(0, 4).map((tag) => <span key={tag} className={styles.pill}>{tag}</span>)}<span className={styles.pill}>{project.year}</span></div>}
             <div className="flex gap-3 flex-wrap items-center">
               {(project.video || project.slides || project.paper) && (
-                <button onClick={() => onSelect(project, "media")} className={styles.primary}>
+                <button onClick={() => onSelect(project, "media")} className="flex items-center gap-2 font-mono text-sm px-6 py-2.5 bg-white text-navy hover:bg-white/90 transition-colors rounded-full">
                   <svg width="10" height="10" viewBox="0 0 12 12" fill="currentColor"><polygon points="1,0 12,6 1,12" /></svg> Play
                 </button>
               )}
-              <button onClick={() => onSelect(project, "overview")} className={styles.secondary}>ⓘ More Info</button>
-              {project.github && <a href={project.github} target="_blank" rel="noopener noreferrer" className={styles.ghost}><GitHubIcon /> GitHub</a>}
-              {project.devpost && <a href={project.devpost} target="_blank" rel="noopener noreferrer" className={styles.ghost}><DevpostIcon /> Devpost</a>}
+              <button onClick={() => onSelect(project, "overview")} className="flex items-center gap-2 font-mono text-sm px-6 py-2.5 bg-white/15 border border-white/30 text-white hover:bg-white/25 transition-colors rounded-full">ⓘ More Info</button>
+              {project.github && <a href={project.github} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 font-mono text-sm px-4 py-2.5 bg-white/10 border border-white/20 text-white/70 hover:text-white hover:bg-white/20 transition-colors rounded-full"><GitHubIcon /> GitHub</a>}
+              {project.devpost && <a href={project.devpost} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 font-mono text-sm px-4 py-2.5 bg-white/10 border border-white/20 text-white/70 hover:text-white hover:bg-white/20 transition-colors rounded-full"><DevpostIcon /> Devpost</a>}
             </div>
           </motion.div>
         </AnimatePresence>
@@ -410,21 +406,21 @@ export default function WorkPage() {
   const items = visibleWork(activeCategory);
 
   return (
-    <main className={`${styles.page} min-h-screen bg-base dark:bg-navy`}>
+    <main className="min-h-screen bg-base dark:bg-navy">
       <Navbar />
       <div className="pt-16">
         <WorkHero onSelect={(p, t) => setSelected({ project: p, tab: t })} />
       </div>
 
       {/* Category filter — horizontally scrollable on mobile instead of wrapping into a multi-line block */}
-      <div className={`${styles.catalog} px-[5vw] pt-6 pb-2`}>
-        <div className={styles.catalogHeading}><p className={styles.sectionLabel}>All projects</p><span className={styles.count}>{items.length} projects</span></div>
-        <motion.div className={styles.filters} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+      <div className="px-[5vw] pt-6 pb-2 max-w-[1400px] mx-auto">
+        <motion.div className="flex gap-2 overflow-x-auto scrollbar-hide sm:flex-wrap sm:overflow-visible" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
           {ALL_CATEGORIES.map((cat) => (
-            <FilterChip key={cat} selected={activeCategory === cat} onClick={() => setActiveCategory(cat)}>
+            <button key={cat} onClick={() => setActiveCategory(cat)}
+              className={`flex-shrink-0 font-mono text-xs px-4 py-2 rounded-full border transition-all duration-200 ${activeCategory === cat ? "bg-accent text-white border-accent" : "bg-black/5 dark:bg-white/5 text-surface/60 dark:text-white/50 border-black/10 dark:border-white/10 hover:border-black/30 dark:hover:border-white/30 hover:text-surface dark:hover:text-white/80"}`}>
               {cat}
               {cat !== "All" && <span className="ml-1.5 opacity-50">({displayWork.filter((p) => p.category === cat).length})</span>}
-            </FilterChip>
+            </button>
           ))}
         </motion.div>
       </div>
