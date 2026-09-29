@@ -64,6 +64,7 @@ export const projects: Project[] = [
     award: "2nd Place Best Use of AWS · Best Use of Tiger Data",
     competition: "ShellHacks 2026",
     prize: true,
+    image: "/projects/transpeaktation.png",
     video: "https://drive.google.com/file/d/1TXR6Wwv7Kty7rWUebg02e4KPhg84SgiS/preview",
     github: "https://github.com/No-Way-Mo/transpeaktation",
     liveUrl: "https://yowaymo.us",
