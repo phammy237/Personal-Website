@@ -3,6 +3,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { YouAreHere, NextStop } from "@/components/layout/Wayfinding";
 import { ModalShell } from "@/components/ui/ModalShell";
 import { HeroNavDots } from "@/components/ui/HeroNavDots";
 import { useRotatingIndex } from "@/lib/hooks/useRotatingIndex";
@@ -500,6 +501,7 @@ export default function InvolvementsPage() {
       <Navbar />
 
       <div className="pt-16">
+        <div className="px-[5vw] pt-4 pb-1 max-w-[1400px] mx-auto"><YouAreHere page="Involvements" /></div>
         <InvHero onSelect={setSelected} />
       </div>
 
@@ -522,6 +524,7 @@ export default function InvolvementsPage() {
         {selected && <InvModal inv={selected} onClose={() => setSelected(null)} />}
       </AnimatePresence>
 
+      <NextStop from="Involvements" />
       <Footer />
     </main>
   );

@@ -79,6 +79,8 @@ export function Navbar() {
         }`}
         animate={{ y: visible ? 0 : -80 }}
         transition={{ type: "spring", stiffness: 200, damping: 30 }}
+        // its own view-transition layer, so page-to-page zooms move the content while the navbar holds still
+        style={{ viewTransitionName: "site-nav" }}
       >
       <Link href="/" className="absolute left-4 top-1/2 hidden -translate-y-1/2 md:block" aria-label="My Pham home">
         <span

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { YouAreHere, NextStop } from "@/components/layout/Wayfinding";
 import { SITE_EMAIL } from "@/lib/site";
 
 const fieldClass = "font-mono text-sm bg-base dark:bg-white/5 border border-border dark:border-white/10 rounded-xl px-4 py-3 text-surface dark:text-white placeholder:text-muted/60 dark:placeholder:text-white/20 focus:outline-none focus:border-accent/50 transition-colors";
@@ -164,6 +165,7 @@ export default function ConnectPage() {
       <div className="grid gap-12 px-[5vw] pb-24 pt-28 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16 max-w-[1400px] mx-auto">
         {/* ─── Left column ─────────────────────────── */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="lg:sticky lg:top-28 lg:self-start">
+          <div className="mb-5"><YouAreHere page="Connect" /></div>
           <p className="eyebrow text-accent dark:text-accent-lavender mb-3">Let&apos;s hang</p>
           <h1 className="heading text-6xl md:text-7xl mb-6">Connect</h1>
 
@@ -386,6 +388,7 @@ export default function ConnectPage() {
         </div>
       </div>
 
+      <NextStop from="Connect" />
       <Footer />
     </main>
   );

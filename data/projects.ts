@@ -13,6 +13,8 @@ export type Project = {
   year: string;
   month: string;
   logline: string;
+  /** one punchy line for cards — the problem or the twist, not a summary */
+  hook?: string;
   description: string;
   bullets: string[];
   tools: string[];
@@ -40,6 +42,7 @@ export const projects: Project[] = [
     year: "2026",
     month: "Sep 2026",
     logline: "Event-aware routing that spreads crowds across the network instead of sending everyone down the same road",
+    hook: "Everyone leaves the stadium at once. Every app sends them down the same road.",
     description: "When a stadium empties out, every navigation app hands thousands of people the same \"fastest\" route, and that route stops being fast. transPEAKtation predicts where congestion will form around major events and distributes travelers across routes so the whole crowd gets from A to B faster. My role sat between product and engineering: I helped turn an open-ended traffic problem into a focused MVP, then built much of the data and backend layer that made it real.",
     bullets: [
       "I helped define the product thesis and scope. Navigation tools optimize one traveler at a time, and we wanted to show that event-aware routing could improve outcomes across the network. For a weekend build, that meant prioritizing future travel-time selection, congestion context, and route explanations over everything else.",
@@ -77,6 +80,7 @@ export const projects: Project[] = [
     year: "2026",
     month: "July 2026",
     logline: "Full-stack campus navigation platform built on a custom C++ graph engine",
+    hook: "A graded C++ assignment, turned into a campus map you can actually use.",
     description: "Campus Compass turns a graded C++ algorithms assignment into an interactive web app for campus navigation, combining a custom graph engine with real routing data and live map visualization.",
     bullets: [
       "I implemented a weighted graph engine in C++ (adjacency list, Dijkstra's shortest path, BFS connectivity check, Kruskal's MST with union-find) to model campus navigation, student schedules, and road closures, validated by 57 Catch2 unit test assertions.",
@@ -106,6 +110,7 @@ export const projects: Project[] = [
     year: "2026",
     month: "March 2026",
     logline: "AI-Powered Chrome Extension for Smarter Spending Decisions",
+    hook: "What if checkout asked whether this is worth delaying your savings goal?",
     description: "I created CartCoach, a Chrome extension concept designed to reduce impulse spending at the moment of checkout.",
     bullets: [
       "I led the product idea and user-flow design, focusing on how to turn checkout into a reflective decision point by showing budget impact, savings-goal delay, and lower-cost alternatives.",
@@ -137,6 +142,7 @@ export const projects: Project[] = [
     year: "2026",
     month: "Feb 2026",
     logline: "Gamified Pediatric Stealth Assessment Platform",
+    hook: "Kids dread assessments. So we turned the assessment into a game.",
     description: "Kite is one of the projects that best reflects how I like to think: user-centered, systems-oriented, and impact-driven. The goal was to make pediatric assessment more engaging for children while giving clinicians more structured data and less manual observation work. Built at Code4Change, placing 3rd Overall.",
     bullets: [
       "I led market research and product strategy for a gamified pediatric assessment platform.",
@@ -170,6 +176,7 @@ export const projects: Project[] = [
     year: "2026",
     month: "Jan 2026",
     logline: "Franchise decision simulation integrating player records, salary cap, and fan demand modeling.",
+    hook: "Run a WNBA franchise: players, salary cap, and fans in one model.",
     description: "This project reflects the kind of work I enjoy most: combining strategy, analytics, modeling, and decision-making into one system. I built a simulator to explore how different team-building and business strategies could affect performance, profitability, and risk.",
     competition: "COMAP MCM",
     image: "/projects/wnba-simulator.png",
@@ -200,6 +207,7 @@ export const projects: Project[] = [
     year: "2025",
     month: "Dec 2025",
     logline: "Gamified interactive tool for housing price prediction and investment decisions.",
+    hook: "Housing price predictions you can actually make decisions with.",
     description: "I built this project to make housing-price analysis more accessible and actionable. Instead of just creating a model, I wanted to turn the output into something people could actually use for decision-making.",
     bullets: [
       "I cleaned and modeled a 20,000+ record housing dataset using multiple linear regression.",
@@ -226,6 +234,7 @@ export const projects: Project[] = [
     year: "2025",
     month: "Oct 2025",
     logline: "AI-Driven Save Experience Redesign boosting engagement by 20%.",
+    hook: "Saving a TikTok is easy. Finding it again isn't.",
     description: "This was a solo product redesign project where I focused on a simple but overlooked question: saving content is easy, but revisiting and organizing it isn't. I wanted to rethink the save experience from the perspective of user intent and long-term usability.",
     bullets: [
       "I redesigned TikTok's Save feature to explore how AI-driven suggestions could improve organization and rediscovery.",
@@ -245,6 +254,7 @@ export const projects: Project[] = [
     year: "2025",
     month: "Oct 2025",
     logline: "Connecting People through Personalized Travel and Experiences.",
+    hook: "Travel is better with people you actually click with.",
     description: "Wandr explored how people could discover travel experiences and connect more meaningfully through shared preferences, activities, and built-in trust features.",
     bullets: [
       "I led user flow design, MVP planning, and trust-and-safety strategy for the product.",
@@ -265,6 +275,7 @@ export const projects: Project[] = [
     year: "2025",
     month: "Sep 2025",
     logline: "Collaborative Platform for Healthcare Professionals. LinkedIn for healthcare.",
+    hook: "LinkedIn, but built for healthcare professionals.",
     description: "Vyspar was a strong example of cross-functional product building. I worked on backend systems, data integration, and analytics for a platform designed to help healthcare professionals connect and engage more effectively.",
     liveUrl: "https://www.vyspar.org/",
     image: "/projects/vyspar.png",
@@ -291,6 +302,7 @@ export const projects: Project[] = [
     year: "2025",
     month: "Sep 2025",
     logline: "Computer vision app detecting ingredients to auto-generate meal plans.",
+    hook: "Point your camera at your ingredients. Get a meal plan.",
     description: "SmartPrep AI combined AI, everyday usability, and sustainability. The goal was to make meal planning easier while helping users reduce waste and make better use of ingredients they already had.",
     bullets: [
       "I independently built a mobile app that detects ingredients from photos and generates personalized meal plans and grocery lists.",
@@ -308,6 +320,7 @@ export const projects: Project[] = [
     year: "2025",
     month: "Apr 2025",
     logline: "Detecting Algorithmic Bias in Real-World Datasets.",
+    hook: "Algorithms inherit bias from their data. BiasLens makes it visible.",
     description: "BiasLens is one of the projects that best represents how I combine technical work with broader decision-making impact. I wanted to make bias detection more visible, interpretable, and actionable.",
     bullets: [
       "I built a Streamlit app using Python, Fairlearn, and scikit-learn to audit algorithmic bias in datasets with 10,000+ records.",
@@ -327,6 +340,7 @@ export const projects: Project[] = [
     year: "2025",
     month: "Apr 2025",
     logline: "AI chatbot centralizing campus support services at UF",
+    hook: "Students couldn't find the right campus resource. GatorBot points the way.",
     description: "GatorBot was designed around a practical service problem: students often struggle to find the right support resource quickly, and that creates frustration for both students and staff.",
     bullets: [
       "I helped build an AI chatbot using Python and NLP to centralize student-support resources.",
@@ -357,6 +371,7 @@ export const projects: Project[] = [
     year: "2025",
     month: "Mar 2025",
     logline: "ASA DataFest. Advanced analysis of 100,000+ U.S. commercial leasing transactions.",
+    hook: "100,000+ commercial leases, turned into strategy.",
     description: "This project focused on taking a very large, complex commercial leasing dataset and turning it into strategic recommendations that people could actually use.",
     bullets: [
       "I worked on a team of 4 to analyze 100,000+ U.S. leasing transactions from 2018 to 2024 using Python and pandas.",
@@ -375,6 +390,7 @@ export const projects: Project[] = [
     year: "2024",
     month: "Nov 2024",
     logline: "Full-stack web app visualizing 3D reef models for ecological data accessibility.",
+    hook: "3D reef models, opened up to the people protecting reefs.",
     description: "This was one of my earlier full-stack projects and gave me hands-on experience thinking about data structure, performance, and usability in a real application.",
     bullets: [
       "I designed and implemented a MongoDB schema with Mongoose models for a reef-visualization web app.",
@@ -440,6 +456,7 @@ export const competitions: Project[] = [
     year: "2025",
     month: "Oct 2025",
     logline: "Top 20 — Strategy consulting case competition",
+    hook: "Top 20 out of hundreds of university teams.",
     description: "Competed in McKinsey's case competition, finishing Top 20 out of hundreds of university teams.",
     bullets: [
       "Applied structured problem-solving and consulting frameworks to a live business case.",
@@ -461,6 +478,7 @@ export const competitions: Project[] = [
     year: "2025",
     month: "Nov 2025",
     logline: "Outstanding Award — a probabilistic framework for how group size and behavioral synchronization affect predator detection in mixed-species groups.",
+    hook: "Do bigger groups spot predators sooner? We modeled it.",
     description: "A mathematical modeling project exploring how group size, individual vigilance, and behavioral synchronization influence a mixed-species group's ability to detect predators — earning the Outstanding Award at SCUDEM X 2025.",
     bullets: [
       "Built a four-stage probabilistic framework — individual vigilance, effective independent watchers, collective vigilance, and Poisson-based detection probability — to model how mixed-species groups detect predators.",
@@ -484,6 +502,7 @@ export const competitions: Project[] = [
     year: "2025",
     month: "Mar 2025",
     logline: "University Athletic Association business case competition",
+    hook: "A real business strategy challenge from UF Athletics.",
     description: "Competed in the UAA Case Competition solving a real business strategy challenge.",
     bullets: [
       "Analyzed business problem and developed strategic recommendations.",
@@ -502,6 +521,7 @@ export const competitions: Project[] = [
     year: "2025",
     month: "2025",
     logline: "Bloomberg's competitive analytical puzzle challenge",
+    hook: "Finance and logic puzzles, against the clock.",
     description: "Participated in Bloomberg's Bpuzzled, a competitive analytical and finance puzzle challenge.",
     bullets: [
       "Solved complex analytical puzzles under time pressure.",

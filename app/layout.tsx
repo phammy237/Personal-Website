@@ -4,6 +4,7 @@ import { DM_Serif_Display, Inter, JetBrains_Mono, Roboto } from "next/font/googl
 import { CustomCursor } from "@/components/layout/CustomCursor";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import "./globals.css";
+import { PageTransitions } from "@/components/layout/PageTransitions";
 
 const ChatBot = dynamic(() => import("@/components/ui/ChatBot").then((m) => m.ChatBot), { ssr: false });
 
@@ -58,6 +59,7 @@ export default function RootLayout({
       <body className="bg-base dark:bg-navy text-surface dark:text-white font-body antialiased min-h-screen">
         <ThemeProvider>
           <CustomCursor />
+          <PageTransitions />
           {children}
           <ChatBot />
         </ThemeProvider>

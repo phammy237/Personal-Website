@@ -3,6 +3,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { YouAreHere, NextStop } from "@/components/layout/Wayfinding";
 import { SITE_EMAIL } from "@/lib/site";
 import {
   experience,
@@ -25,6 +26,7 @@ export default function CVPage() {
       <Navbar />
 
       <div className="px-[5vw] pt-28 pb-24 max-w-[900px] mx-auto">
+        <div className="mb-5"><YouAreHere page="CV" /></div>
         {/* Header */}
         <div className="flex items-start justify-between mb-8 flex-wrap gap-4">
           <div>
@@ -326,6 +328,7 @@ export default function CVPage() {
         )}
       </div>
 
+      <NextStop from="CV" />
       <Footer />
     </main>
   );

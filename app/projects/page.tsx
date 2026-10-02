@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { YouAreHere, NextStop } from "@/components/layout/Wayfinding";
 import { ModalShell } from "@/components/ui/ModalShell";
 import { HeroNavDots } from "@/components/ui/HeroNavDots";
 import { useRotatingIndex } from "@/lib/hooks/useRotatingIndex";
@@ -324,6 +325,10 @@ function WorkCard({ project, onSelect }: { project: Project; onSelect: (p: Proje
         </div>
       </motion.div>
 
+      {project.hook && (
+        <p className="font-body text-xs text-surface/60 dark:text-white/55 leading-snug mt-2 line-clamp-2">{project.hook}</p>
+      )}
+
       {/* Hover strip */}
       <AnimatePresence>
         {hovered && (
@@ -386,7 +391,7 @@ function WorkHero({ onSelect }: { onSelect: (p: Project, t: Tab) => void }) {
             )}
             <h2 className="font-display text-5xl md:text-7xl text-white leading-none mb-2">{project.title}</h2>
             <p className="font-mono text-xs text-white/40 mb-3">{project.competition ?? project.category} · {project.month}</p>
-            <p className="font-body text-white/60 max-w-md mb-5 leading-relaxed text-sm">{project.logline}</p>
+            <p className="font-body text-white/60 max-w-md mb-5 leading-relaxed text-sm">{project.hook ?? project.logline}</p>
             <div className="flex gap-3 flex-wrap items-center">
               {(project.video || project.slides || project.paper) && (
                 <button onClick={() => onSelect(project, "media")} className="flex items-center gap-2 font-mono text-sm px-6 py-2.5 bg-white text-navy hover:bg-white/90 transition-colors rounded-full">
@@ -418,12 +423,18 @@ function WorkHero({ onSelect }: { onSelect: (p: Project, t: Tab) => void }) {
 export default function WorkPage() {
   const [selected, setSelected] = useState<{ project: Project; tab: Tab } | null>(null);
   const [activeCategory, setActiveCategory] = useState<Cat>("All");
-  const items = visibleWork(activeCategory);
+  const [query, setQuery] = useState("");
+  const [year, setYear] = useState("");
+  const q = query.trim().toLowerCase();
+  const items = visibleWork(activeCategory).filter((p) =>
+    (!year || p.month.includes(year) || p.year === year) &&
+    (!q || [p.title, p.logline, p.hook, p.competition, p.award, p.category, ...(p.tags ?? []), ...p.tools].join(" ").toLowerCase().includes(q)));
 
   return (
     <main className="min-h-screen bg-base dark:bg-navy">
       <Navbar />
       <div className="pt-16">
+        <div className="px-[5vw] pt-4 pb-1 max-w-[1400px] mx-auto"><YouAreHere page="Work" /></div>
         <WorkHero onSelect={(p, t) => setSelected({ project: p, tab: t })} />
       </div>
 
@@ -438,15 +449,40 @@ export default function WorkPage() {
             </button>
           ))}
         </motion.div>
+
+        {/* search + year — narrows whatever category is selected */}
+        <div className="mt-3 flex flex-col sm:flex-row gap-2">
+          <label className="flex-1 flex items-center gap-2 rounded-full border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2 focus-within:border-accent dark:focus-within:border-accent-lavender">
+            <span aria-hidden className="text-surface/40 dark:text-white/40 text-sm">⌕</span>
+            <span className="sr-only">Search work</span>
+            <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search projects, tools, awards…"
+              className="w-full bg-transparent outline-none font-body text-sm text-surface dark:text-white placeholder:text-surface/40 dark:placeholder:text-white/35" />
+          </label>
+          <label className="flex items-center gap-2 rounded-full border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2">
+            <span className="eyebrow text-[10px] text-surface/50 dark:text-white/45">Year</span>
+            <select value={year} onChange={(e) => setYear(e.target.value)} className="bg-transparent outline-none font-mono text-xs text-surface dark:text-white">
+              <option value="">Any</option>
+              {Array.from(new Set(displayWork.map((p) => p.year))).sort().reverse().map((y) => <option key={y} value={y}>{y}</option>)}
+            </select>
+          </label>
+          {(query || year) && (
+            <button onClick={() => { setQuery(""); setYear(""); }} className="eyebrow text-[10px] text-accent dark:text-accent-lavender px-3">Clear</button>
+          )}
+        </div>
       </div>
 
       <div className="pb-24 pt-4">
-        <WorkGrid items={items} onSelect={(p, t) => setSelected({ project: p, tab: t })} />
+        {items.length ? (
+          <WorkGrid items={items} onSelect={(p, t) => setSelected({ project: p, tab: t })} />
+        ) : (
+          <p className="body-copy dark:text-white/50 text-sm px-[5vw] max-w-[1400px] mx-auto py-12">No projects match that. Try another word or clear the filters.</p>
+        )}
       </div>
 
       <AnimatePresence>
         {selected && <ProjectModal project={selected.project} initialTab={selected.tab} onClose={() => setSelected(null)} />}
       </AnimatePresence>
+      <NextStop from="Work" />
       <Footer />
     </main>
   );

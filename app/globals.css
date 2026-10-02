@@ -171,3 +171,14 @@ body.journey-today-in-view .journey-chatbot-widget:hover {
   body { background: white; color: black; }
   .cv-section { page-break-inside: avoid; }
 }
+
+/* Page-to-page zoom (see components/layout/PageTransitions.tsx): the old page pulls back like the
+   journey's zoom-out while the new one settles in. The navbar has its own layer, so it holds still. */
+@keyframes vt-zoom-out { to { opacity: 0; transform: scale(1.035); filter: blur(2px); } }
+@keyframes vt-zoom-in { from { opacity: 0; transform: scale(0.97); } }
+::view-transition-old(root) { animation: vt-zoom-out 260ms cubic-bezier(0.4, 0, 1, 1) both; }
+::view-transition-new(root) { animation: vt-zoom-in 380ms cubic-bezier(0.2, 0.8, 0.2, 1) 60ms both; }
+::view-transition-group(site-nav) { animation-duration: 0s; }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+}
