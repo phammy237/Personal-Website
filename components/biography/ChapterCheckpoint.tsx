@@ -27,8 +27,8 @@ export function ChapterCheckpoint({
         </svg>
       </span>
 
-      <h3 className="mt-4 font-display text-xl leading-tight text-surface dark:text-white">{hanoiCheckpointCopy.heading}</h3>
-      <p className="mt-2 font-body text-sm leading-relaxed text-muted dark:text-white/60">{hanoiCheckpointCopy.paragraph}</p>
+      <h3 className="heading mt-4 text-xl leading-tight">{hanoiCheckpointCopy.heading}</h3>
+      <p className="body-copy mt-2 text-sm leading-relaxed dark:text-white/60">{hanoiCheckpointCopy.paragraph}</p>
 
       <div className="mt-5 flex flex-col gap-2.5">
         <button

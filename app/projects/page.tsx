@@ -215,7 +215,7 @@ function ProjectModal({ project, initialTab, onClose }: { project: Project; init
             <motion.div key="md" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="space-y-8">
               {project.video && (
                 <div>
-                  <p className="font-mono text-xs text-white/40 uppercase tracking-widest mb-3">Demo Video</p>
+                  <p className="eyebrow text-white/40 mb-3">Demo Video</p>
                   <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black">
                     <iframe src={embedUrl(project.video)} title={`${project.title} demo`} className="absolute inset-0 w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
                   </div>
@@ -223,7 +223,7 @@ function ProjectModal({ project, initialTab, onClose }: { project: Project; init
               )}
               {project.slides && (
                 <div>
-                  <p className="font-mono text-xs text-white/40 uppercase tracking-widest mb-3">Slides</p>
+                  <p className="eyebrow text-white/40 mb-3">Slides</p>
                   <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-black">
                     <iframe src={project.slides} className="absolute inset-0 w-full h-full" title={`${project.title} slides`} allowFullScreen />
                   </div>
@@ -231,7 +231,7 @@ function ProjectModal({ project, initialTab, onClose }: { project: Project; init
               )}
               {project.paper && (
                 <div>
-                  <p className="font-mono text-xs text-white/40 uppercase tracking-widest mb-3">Paper</p>
+                  <p className="eyebrow text-white/40 mb-3">Paper</p>
                   <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-black">
                     <iframe src={project.paper} className="absolute inset-0 w-full h-full" title={`${project.title} paper`} allowFullScreen />
                   </div>

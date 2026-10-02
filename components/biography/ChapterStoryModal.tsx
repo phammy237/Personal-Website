@@ -130,7 +130,7 @@ export function ChapterStoryModal({
 
       <div className="flex items-start justify-between gap-4 px-6 pt-6 md:px-8 md:pt-8">
         <div>
-          <h2 className="font-display text-2xl text-surface dark:text-white md:text-3xl">{pin.preview.title}</h2>
+          <h2 className="heading text-2xl md:text-3xl">{pin.preview.title}</h2>
           <p className="mt-1.5 font-mono text-xs uppercase tracking-wider text-muted dark:text-white/40">
             Hanoi · Ages {pin.ageRange}
           </p>
@@ -161,7 +161,7 @@ export function ChapterStoryModal({
         <div className="p-6 md:p-8">
           <div className="flex flex-col gap-4">
             {pin.backstory.map((paragraph, i) => (
-              <p key={i} className="font-body text-sm leading-relaxed text-muted dark:text-white/65">
+              <p key={i} className="body-copy text-sm leading-relaxed dark:text-white/65">
                 {paragraph}
               </p>
             ))}
@@ -172,7 +172,7 @@ export function ChapterStoryModal({
               {pin.subsections.map((s) => (
                 <div key={s.title}>
                   <p className="font-mono text-xs uppercase tracking-wider text-accent">{s.title}</p>
-                  <p className="mt-1 font-body text-xs leading-relaxed text-muted dark:text-white/50">{s.description}</p>
+                  <p className="body-copy mt-1 text-xs leading-relaxed dark:text-white/50">{s.description}</p>
                 </div>
               ))}
             </div>

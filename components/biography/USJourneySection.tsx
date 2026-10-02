@@ -83,8 +83,8 @@ export function USJourneySection() {
       <div className="relative z-10 mb-5 flex flex-wrap items-start justify-between gap-4 md:mb-6">
         <div>
           <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-accent">{usJourneyCopy.eyebrow}</p>
-          <h2 className="mt-2 font-display text-3xl text-surface dark:text-white md:text-4xl">{usJourneyCopy.heading}</h2>
-          <p className="mt-1.5 font-body text-sm text-muted dark:text-white/50">{usJourneyCopy.instruction}</p>
+          <h2 className="heading mt-2 text-3xl md:text-4xl">{usJourneyCopy.heading}</h2>
+          <p className="body-copy mt-1.5 text-sm dark:text-white/50">{usJourneyCopy.instruction}</p>
         </div>
         <JourneyProgress index={journey.activeIndex} total={journey.total} />
       </div>

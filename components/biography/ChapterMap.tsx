@@ -84,7 +84,7 @@ export function ChapterMap({
       <MapBackdrop width={MAP_WIDTH} height={MAP_HEIGHT} riverPathD={projected?.riverPathD} />
       <div className="absolute left-6 top-6 md:left-8 md:top-8">
         <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted dark:text-white/40">{chapter.mapEyebrow}</p>
-        <h2 className="mt-1 font-display text-xl text-surface dark:text-white">{chapter.mapLabel}</h2>
+        <h2 className="heading mt-1 text-xl">{chapter.mapLabel}</h2>
       </div>
 
       <motion.div

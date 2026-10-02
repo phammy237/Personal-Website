@@ -164,8 +164,8 @@ export default function ConnectPage() {
       <div className="grid gap-12 px-[5vw] pb-24 pt-28 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16 max-w-[1400px] mx-auto">
         {/* ─── Left column ─────────────────────────── */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="lg:sticky lg:top-28 lg:self-start">
-          <p className="font-mono text-xs text-accent dark:text-accent-lavender tracking-widest uppercase mb-3">Let&apos;s hang</p>
-          <h1 className="font-display text-6xl md:text-7xl text-surface dark:text-white mb-6">Connect</h1>
+          <p className="eyebrow text-accent dark:text-accent-lavender mb-3">Let&apos;s hang</p>
+          <h1 className="heading text-6xl md:text-7xl mb-6">Connect</h1>
 
           <div className="flex gap-3">
             <SparkleIcon className="mt-1 shrink-0 text-accent/70" />
@@ -199,7 +199,7 @@ export default function ConnectPage() {
             <GlobeIcon className="mt-0.5 shrink-0 text-accent dark:text-accent-lavender" />
             <div>
               <p className="font-body font-medium text-surface dark:text-white">Based in Gainesville, FL</p>
-              <p className="font-body text-sm text-muted dark:text-white/45 mt-0.5">Open to connecting anywhere in the world.</p>
+              <p className="body-copy text-sm dark:text-white/45 mt-0.5">Open to connecting anywhere in the world.</p>
             </div>
           </div>
         </motion.div>
@@ -208,7 +208,7 @@ export default function ConnectPage() {
         <div>
           {/* 01 — How should we meet */}
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <p className="font-mono text-xs text-accent dark:text-accent-lavender tracking-widest uppercase mb-4">01 / How should we meet?</p>
+            <p className="eyebrow text-accent dark:text-accent-lavender mb-4">01 / How should we meet?</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {meetModes.map((mode) => {
                 const active = meetMode === mode.key;
@@ -233,7 +233,7 @@ export default function ConnectPage() {
                         <CheckIcon />
                       </span>
                     </div>
-                    <p className="font-body text-sm text-muted dark:text-white/50 leading-relaxed">{mode.desc}</p>
+                    <p className="body-copy text-sm dark:text-white/50 leading-relaxed">{mode.desc}</p>
                   </button>
                 );
               })}
@@ -242,7 +242,7 @@ export default function ConnectPage() {
 
           {/* 02 — Where I'll be */}
           <motion.div className="mt-10 pt-10 border-t border-border dark:border-white/10" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}>
-            <p className="font-mono text-xs text-accent dark:text-accent-lavender tracking-widest uppercase mb-4">02 / Where I&apos;ll be</p>
+            <p className="eyebrow text-accent dark:text-accent-lavender mb-4">02 / Where I&apos;ll be</p>
             <div className="flex items-center gap-3 rounded-xl border border-border dark:border-white/10 bg-card dark:bg-white/5 px-5 py-4">
               <MapPinIcon className="text-accent dark:text-accent-lavender shrink-0" />
               <span className="font-body text-surface dark:text-white">Gainesville, FL</span>
@@ -254,7 +254,7 @@ export default function ConnectPage() {
 
           {/* 03 — What sounds good */}
           <motion.div className="mt-10 pt-10 border-t border-border dark:border-white/10" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.26 }}>
-            <p className="font-mono text-xs text-accent dark:text-accent-lavender tracking-widest uppercase mb-4">03 / What sounds good?</p>
+            <p className="eyebrow text-accent dark:text-accent-lavender mb-4">03 / What sounds good?</p>
 
             <div className="relative">
               <button
@@ -263,7 +263,7 @@ export default function ConnectPage() {
                 className="flex w-full items-center gap-3 rounded-xl border border-border dark:border-white/10 bg-card dark:bg-white/5 px-5 py-4 text-left hover:border-accent/30 transition-colors"
               >
                 <span className="text-xl">{selectedOpt.emoji}</span>
-                <span className="font-display text-xl text-surface dark:text-white flex-1">{selectedOpt.title}</span>
+                <span className="heading text-xl flex-1">{selectedOpt.title}</span>
                 <ChevronDownIcon className={`text-muted dark:text-white/40 transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`} />
               </button>
 

@@ -81,11 +81,11 @@ export function RegionOverview({
         transition={{ delay: 0.15, duration: 0.5 }}
       >
         <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted dark:text-white/40">{chapter.eyebrow}</p>
-        <h2 className="mt-2 font-display text-2xl text-surface dark:text-white">{chapter.title}</h2>
+        <h2 className="heading mt-2 text-2xl">{chapter.title}</h2>
         {chapter.tagline && (
           <p className="mt-2 font-body text-sm italic leading-relaxed text-surface/80 dark:text-white/70">{chapter.tagline}</p>
         )}
-        <p className="mt-3 font-body text-sm leading-relaxed text-muted dark:text-white/60">{chapter.intro}</p>
+        <p className="body-copy mt-3 text-sm leading-relaxed dark:text-white/60">{chapter.intro}</p>
         {chapter.transitionLine && (
           <p className="mt-3 font-mono text-xs uppercase tracking-wider text-accent">{chapter.transitionLine}</p>
         )}

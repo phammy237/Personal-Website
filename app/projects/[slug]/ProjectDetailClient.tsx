@@ -123,20 +123,20 @@ export function ProjectDetailClient({
                 {/* Meta */}
                 <div className="grid sm:grid-cols-3 gap-8 mb-16 pb-16 border-b border-border">
                   <div>
-                    <span className="font-mono text-xs text-muted uppercase tracking-widest block mb-2">Category</span>
+                    <span className="eyebrow text-muted block mb-2">Category</span>
                     <p className="font-body text-surface">{project.category}</p>
                   </div>
                   <div>
-                    <span className="font-mono text-xs text-muted uppercase tracking-widest block mb-2">Date</span>
+                    <span className="eyebrow text-muted block mb-2">Date</span>
                     <p className="font-body text-surface">{project.month}</p>
                   </div>
                   <div>
-                    <span className="font-mono text-xs text-muted uppercase tracking-widest block mb-2">Tools</span>
+                    <span className="eyebrow text-muted block mb-2">Tools</span>
                     <p className="font-body text-surface">{project.tools.join(", ")}</p>
                   </div>
                 </div>
 
-                <p className="font-body text-xl text-muted leading-relaxed mb-10">
+                <p className="body-copy text-xl leading-relaxed mb-10">
                   {project.description}
                 </p>
 
@@ -151,7 +151,7 @@ export function ProjectDetailClient({
                         transition={{ delay: i * 0.07 }}
                       >
                         <span className="text-accent mt-1.5 flex-shrink-0">▸</span>
-                        <span className="font-body text-lg text-muted leading-relaxed">{bullet}</span>
+                        <span className="body-copy text-lg leading-relaxed">{bullet}</span>
                       </motion.li>
                     ))}
                   </ul>
@@ -171,7 +171,7 @@ export function ProjectDetailClient({
               >
                 {project.video && (
                   <div>
-                    <p className="font-mono text-xs text-muted uppercase tracking-widest mb-5">Demo Video</p>
+                    <p className="eyebrow text-muted mb-5">Demo Video</p>
                     <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-border bg-surface/5">
                       <iframe
                         src={project.video.replace("watch?v=", "embed/")}
@@ -186,7 +186,7 @@ export function ProjectDetailClient({
 
                 {project.slides && (
                   <div>
-                    <p className="font-mono text-xs text-muted uppercase tracking-widest mb-5">Slides</p>
+                    <p className="eyebrow text-muted mb-5">Slides</p>
                     <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden border border-border bg-surface/5">
                       <iframe
                         src={project.slides}
@@ -200,7 +200,7 @@ export function ProjectDetailClient({
 
                 {project.paper && (
                   <div>
-                    <p className="font-mono text-xs text-muted uppercase tracking-widest mb-5">Paper</p>
+                    <p className="eyebrow text-muted mb-5">Paper</p>
                     <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden border border-border bg-surface/5">
                       <iframe
                         src={project.paper}
@@ -214,7 +214,7 @@ export function ProjectDetailClient({
 
                 {links.length > 0 && (
                   <div>
-                    <p className="font-mono text-xs text-muted uppercase tracking-widest mb-5">Links</p>
+                    <p className="eyebrow text-muted mb-5">Links</p>
                     <div className="flex flex-wrap gap-3">
                       {links.map((link) => (
                         <a

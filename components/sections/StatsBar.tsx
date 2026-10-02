@@ -60,7 +60,7 @@ export function StatsBar() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.08 }}
             >
-              <p className="font-display text-surface dark:text-white" style={{ fontSize: "clamp(32px, 4vw, 52px)" }}>
+              <p className="heading" style={{ fontSize: "clamp(32px, 4vw, 52px)" }}>
                 <Counter value={s.value} suffix={s.suffix} decimal={s.decimal} />
               </p>
               <p className="font-mono text-[10px] text-muted dark:text-white/30 tracking-[0.2em] uppercase">

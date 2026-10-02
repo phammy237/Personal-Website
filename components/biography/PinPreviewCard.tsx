@@ -53,11 +53,11 @@ export function PinPreviewCard({
               {String(pin.number).padStart(2, "0")}
             </span>
             <div>
-              <h3 className="font-display text-lg leading-tight text-surface dark:text-white">{pin.preview.title}</h3>
+              <h3 className="heading text-lg leading-tight">{pin.preview.title}</h3>
               <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-accent">{metaLabel}</p>
             </div>
           </div>
-          <p className="mt-2 font-body text-sm text-muted dark:text-white/60">{pin.preview.description}</p>
+          <p className="body-copy mt-2 text-sm dark:text-white/60">{pin.preview.description}</p>
 
           <div className="relative mt-4 aspect-[4/3] w-full overflow-hidden rounded-xl bg-accent-light dark:bg-white/5">
             {pin.image ? (

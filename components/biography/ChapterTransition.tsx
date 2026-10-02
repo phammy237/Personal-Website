@@ -45,7 +45,7 @@ export function ChapterTransition({
       aria-label="Traveling from Vietnam to the United States"
     >
       <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">Next chapter</p>
-      <h2 className="font-display text-3xl text-surface dark:text-white md:text-4xl">Across the Pacific</h2>
+      <h2 className="heading text-3xl md:text-4xl">Across the Pacific</h2>
       <div className="flex items-center gap-3 font-mono text-xs uppercase tracking-wider text-muted dark:text-white/40">
         <span className={arcing ? "" : "text-accent"}>{FROM.regionLabel}</span>
         <span aria-hidden="true">→</span>

@@ -36,7 +36,7 @@ export function ReadyToDepart() {
           </motion.p>
 
           <motion.h2
-            className="font-display text-surface dark:text-white mb-6 leading-tight"
+            className="heading mb-6 leading-tight"
             style={{ fontSize: "clamp(36px, 5vw, 64px)" }}
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -47,7 +47,7 @@ export function ReadyToDepart() {
           </motion.h2>
 
           <motion.p
-            className="font-body text-muted dark:text-white/45 leading-relaxed max-w-sm mb-10"
+            className="body-copy dark:text-white/45 leading-relaxed max-w-sm mb-10"
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}

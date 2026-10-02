@@ -74,10 +74,10 @@ export default function BiographyPage() {
             >
               <div className="order-2 lg:order-1">
                 <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">{heroCopy.eyebrow}</p>
-                <h1 className="mt-4 whitespace-pre-line font-display text-5xl leading-[0.95] text-surface dark:text-white md:text-6xl">
+                <h1 className="heading mt-4 whitespace-pre-line text-5xl leading-[0.95] md:text-6xl">
                   {heroCopy.heading}
                 </h1>
-                <p className="mt-5 max-w-md font-body text-base leading-relaxed text-muted dark:text-white/60">
+                <p className="body-copy mt-5 max-w-md text-base leading-relaxed dark:text-white/60">
                   {heroCopy.subheading}
                 </p>
                 <button

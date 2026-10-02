@@ -29,7 +29,7 @@ export default function CVPage() {
         <div className="flex items-start justify-between mb-8 flex-wrap gap-4">
           <div>
             <motion.h1
-              className="font-display text-5xl text-surface dark:text-white mb-2"
+              className="heading text-5xl mb-2"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
@@ -114,7 +114,7 @@ export default function CVPage() {
                     <span className="font-mono text-xs text-muted dark:text-white/40 whitespace-nowrap">{edu.period}</span>
                   </div>
                   {edu.details.map((d, di) => (
-                    <p key={di} className="font-body text-sm text-muted mt-2 leading-relaxed">{d}</p>
+                    <p key={di} className="body-copy text-sm mt-2 leading-relaxed">{d}</p>
                   ))}
                   {edu.honors.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mt-3">
@@ -147,7 +147,7 @@ export default function CVPage() {
                     <div className="flex items-baseline justify-between gap-4 mb-1 flex-wrap">
                       <div>
                         <span className="font-body font-semibold text-surface dark:text-white">{exp.role}</span>
-                        <span className="font-body text-muted dark:text-white/50"> · {exp.company}</span>
+                        <span className="body-copy dark:text-white/50"> · {exp.company}</span>
                       </div>
                       <span className="font-mono text-xs text-muted dark:text-white/40 whitespace-nowrap">{exp.period}</span>
                     </div>
@@ -158,7 +158,7 @@ export default function CVPage() {
                       {exp.bullets.map((b, bi) => (
                         <li key={bi} className="flex items-start gap-2">
                           <span className="text-accent mt-1 flex-shrink-0 text-xs">▸</span>
-                          <span className="font-body text-sm text-muted dark:text-white/50 leading-relaxed">{b}</span>
+                          <span className="body-copy text-sm dark:text-white/50 leading-relaxed">{b}</span>
                         </li>
                       ))}
                     </ul>
@@ -184,7 +184,7 @@ export default function CVPage() {
                     <div className="flex items-baseline justify-between gap-4 mb-1 flex-wrap">
                       <div>
                         <span className="font-body font-semibold text-surface dark:text-white">{lead.role}</span>
-                        <span className="font-body text-muted dark:text-white/50"> · {lead.company}</span>
+                        <span className="body-copy dark:text-white/50"> · {lead.company}</span>
                       </div>
                       <span className="font-mono text-xs text-muted dark:text-white/40 whitespace-nowrap">{lead.period}</span>
                     </div>
@@ -193,7 +193,7 @@ export default function CVPage() {
                       {lead.bullets.map((b, bi) => (
                         <li key={bi} className="flex items-start gap-2">
                           <span className="text-accent mt-1 flex-shrink-0 text-xs">▸</span>
-                          <span className="font-body text-sm text-muted dark:text-white/50 leading-relaxed">{b}</span>
+                          <span className="body-copy text-sm dark:text-white/50 leading-relaxed">{b}</span>
                         </li>
                       ))}
                     </ul>
@@ -207,7 +207,7 @@ export default function CVPage() {
               <div className="space-y-4">
                 {Object.entries(skills).map(([category, items]) => (
                   <div key={category}>
-                    <p className="font-mono text-xs text-muted dark:text-white/40 uppercase tracking-widest mb-2">{category}</p>
+                    <p className="eyebrow text-muted dark:text-white/40 mb-2">{category}</p>
                     <div className="flex flex-wrap gap-2">
                       {items.map((skill) => (
                         <span key={skill} className="font-mono text-xs text-surface/70 dark:text-white/50 border border-border dark:border-white/10 bg-card dark:bg-white/5 px-3 py-1 rounded">
@@ -266,7 +266,7 @@ export default function CVPage() {
                       </div>
                     </div>
                     {edu.details.map((d, di) => (
-                      <p key={di} className="font-body text-sm text-muted mt-1.5 leading-relaxed">{d}</p>
+                      <p key={di} className="body-copy text-sm mt-1.5 leading-relaxed">{d}</p>
                     ))}
                   </motion.div>
                 ))}
@@ -291,7 +291,7 @@ export default function CVPage() {
                       <div className="flex items-baseline justify-between gap-4 mb-1 flex-wrap">
                         <div>
                           <span className="font-body font-semibold text-surface dark:text-white">{entry.role}</span>
-                          <span className="font-body text-muted dark:text-white/50"> · {entry.org}</span>
+                          <span className="body-copy dark:text-white/50"> · {entry.org}</span>
                         </div>
                         <span className="font-mono text-xs text-muted dark:text-white/40 whitespace-nowrap">{entry.period}</span>
                       </div>
@@ -302,7 +302,7 @@ export default function CVPage() {
                         {entry.bullets.map((b, bi) => (
                           <li key={bi} className="flex items-start gap-2">
                             <span className="text-accent mt-1 flex-shrink-0 text-xs">▸</span>
-                            <span className="font-body text-sm text-muted dark:text-white/50 leading-relaxed">{b}</span>
+                            <span className="body-copy text-sm dark:text-white/50 leading-relaxed">{b}</span>
                           </li>
                         ))}
                       </ul>
@@ -347,7 +347,7 @@ function Section({
       transition={{ type: "spring", stiffness: 100 }}
     >
       <div className="flex items-center gap-4 mb-6">
-        <h2 className="font-mono text-xs text-muted dark:text-white/40 tracking-widest uppercase whitespace-nowrap">
+        <h2 className="eyebrow text-muted dark:text-white/40 whitespace-nowrap">
           {title}
         </h2>
         <div className="h-px bg-border dark:bg-white/10 flex-1" />

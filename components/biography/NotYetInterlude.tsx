@@ -62,10 +62,10 @@ export function NotYetInterlude({ onCrossOcean }: { onCrossOcean: () => void }) 
           transition={{ duration: 0.5 }}
         >
           <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-accent">Interlude</p>
-          <h2 className="mt-3 font-display text-3xl leading-tight text-surface dark:text-white md:text-4xl">
+          <h2 className="heading mt-3 text-3xl leading-tight md:text-4xl">
             {notYetInterludeCopy.heading}
           </h2>
-          <p className="mt-4 max-w-xl font-body text-base leading-relaxed text-muted dark:text-white/60">
+          <p className="body-copy mt-4 max-w-xl text-base leading-relaxed dark:text-white/60">
             {notYetInterludeCopy.paragraph}
           </p>
         </motion.div>
@@ -79,7 +79,7 @@ export function NotYetInterlude({ onCrossOcean }: { onCrossOcean: () => void }) 
           viewport={{ once: true, margin: "-15%" }}
           transition={{ duration: 0.55 }}
         >
-          <p className="font-display text-2xl italic text-surface dark:text-white md:text-3xl">
+          <p className="heading text-2xl italic md:text-3xl">
             {notYetInterludeCopy.resolution}
           </p>
           <button

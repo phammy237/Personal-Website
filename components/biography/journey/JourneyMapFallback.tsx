@@ -17,7 +17,7 @@ export function JourneyMapFallback() {
     <div className="absolute inset-0 flex items-center justify-center bg-base px-6 dark:bg-navy">
       <div className="max-w-sm rounded-2xl border border-border bg-white/60 px-6 py-5 text-center dark:border-white/10 dark:bg-navy-mid/60">
         <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent dark:text-accent-lavender">The Journey</p>
-        <p className="mt-3 font-body text-sm leading-relaxed text-muted dark:text-white/60">
+        <p className="body-copy mt-3 text-sm leading-relaxed dark:text-white/60">
           Your browser can&apos;t render the interactive map, but here&apos;s the route:
         </p>
         <ul className="mt-4 flex flex-col gap-2 text-left">

@@ -107,7 +107,7 @@ function BoardingPass() {
         <div className="grid grid-cols-[1fr_1.15fr_1fr] items-end gap-3">
           <div>
             <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-surface/40 dark:text-white/35">From</p>
-            <p className="mt-1.5 font-display text-4xl leading-none text-surface dark:text-white sm:text-5xl">HAN</p>
+            <p className="heading mt-1.5 text-4xl leading-none sm:text-5xl">HAN</p>
             <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-surface/50 dark:text-white/45">Hanoi</p>
           </div>
           <div className="pb-6 text-accent">
@@ -124,7 +124,7 @@ function BoardingPass() {
           </div>
           <div className="text-right">
             <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-surface/40 dark:text-white/35">To</p>
-            <p className="mt-1.5 font-display text-4xl leading-none text-surface dark:text-white sm:text-5xl">GNV</p>
+            <p className="heading mt-1.5 text-4xl leading-none sm:text-5xl">GNV</p>
             <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-surface/50 dark:text-white/45">Gainesville</p>
           </div>
         </div>
@@ -138,7 +138,7 @@ function BoardingPass() {
             <div className="mt-2 flex justify-between">
               {[["P","Product"],["D","Data"],["O","Ops"]].map(([letter, word]) => (
                 <div key={letter} className="flex flex-col items-center gap-1">
-                  <span className="font-display text-xl text-surface dark:text-white">{letter}</span>
+                  <span className="heading text-xl">{letter}</span>
                   <span className="font-mono text-[8px] uppercase tracking-[0.12em] text-surface/40 dark:text-white/35">{word}</span>
                 </div>
               ))}
@@ -240,11 +240,11 @@ function DestinationCards() {
           <div className="absolute inset-0 bg-gradient-to-r from-sand via-sand/60 to-sand/55 dark:from-navy dark:via-navy/80 dark:to-navy/75" />
           <div className="relative flex h-full flex-col justify-between p-5">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-surface/75 dark:text-white/70">
-              Stop <span className="block pt-1 font-display text-2xl tracking-normal text-surface dark:text-white">{destination.num}</span>
+              Stop <span className="heading block pt-1 text-2xl tracking-normal">{destination.num}</span>
             </p>
             <div className="flex items-end justify-between gap-4">
               <div>
-                <h3 className="font-display text-2xl text-surface dark:text-white md:text-3xl">{destination.title}</h3>
+                <h3 className="heading text-2xl md:text-3xl">{destination.title}</h3>
                 <p className="mt-2 line-clamp-2 max-w-[280px] font-mono text-[12px] leading-relaxed text-surface/85 dark:text-white/85">{destination.desc}</p>
               </div>
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border text-lg transition border-surface/70 text-surface group-hover:border-accent group-hover:text-accent dark:border-white/90 dark:text-white">
@@ -286,7 +286,7 @@ export function Hero() {
             </motion.div>
 
             <motion.h1
-              className="font-display text-[clamp(3.5rem,8vw,7rem)] leading-[0.82] tracking-normal text-surface dark:text-white"
+              className="heading text-[clamp(3.5rem,8vw,7rem)] leading-[0.82] tracking-normal"
               initial={{ opacity: 0, y: 28 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.25, duration: 0.7, ease: "easeOut" }}

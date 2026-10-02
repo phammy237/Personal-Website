@@ -78,7 +78,7 @@ export function ExpandedStory({
 
       <div className="flex items-start justify-between gap-4 px-6 pt-6 md:px-8 md:pt-8">
         <div>
-          <h2 className="font-display text-2xl text-surface dark:text-white md:text-3xl">{pin.preview.title}</h2>
+          <h2 className="heading text-2xl md:text-3xl">{pin.preview.title}</h2>
           <p className="mt-1.5 font-mono text-xs uppercase tracking-wider text-muted dark:text-white/40">
             United States · {pin.yearRange}
           </p>

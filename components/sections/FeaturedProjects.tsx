@@ -21,7 +21,7 @@ export function FeaturedProjects() {
             <p className="font-mono text-[10px] text-muted dark:text-white/30 tracking-[0.25em] uppercase mb-2">
               Portfolio
             </p>
-            <h2 className="font-display text-4xl text-surface dark:text-white">Selected Work</h2>
+            <h2 className="heading text-4xl">Selected Work</h2>
           </div>
           <div className="flex flex-col md:items-end gap-3">
             <p className="font-mono text-xs text-muted dark:text-white/35 max-w-xs leading-relaxed text-left md:text-right">
@@ -30,7 +30,7 @@ export function FeaturedProjects() {
             </p>
             <Link
               href="/projects"
-              className="font-mono text-xs text-accent hover:text-accent/70 transition-colors duration-200 tracking-widest uppercase self-start md:self-end"
+              className="eyebrow text-accent hover:text-accent/70 transition-colors duration-200 self-start md:self-end"
             >
               View All Work →
             </Link>

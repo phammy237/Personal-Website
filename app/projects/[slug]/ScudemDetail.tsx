@@ -10,7 +10,7 @@ const GRADIENT = "linear-gradient(135deg, #7C3AED 0%, #EC4899 100%)";
 function Equation({ children }: { children: React.ReactNode }) {
   return (
     <div className="overflow-x-auto rounded-xl border border-border bg-card px-6 py-5 dark:border-white/10 dark:bg-white/5">
-      <p className="whitespace-nowrap font-display text-xl italic text-surface dark:text-white sm:text-2xl">{children}</p>
+      <p className="heading whitespace-nowrap text-xl italic sm:text-2xl">{children}</p>
     </div>
   );
 }
@@ -212,7 +212,7 @@ export function ScudemDetail({ project, nextProject }: { project: Project; nextP
 
           {/* The Question */}
           <FadeIn>
-            <p className="mb-24 font-display text-3xl leading-tight text-surface dark:text-white sm:text-4xl">
+            <p className="heading mb-24 text-3xl leading-tight sm:text-4xl">
               &ldquo;Do mixed-species groups detect predators better? How does group size influence detection —
               and what behavioral factors limit the benefit of adding more members?&rdquo;
             </p>
@@ -220,8 +220,8 @@ export function ScudemDetail({ project, nextProject }: { project: Project; nextP
 
           {/* The Problem */}
           <FadeIn>
-            <p className="mb-2 font-mono text-xs uppercase tracking-widest text-muted dark:text-white/40">The Problem</p>
-            <p className="mb-24 font-body text-lg leading-relaxed text-muted dark:text-white/60">
+            <p className="eyebrow mb-2 text-muted dark:text-white/40">The Problem</p>
+            <p className="body-copy mb-24 text-lg leading-relaxed dark:text-white/60">
               Animals often form groups to reduce predation risk — individuals can benefit from the vigilance of
               others, spending less time personally scanning while still maintaining collective awareness. But
               adding more individuals doesn&apos;t necessarily make a group proportionally safer: if members scan at
@@ -231,8 +231,8 @@ export function ScudemDetail({ project, nextProject }: { project: Project; nextP
 
           {/* Model Pipeline */}
           <FadeIn>
-            <p className="mb-3 font-mono text-xs uppercase tracking-widest text-accent">Model Pipeline</p>
-            <h2 className="mb-16 font-display text-3xl text-surface dark:text-white sm:text-4xl">
+            <p className="eyebrow mb-3 text-accent">Model Pipeline</p>
+            <h2 className="heading mb-16 text-3xl sm:text-4xl">
               Individual Vigilance → Independent Watchers → Collective Vigilance → Detection
             </h2>
           </FadeIn>
@@ -246,12 +246,12 @@ export function ScudemDetail({ project, nextProject }: { project: Project; nextP
                       <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/10 font-mono text-xs text-accent">
                         {stage.n}
                       </span>
-                      <h3 className="font-display text-2xl text-surface dark:text-white">{stage.title}</h3>
+                      <h3 className="heading text-2xl">{stage.title}</h3>
                     </div>
                     <div className="mb-4">
                       <Equation>{stage.equation}</Equation>
                     </div>
-                    <p className="mb-4 font-body text-sm leading-relaxed text-muted dark:text-white/60">{stage.body}</p>
+                    <p className="body-copy mb-4 text-sm leading-relaxed dark:text-white/60">{stage.body}</p>
                     <Takeaway>{stage.takeaway}</Takeaway>
                   </div>
                   <GraphPlaceholder label={stage.title} deckPage={stage.deckPage} />
@@ -263,15 +263,15 @@ export function ScudemDetail({ project, nextProject }: { project: Project; nextP
           {/* Key Findings */}
           <div className="mt-28">
             <FadeIn>
-              <p className="mb-3 font-mono text-xs uppercase tracking-widest text-accent">What the Model Found</p>
-              <h2 className="mb-10 font-display text-3xl text-surface dark:text-white sm:text-4xl">Key Findings</h2>
+              <p className="eyebrow mb-3 text-accent">What the Model Found</p>
+              <h2 className="heading mb-10 text-3xl sm:text-4xl">Key Findings</h2>
             </FadeIn>
             <div className="grid gap-4 sm:grid-cols-2">
               {findings.map((f, i) => (
                 <FadeIn key={f.title} delay={i * 0.06}>
                   <div className="h-full rounded-2xl border border-border p-6 dark:border-white/10">
-                    <h3 className="mb-2 font-display text-lg text-surface dark:text-white">{f.title}</h3>
-                    <p className="font-body text-sm leading-relaxed text-muted dark:text-white/60">{f.body}</p>
+                    <h3 className="heading mb-2 text-lg">{f.title}</h3>
+                    <p className="body-copy text-sm leading-relaxed dark:text-white/60">{f.body}</p>
                   </div>
                 </FadeIn>
               ))}
@@ -280,16 +280,16 @@ export function ScudemDetail({ project, nextProject }: { project: Project; nextP
 
           {/* Transition */}
           <FadeIn>
-            <p className="mt-28 mb-24 font-display text-2xl italic leading-snug text-surface dark:text-white sm:text-3xl">
+            <p className="heading mt-28 mb-24 text-2xl italic leading-snug sm:text-3xl">
               We realized the first model wasn&apos;t enough.
             </p>
           </FadeIn>
 
           {/* Extended model */}
           <FadeIn>
-            <p className="mb-3 font-mono text-xs uppercase tracking-widest text-accent">Taking the Model Further</p>
-            <h2 className="mb-6 font-display text-3xl text-surface dark:text-white sm:text-4xl">Extended Model</h2>
-            <p className="mb-10 font-body text-lg leading-relaxed text-muted dark:text-white/60">
+            <p className="eyebrow mb-3 text-accent">Taking the Model Further</p>
+            <h2 className="heading mb-6 text-3xl sm:text-4xl">Extended Model</h2>
+            <p className="body-copy mb-10 text-lg leading-relaxed dark:text-white/60">
               The original framework assumes identical behavioral characteristics, a constant group size, uniform
               detection ability, and no spatial or communication structure. To make it more realistic, we extended
               it so each individual carries its own parameters:
@@ -312,7 +312,7 @@ export function ScudemDetail({ project, nextProject }: { project: Project; nextP
               <Equation>
                 P<sub>det</sub>(t) = 1 − exp(−Σᵢ μᵢ wᵢ(N) δᵢ(xₚ) t<sub>i</sub><sup>eff</sup>)
               </Equation>
-              <p className="mt-4 font-body text-sm leading-relaxed text-muted dark:text-white/60">
+              <p className="body-copy mt-4 text-sm leading-relaxed dark:text-white/60">
                 Instead of assuming every member contributes equally, an individual now contributes only when it can
                 realistically detect the predator — depending on its vigilance, position, detection radius,
                 synchronization, and available reaction time.
@@ -322,8 +322,8 @@ export function ScudemDetail({ project, nextProject }: { project: Project; nextP
 
           {/* Extended simulation */}
           <FadeIn>
-            <p className="mb-3 font-mono text-xs uppercase tracking-widest text-accent">Extended Simulation</p>
-            <h2 className="mb-8 font-display text-3xl text-surface dark:text-white sm:text-4xl">Simulation Results</h2>
+            <p className="eyebrow mb-3 text-accent">Extended Simulation</p>
+            <h2 className="heading mb-8 text-3xl sm:text-4xl">Simulation Results</h2>
           </FadeIn>
           <FadeIn>
             <div className="mb-8 grid gap-4 sm:grid-cols-2">
@@ -332,7 +332,7 @@ export function ScudemDetail({ project, nextProject }: { project: Project; nextP
             </div>
           </FadeIn>
           <FadeIn>
-            <p className="mb-24 font-body text-lg leading-relaxed text-muted dark:text-white/60">
+            <p className="body-copy mb-24 text-lg leading-relaxed dark:text-white/60">
               Detection probability kept increasing with group size, but the improvements grew progressively
               smaller. More importantly, low-synchronization groups substantially outperformed high-synchronization
               groups even at similar sizes — diversity in behavior can be more valuable than simply adding more
@@ -343,12 +343,12 @@ export function ScudemDetail({ project, nextProject }: { project: Project; nextP
           {/* Final Insight */}
           <FadeIn>
             <div className="mb-28 border-y border-border py-16 text-center dark:border-white/10">
-              <p className="font-display text-4xl leading-tight text-surface dark:text-white sm:text-5xl">
+              <p className="heading text-4xl leading-tight sm:text-5xl">
                 More isn&apos;t always better.
                 <br />
                 Independence matters.
               </p>
-              <p className="mx-auto mt-6 max-w-lg font-body text-muted dark:text-white/60">
+              <p className="body-copy mx-auto mt-6 max-w-lg dark:text-white/60">
                 Groups benefit not only from additional watchers, but from having watchers whose behaviors and
                 information are meaningfully independent.
               </p>
@@ -362,7 +362,7 @@ export function ScudemDetail({ project, nextProject }: { project: Project; nextP
                 <span className="mr-2 inline-block transition-transform group-open:rotate-90">▸</span>
                 View Model Assumptions
               </summary>
-              <p className="px-5 pb-5 font-body text-sm leading-relaxed text-muted dark:text-white/60">
+              <p className="body-copy px-5 pb-5 text-sm leading-relaxed dark:text-white/60">
                 The initial model assumes identical behavioral parameters across species, partially but not
                 perfectly synchronized scanning, a relatively small vigilance-relaxation rate, and predator
                 detections that follow a Poisson process based on collective vigilance. Group size is modeled from
@@ -374,12 +374,12 @@ export function ScudemDetail({ project, nextProject }: { project: Project; nextP
           {/* Limitations */}
           <FadeIn>
             <div className="mb-24 mt-12">
-              <p className="mb-3 font-mono text-xs uppercase tracking-widest text-muted dark:text-white/40">Limitations &amp; Future Work</p>
-              <p className="mb-3 font-body text-sm leading-relaxed text-muted dark:text-white/60">
+              <p className="eyebrow mb-3 text-muted dark:text-white/40">Limitations &amp; Future Work</p>
+              <p className="body-copy mb-3 text-sm leading-relaxed dark:text-white/60">
                 The original framework assumes a uniform detection rate across species, doesn&apos;t explicitly
                 represent spatial organization or communication networks, and assumes a constant group size.
               </p>
-              <p className="font-body text-sm leading-relaxed text-muted dark:text-white/60">
+              <p className="body-copy text-sm leading-relaxed dark:text-white/60">
                 Potential improvements include species-specific detection rates, predator movement and dynamics,
                 spatial heterogeneity, and more detailed reaction or communication delays.
               </p>
@@ -389,7 +389,7 @@ export function ScudemDetail({ project, nextProject }: { project: Project; nextP
           {/* Reflection */}
           <FadeIn>
             <div className="mb-24">
-              <p className="mb-3 font-mono text-xs uppercase tracking-widest text-muted dark:text-white/40">What I Learned</p>
+              <p className="eyebrow mb-3 text-muted dark:text-white/40">What I Learned</p>
               <p className="font-body text-lg italic leading-relaxed text-surface/80 dark:text-white/70">
                 This project showed me how mathematical modeling can translate complex behavioral systems into a
                 series of manageable assumptions. The most interesting part was realizing that simply increasing
@@ -444,7 +444,7 @@ export function ScudemDetail({ project, nextProject }: { project: Project; nextP
             href={`/projects/${nextProject.slug}`}
             className="group flex items-center gap-4 transition-colors duration-200 hover:text-accent"
           >
-            <span className="font-display text-3xl text-surface transition-colors duration-200 group-hover:text-accent dark:text-white md:text-5xl">
+            <span className="heading text-3xl transition-colors duration-200 group-hover:text-accent md:text-5xl">
               {nextProject.title}
             </span>
             <span className="font-mono text-2xl text-muted transition-colors duration-200 group-hover:text-accent dark:text-white/50">→</span>

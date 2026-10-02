@@ -167,10 +167,10 @@ function HowIThink() {
       viewport={{ once: true }}
       transition={{ type: "spring", stiffness: 80, damping: 20 }}
     >
-      <p className="font-mono text-xs text-muted dark:text-white/40 tracking-widest uppercase mb-2">
+      <p className="eyebrow text-muted dark:text-white/40 mb-2">
         How I Think
       </p>
-      <p className="font-body text-sm text-muted dark:text-white/40 mb-8">
+      <p className="body-copy text-sm dark:text-white/40 mb-8">
         The principles that shape how I approach products and problems.
       </p>
 
@@ -219,14 +219,14 @@ function HowIThink() {
             <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-accent/10 text-lg text-accent">
               {current.icon}
             </span>
-            <h3 className="mb-3 font-display text-xl text-surface dark:text-white md:text-2xl">{current.short}</h3>
-            <p className="font-body text-sm leading-relaxed text-muted dark:text-white/60">{current.detail}</p>
+            <h3 className="heading mb-3 text-xl md:text-2xl">{current.short}</h3>
+            <p className="body-copy text-sm leading-relaxed dark:text-white/60">{current.detail}</p>
 
             <div className="my-5 border-t border-dashed border-border dark:border-white/15" />
 
             <div className="flex items-start gap-3 rounded-xl border border-accent/10 bg-accent/5 px-4 py-3.5">
               <span className="mt-0.5 text-accent">✦</span>
-              <p className="font-body text-xs leading-relaxed text-muted dark:text-white/50">
+              <p className="body-copy text-xs leading-relaxed dark:text-white/50">
                 <span className="font-medium text-surface dark:text-white/70">In practice: </span>
                 {current.practice}
               </p>
@@ -244,7 +244,7 @@ export function Backstory() {
       <div className="max-w-[1200px] mx-auto">
         {/* Section label */}
         <motion.p
-          className="font-mono text-xs text-muted dark:text-white/40 tracking-widest uppercase mb-8"
+          className="eyebrow text-muted dark:text-white/40 mb-8"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
@@ -275,21 +275,21 @@ export function Backstory() {
             viewport={{ once: true }}
             transition={{ type: "spring", stiffness: 80, damping: 20, delay: 0.1 }}
           >
-            <h2 className="font-display text-7xl md:text-8xl text-surface dark:text-white leading-tight">
+            <h2 className="heading text-7xl md:text-8xl leading-tight">
               Hi, I&apos;m My.
             </h2>
 
-            <p className="font-body text-xl text-muted dark:text-white/60 leading-relaxed">
+            <p className="body-copy text-xl dark:text-white/60 leading-relaxed">
               I&apos;m My Pham, a Data Science student at the University of Florida interested in
               product, data, and operations.
             </p>
-            <p className="font-body text-xl text-muted dark:text-white/60 leading-relaxed">
+            <p className="body-copy text-xl dark:text-white/60 leading-relaxed">
               I like turning messy, ambiguous problems into workflows, tools, and product systems
               that people can actually use. I&apos;m currently a Product Management Intern at
               Lattera, an F&amp;B startup, and previously worked in Risk Advisory at Deloitte. My
               work spans product strategy, analytics, sustainability, ESG, and decision modeling.
             </p>
-            <p className="font-body text-xl text-muted dark:text-white/60 leading-relaxed">
+            <p className="body-copy text-xl dark:text-white/60 leading-relaxed">
               At UF, I&apos;ve served as External Vice President of Data Science &amp; Informatics
               for two years, previously served as Treasurer for the Vietnamese International Student
               Association, and will be Head of Operations for WingHacks. Outside of work, I&apos;m
@@ -350,7 +350,7 @@ export function Backstory() {
 
             {/* Early career programs */}
             <div className="bg-card dark:bg-white/5 border border-border dark:border-white/10 rounded-xl p-6">
-              <p className="font-mono text-xs text-muted dark:text-white/40 uppercase tracking-widest mb-3">
+              <p className="eyebrow text-muted dark:text-white/40 mb-3">
                 Selected Early Career Programs
               </p>
               <div className="flex flex-wrap gap-2">

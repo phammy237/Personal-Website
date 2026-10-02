@@ -33,7 +33,7 @@ export function ExperiencePreview() {
             <p className="font-mono text-[10px] text-muted dark:text-white/30 tracking-[0.25em] uppercase mb-2">
               Experience
             </p>
-            <h2 className="font-display text-4xl text-surface dark:text-white">Where I&apos;ve Worked</h2>
+            <h2 className="heading text-4xl">Where I&apos;ve Worked</h2>
           </motion.div>
           <motion.div
             initial={{ opacity: 0 }}
@@ -43,7 +43,7 @@ export function ExperiencePreview() {
           >
             <Link
               href="/cv"
-              className="font-mono text-xs text-accent hover:text-accent/70 transition-colors duration-200 tracking-widest uppercase"
+              className="eyebrow text-accent hover:text-accent/70 transition-colors duration-200"
             >
               Full CV →
             </Link>

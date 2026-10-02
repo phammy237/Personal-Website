@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Shared text styles — the site's recurring label / heading / body combinations, named once so every
+   page uses the same building blocks. Pure aliases of the utilities they replaced: no visual change. */
+@layer components {
+  .eyebrow { @apply font-mono text-xs uppercase tracking-widest; }
+  .heading { @apply font-display text-surface dark:text-white; }
+  .body-copy { @apply font-body text-muted; }
+}
+
 :root {
   --accent: #5B3A8E;
   --accent-gold: #C5A46D;

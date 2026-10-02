@@ -39,8 +39,8 @@ export function JourneyPinPreview({
             {String(pin.number).padStart(2, "0")}
           </span>
           <div className="min-w-0 flex-1">
-            <p className="font-display text-lg leading-tight text-surface dark:text-white">{pin.title}</p>
-            <p className="mt-0.5 font-body text-sm text-muted dark:text-white/60">{pin.subtitle}</p>
+            <p className="heading text-lg leading-tight">{pin.title}</p>
+            <p className="body-copy mt-0.5 text-sm dark:text-white/60">{pin.subtitle}</p>
             {pin.description && (
               <p className="mt-1 line-clamp-2 font-body text-xs leading-relaxed text-muted/80 dark:text-white/45">
                 {pin.description}

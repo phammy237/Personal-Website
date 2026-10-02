@@ -315,7 +315,7 @@ export function JourneyStoryModal({
             <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted dark:text-white/50">
               {String(data.index + 1).padStart(2, "0")} / {String(data.total).padStart(2, "0")} · {data.metaLabel}
             </p>
-            <h2 className="mt-2 max-w-[420px] font-display text-[34px] leading-[1.05] text-surface dark:text-white">{data.title}</h2>
+            <h2 className="heading mt-2 max-w-[420px] text-[34px] leading-[1.05]">{data.title}</h2>
             <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.16em] text-accent dark:text-journey-glow">{data.theme}</p>
             <div className="mt-5 flex gap-5 border-b border-border dark:border-white/10">
               {(["overview", "media"] as const).map((t) => (
@@ -346,7 +346,7 @@ export function JourneyStoryModal({
                       </p>
                     )}
                     {section.paragraphs.map((p, j) => (
-                      <p key={j} className="font-body text-[17px] leading-[1.65] text-muted dark:text-[rgba(238,236,246,0.80)]">
+                      <p key={j} className="body-copy text-[17px] leading-[1.65] dark:text-[rgba(238,236,246,0.80)]">
                         {p}
                       </p>
                     ))}
@@ -380,7 +380,7 @@ export function JourneyStoryModal({
                 ))}
               </div>
             ) : (
-              <p className="font-body text-sm text-muted dark:text-white/40">
+              <p className="body-copy text-sm dark:text-white/40">
                 {data.mediaPlaceholder ? "Photos for this chapter are coming soon." : "No photos yet."}
               </p>
             )}
