@@ -57,7 +57,7 @@ export default function BiographyPage() {
   }, [story.stage, zoomingIntoVietnam]);
 
   return (
-    <main className="min-h-screen bg-[#F7F3FA] dark:bg-navy">
+    <main className="min-h-screen bg-base dark:bg-navy">
       <Navbar />
       <JourneyTimelineRail activeIndex={railIndexFor(story.stage, story.chapterIndex)} />
 

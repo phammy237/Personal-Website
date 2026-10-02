@@ -438,7 +438,7 @@ export function ScudemDetail({ project, nextProject }: { project: Project; nextP
       <section className="border-t border-border bg-base px-[5vw] py-16 dark:border-white/10 dark:bg-navy">
         <div className="mx-auto flex max-w-[1200px] items-center justify-between">
           <Link href="/projects" className="font-mono text-sm text-muted transition-colors hover:text-accent dark:text-white/50">
-            ← All Projects
+            ← All Work
           </Link>
           <Link
             href={`/projects/${nextProject.slug}`}

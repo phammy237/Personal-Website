@@ -40,7 +40,7 @@ export function JourneyProgressRail({ chapters, activeChapterId, activeChapterIn
               <span
                 className={`font-mono text-[10px] uppercase leading-none tracking-[0.18em] transition-colors ${
                   isActive
-                    ? "text-[#1D2340] dark:text-[rgba(244,241,248,0.92)]"
+                    ? "text-journey-ink dark:text-[rgba(244,241,248,0.92)]"
                     : "text-[rgba(79,87,120,0.42)] group-hover:text-[rgba(79,87,120,0.65)] dark:text-[rgba(205,200,224,0.40)] dark:group-hover:text-[rgba(205,200,224,0.65)]"
                 }`}
               >
@@ -49,8 +49,8 @@ export function JourneyProgressRail({ chapters, activeChapterId, activeChapterIn
               <span
                 className={`h-1.5 w-1.5 rounded-full transition-all ${
                   isActive
-                    ? "bg-[#7C6AF2] shadow-[0_0_8px_rgba(124,106,242,0.28)] dark:bg-[#A58AFF] dark:shadow-[0_0_8px_rgba(165,138,255,0.45)]"
-                    : "border border-[rgba(90,95,130,0.24)] bg-transparent group-hover:border-[#7C6AF2] dark:border-[rgba(180,172,215,0.28)] dark:group-hover:border-[#A58AFF]"
+                    ? "bg-journey-violet shadow-[0_0_8px_rgba(124,106,242,0.28)] dark:bg-[#A58AFF] dark:shadow-[0_0_8px_rgba(165,138,255,0.45)]"
+                    : "border border-[rgba(90,95,130,0.24)] bg-transparent group-hover:border-journey-violet dark:border-[rgba(180,172,215,0.28)] dark:group-hover:border-[#A58AFF]"
                 }`}
               />
             </button>
@@ -74,10 +74,10 @@ export function JourneyProgressRail({ chapters, activeChapterId, activeChapterIn
                 aria-current={isActive ? "step" : undefined}
                 className={`rounded-full px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.15em] transition-colors ${
                   isActive
-                    ? "bg-[#7C6AF2] text-white dark:bg-accent-lavender dark:text-navy"
+                    ? "bg-journey-violet text-white dark:bg-accent-lavender dark:text-navy"
                     : isCompleted
-                      ? "text-[#7C6AF2] dark:text-accent-lavender/80"
-                      : "text-[#7D84A3] dark:text-white/40"
+                      ? "text-journey-violet dark:text-accent-lavender/80"
+                      : "text-journey-muted dark:text-white/40"
                 }`}
               >
                 {chapter.label}

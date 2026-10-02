@@ -7,7 +7,7 @@ import { Footer } from "@/components/layout/Footer";
 import { ModalShell } from "@/components/ui/ModalShell";
 import { HeroNavDots } from "@/components/ui/HeroNavDots";
 import { useRotatingIndex } from "@/lib/hooks/useRotatingIndex";
-import { allWork } from "@/data/projects";
+import { allWork, SELECTED_WORK_SLUGS } from "@/data/projects";
 import type { Project } from "@/data/projects";
 
 function GitHubIcon() {
@@ -39,7 +39,6 @@ type Cat = typeof ALL_CATEGORIES[number];
 const displayWork = allWork.filter((p) => p.category !== "Hackathon");
 
 /** a small, hand-picked set of flagship projects — not a second complete browser */
-const SELECTED_WORK_SLUGS = ["cartcoach", "kite", "wnba-simulator", "campus-compass", "biaslens"];
 const selectedWork = SELECTED_WORK_SLUGS
   .map((slug) => displayWork.find((p) => p.slug === slug))
   .filter((p): p is Project => !!p);
@@ -129,7 +128,7 @@ function ProjectModal({ project, initialTab, onClose }: { project: Project; init
       {/* Header */}
       <div className="relative h-52 md:h-60 flex items-end p-6 overflow-hidden" style={{ background: project.gradient }}>
         {project.image && <Image src={project.image} alt={project.title} fill className="object-contain opacity-30" />}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#18233F] via-black/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-navy via-black/30 to-transparent" />
         <div className="relative z-10 w-full">
           <span className="font-mono text-xs text-white/50 block mb-1">{project.competition ?? project.category} · {project.month}</span>
           <h2 className="font-display text-4xl md:text-5xl text-white leading-none mb-1">{project.title}</h2>
@@ -328,7 +327,7 @@ function WorkCard({ project, onSelect }: { project: Project; onSelect: (p: Proje
       {/* Hover strip */}
       <AnimatePresence>
         {hovered && (
-          <motion.div className="absolute left-0 right-0 top-full z-30 bg-white dark:bg-[#18233F] border border-gray-200 dark:border-white/10 rounded-b-xl px-3 py-2.5 shadow-xl" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.15 }}>
+          <motion.div className="absolute left-0 right-0 top-full z-30 bg-white dark:bg-navy border border-gray-200 dark:border-white/10 rounded-b-xl px-3 py-2.5 shadow-xl" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.15 }}>
             <p className="font-body text-xs text-surface/60 dark:text-white/60 leading-relaxed line-clamp-2">{project.logline}</p>
             {project.tags && project.tags.length > 0 && (
               <div className="flex flex-wrap gap-1 mt-2">

@@ -86,7 +86,7 @@ function SideRail() {
 function BoardingPass() {
   return (
     <motion.div
-      className="relative overflow-hidden rounded-[18px] border backdrop-blur-md border-accent/25 bg-sand/50 shadow-[0_20px_70px_rgba(24,35,63,0.1)] dark:border-accent/35 dark:bg-[#18233F]/85 dark:shadow-[0_20px_70px_rgba(0,0,0,0.45)]"
+      className="relative overflow-hidden rounded-[18px] border backdrop-blur-md border-accent/25 bg-sand/50 shadow-[0_20px_70px_rgba(24,35,63,0.1)] dark:border-accent/35 dark:bg-navy/85 dark:shadow-[0_20px_70px_rgba(0,0,0,0.45)]"
       initial={{ opacity: 0, x: 34 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.38, duration: 0.65, ease: "easeOut" }}
@@ -204,7 +204,7 @@ function TicketChips() {
       {ticketChips.map((ticket) => (
         <div
           key={ticket.title}
-          className="relative flex min-h-[64px] flex-col rounded-lg border backdrop-blur px-4 py-2.5 border-accent/25 bg-sand/40 shadow-[0_10px_30px_rgba(24,35,63,0.06)] dark:border-accent/35 dark:bg-[#18233F]/70 dark:shadow-[0_10px_30px_rgba(0,0,0,0.25)]"
+          className="relative flex min-h-[64px] flex-col rounded-lg border backdrop-blur px-4 py-2.5 border-accent/25 bg-sand/40 shadow-[0_10px_30px_rgba(24,35,63,0.06)] dark:border-accent/35 dark:bg-navy/70 dark:shadow-[0_10px_30px_rgba(0,0,0,0.25)]"
         >
           <div className="absolute inset-x-2 top-1 border-t border-dashed border-black/10 dark:border-white/15" />
           <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-surface/45 dark:text-white/45">{ticket.eyebrow}</p>
@@ -237,7 +237,7 @@ function DestinationCards() {
             className="absolute inset-0 scale-105 bg-cover bg-center opacity-40 transition duration-500 group-hover:scale-100 group-hover:opacity-55"
             style={{ backgroundImage: `url(${destination.image})` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-sand via-sand/60 to-sand/55 dark:from-[#18233F] dark:via-[#18233F]/80 dark:to-[#18233F]/75" />
+          <div className="absolute inset-0 bg-gradient-to-r from-sand via-sand/60 to-sand/55 dark:from-navy dark:via-navy/80 dark:to-navy/75" />
           <div className="relative flex h-full flex-col justify-between p-5">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-surface/75 dark:text-white/70">
               Stop <span className="block pt-1 font-display text-2xl tracking-normal text-surface dark:text-white">{destination.num}</span>
@@ -260,14 +260,14 @@ function DestinationCards() {
 
 export function Hero() {
   return (
-    <section id="hero" className="relative min-h-screen overflow-hidden bg-sand text-surface dark:bg-[#18233F] dark:text-white">
+    <section id="hero" className="relative min-h-screen overflow-hidden bg-sand text-surface dark:bg-navy dark:text-white">
       <SideRail />
 
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-[url('/images/headshot.jpg')] bg-cover bg-[center_31%] opacity-55 dark:opacity-30" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_45%_42%,rgba(91,58,142,0.08),transparent_28%),linear-gradient(90deg,rgba(243,236,223,0.12)_0%,rgba(243,236,223,0.08)_40%,rgba(243,236,223,0.03)_65%,transparent_85%)] dark:bg-[radial-gradient(circle_at_45%_42%,rgba(91,58,142,0.08),transparent_28%),linear-gradient(90deg,rgba(24,35,63,0.1)_0%,rgba(24,35,63,0.08)_36%,rgba(24,35,63,0.06)_58%,rgba(24,35,63,0.1)_100%)]" />
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t dark:from-[#18233F] dark:via-[#18233F]/88 dark:to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#F7F3FA] to-transparent dark:hidden" />
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t dark:from-navy dark:via-navy/88 dark:to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-base to-transparent dark:hidden" />
         <div className="absolute left-[12%] top-[50%] hidden h-px w-[44%] bg-gradient-to-r from-transparent to-transparent via-surface/15 dark:via-transparent lg:block" />
         <div className="absolute left-[16%] top-[48%] hidden h-24 w-[64%] blur-xl bg-[radial-gradient(ellipse_at_center,rgba(24,35,63,0.1),transparent_60%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.14),transparent_60%)] lg:block" />
       </div>

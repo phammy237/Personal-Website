@@ -250,8 +250,8 @@ export function AbstractGlobeFallback({
               strokeWidth={isHighlighted ? 1.2 : 0.6}
               className={
                 isHighlighted
-                  ? "fill-accent stroke-[#4A2F74] dark:fill-accent dark:stroke-[#9B8BB5] dark:[filter:drop-shadow(0_0_6px_rgba(91, 58, 142,0.65))]"
-                  : "fill-[#E4DDED] stroke-[#C9BAD9] dark:fill-[#2B2347] dark:stroke-[#3D3560]"
+                  ? "fill-accent stroke-[#4A2F74] dark:fill-accent dark:stroke-accent-lavender dark:[filter:drop-shadow(0_0_6px_rgba(91, 58, 142,0.65))]"
+                  : "fill-accent-light stroke-[#C9BAD9] dark:fill-[#2B2347] dark:stroke-[#3D3560]"
               }
             />
           );

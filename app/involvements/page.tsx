@@ -276,7 +276,7 @@ function InvModal({ inv, onClose }: { inv: Involvement; onClose: () => void }) {
         {inv.image && (
           <div className="absolute inset-0 bg-cover bg-center opacity-60" style={{ backgroundImage: `url(${inv.image})` }} />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#18233F] via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-navy via-black/20 to-transparent" />
         <div className="relative z-10">
           <span className="font-mono text-xs text-white/50 block mb-1">{inv.type} · {inv.period}</span>
           <h2 className="font-display text-3xl md:text-4xl text-white leading-tight">{inv.role}</h2>
@@ -415,7 +415,7 @@ function InvCard({ inv, onSelect }: { inv: Involvement; onSelect: (inv: Involvem
       <AnimatePresence>
         {hovered && (
           <motion.div
-            className="absolute left-0 right-0 top-full z-30 bg-white dark:bg-[#18233F] border border-gray-200 dark:border-white/10 rounded-b-xl px-3 py-2.5 shadow-xl"
+            className="absolute left-0 right-0 top-full z-30 bg-white dark:bg-navy border border-gray-200 dark:border-white/10 rounded-b-xl px-3 py-2.5 shadow-xl"
             initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.15 }}
           >

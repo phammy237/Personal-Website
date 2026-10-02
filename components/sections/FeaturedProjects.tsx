@@ -1,10 +1,9 @@
 "use client";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { projects } from "@/data/projects";
+import { projects, SELECTED_WORK_SLUGS } from "@/data/projects";
 
-const FEATURED_SLUGS = ["cartcoach", "kite", "wnba-simulator", "housing-model"];
-const featured = FEATURED_SLUGS.map((s) => projects.find((p) => p.slug === s)).filter(Boolean) as typeof projects;
+const featured = SELECTED_WORK_SLUGS.map((s) => projects.find((p) => p.slug === s)).filter(Boolean) as typeof projects;
 
 export function FeaturedProjects() {
   return (
@@ -22,7 +21,7 @@ export function FeaturedProjects() {
             <p className="font-mono text-[10px] text-muted dark:text-white/30 tracking-[0.25em] uppercase mb-2">
               Portfolio
             </p>
-            <h2 className="font-display text-4xl text-surface dark:text-white">Work Library</h2>
+            <h2 className="font-display text-4xl text-surface dark:text-white">Selected Work</h2>
           </div>
           <div className="flex flex-col md:items-end gap-3">
             <p className="font-mono text-xs text-muted dark:text-white/35 max-w-xs leading-relaxed text-left md:text-right">
@@ -33,13 +32,13 @@ export function FeaturedProjects() {
               href="/projects"
               className="font-mono text-xs text-accent hover:text-accent/70 transition-colors duration-200 tracking-widest uppercase self-start md:self-end"
             >
-              View All Projects →
+              View All Work →
             </Link>
           </div>
         </motion.div>
 
         {/* Cards */}
-        <div className="flex gap-4 overflow-x-auto pb-4 md:grid md:grid-cols-4 md:overflow-visible snap-x snap-mandatory">
+        <div className="flex gap-4 overflow-x-auto pb-4 md:grid md:grid-cols-5 md:overflow-visible snap-x snap-mandatory">
           {featured.map((project, i) => (
             <motion.div
               key={project.slug}

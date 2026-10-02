@@ -118,7 +118,7 @@ export function HanoiMap({
   return (
     <div
       ref={containerRef}
-      className={`relative w-full touch-none select-none overflow-hidden rounded-2xl border border-border bg-[#F7F3FA] dark:border-white/10 dark:bg-navy ${
+      className={`relative w-full touch-none select-none overflow-hidden rounded-2xl border border-border bg-base dark:border-white/10 dark:bg-navy ${
         settled ? "cursor-default" : dragging ? "cursor-grabbing" : "cursor-grab"
       }`}
       style={{ aspectRatio: `${HANOI_MAP_WIDTH} / ${HANOI_MAP_HEIGHT}` }}
@@ -140,7 +140,7 @@ export function HanoiMap({
         <svg className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
           <defs>
             <pattern id="hanoi-map-grid" width="26" height="26" patternUnits="userSpaceOnUse">
-              <circle cx="1.5" cy="1.5" r="1.5" className="fill-[#E4DDED] dark:fill-white/[0.07]" />
+              <circle cx="1.5" cy="1.5" r="1.5" className="fill-accent-light dark:fill-white/[0.07]" />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#hanoi-map-grid)" />
@@ -154,7 +154,7 @@ export function HanoiMap({
           aria-hidden="true"
         >
           {roadsPathD && (
-            <path d={roadsPathD} fill="none" strokeWidth={1} strokeLinecap="round" className="stroke-[#E4DDED] dark:stroke-white/[0.08]" />
+            <path d={roadsPathD} fill="none" strokeWidth={1} strokeLinecap="round" className="stroke-accent-light dark:stroke-white/[0.08]" />
           )}
           {lakePathD && (
             <path d={lakePathD} className="fill-[#C7DBF7] stroke-[#8FB3E5] dark:fill-[#1B2E4F] dark:stroke-[#3D5E92]" strokeWidth={1.2} />

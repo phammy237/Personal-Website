@@ -549,3 +549,6 @@ export const competitions: Project[] = [
 ];
 
 export const allWork: Project[] = [...projects, ...competitions];
+
+/** "Selected Work" — the one hand-picked flagship list, shared by the home page and the Work page carousel */
+export const SELECTED_WORK_SLUGS = ["transpeaktation", "cartcoach", "kite", "wnba-simulator", "campus-compass"];

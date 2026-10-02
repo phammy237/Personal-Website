@@ -18,7 +18,7 @@ const friendQs = [
   },
   {
     q: "what are u building rn? 🔨",
-    a: "okay so — CartCoach is my latest thing, it's an AI chrome extension that pops up when you're about to impulse buy and shows you the real cost (like 'this delays your savings goal by 3 weeks' 💀). also doing product strategy work for a startup called Lattéra! oh and i just did a WNBA strategy simulator with monte carlo analysis for fun lol yes i'm that person",
+    a: "okay so — my latest is transPEAKtation, an event-aware routing app my team built at ShellHacks 2026 (we won 2nd for Best Use of AWS + Best Use of Tiger Data 🏆). i did the data pipeline + backend, basically turning messy SF traffic and event data into something the router could use. before that, CartCoach — an AI chrome extension that pops up when you're about to impulse buy and shows you the real cost (like 'this delays your savings goal by 3 weeks' 💀). also doing product strategy work for a startup called Lattéra! oh and i just did a WNBA strategy simulator with monte carlo analysis for fun lol yes i'm that person",
   },
   {
     q: "what do u do for fun? 🎹",
@@ -41,7 +41,7 @@ const curiousQs = [
   },
   {
     q: "What projects stand out?",
-    a: "A few highlights: GatorBot won the Deloitte Innovation Challenge — an AI chatbot that cut campus referral time by ~70%. The WNBA Strategy Simulator used Monte Carlo simulation to project $56M–$79M season profit ranges. Kite is a pediatric health platform capturing 1,000+ interaction data points per session. I've also done a TikTok UX redesign and an algorithmic fairness auditing tool called BiasLens.",
+    a: "A few highlights: transPEAKtation, my most recent, won 2nd Place for Best Use of AWS and Best Use of Tiger Data at ShellHacks 2026 — event-aware routing where I built the data pipeline (17,000+ road incident records) and backend integration. GatorBot won the Deloitte Innovation Challenge — an AI chatbot that cut campus referral time by ~70%. The WNBA Strategy Simulator used Monte Carlo simulation to project $56M–$79M season profit ranges. Kite is a pediatric health platform capturing 1,000+ interaction data points per session. I've also done a TikTok UX redesign and an algorithmic fairness auditing tool called BiasLens.",
   },
   {
     q: "What's your technical stack?",
@@ -78,7 +78,7 @@ function Bubble({ msg }: { msg: Msg }) {
       <div
         className={`max-w-[80%] font-body text-sm leading-relaxed px-3.5 py-2.5 rounded-2xl ${
           isBot
-            ? "bg-[#18233F] text-white/85 rounded-tl-sm"
+            ? "bg-navy text-white/85 rounded-tl-sm"
             : "bg-accent text-white rounded-tr-sm"
         }`}
       >
@@ -229,7 +229,7 @@ export function ChatBot() {
                 >
                   <div className="flex gap-2 items-start">
                     <BotAvatar />
-                    <div className="bg-[#18233F] text-white/85 text-sm font-body px-3.5 py-2.5 rounded-2xl rounded-tl-sm leading-relaxed">
+                    <div className="bg-navy text-white/85 text-sm font-body px-3.5 py-2.5 rounded-2xl rounded-tl-sm leading-relaxed">
                       hey! 👋 i&apos;m My&apos;s portfolio assistant. how do you want to vibe?
                     </div>
                   </div>

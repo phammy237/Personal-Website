@@ -158,7 +158,7 @@ export default function ConnectPage() {
   }
 
   return (
-    <main className="min-h-screen bg-base dark:bg-[#18233F]">
+    <main className="min-h-screen bg-base dark:bg-navy">
       <Navbar />
 
       <div className="grid gap-12 px-[5vw] pb-24 pt-28 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16 max-w-[1400px] mx-auto">

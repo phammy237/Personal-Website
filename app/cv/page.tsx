@@ -21,7 +21,7 @@ export default function CVPage() {
   const [era, setEra] = useState<Era>("university");
 
   return (
-    <main className="min-h-screen bg-base dark:bg-[#18233F]">
+    <main className="min-h-screen bg-base dark:bg-navy">
       <Navbar />
 
       <div className="px-[5vw] pt-28 pb-24 max-w-[900px] mx-auto">

@@ -81,7 +81,7 @@ export function HanoiJourneySection({
   return (
     <section
       onKeyDown={handleKeyDown}
-      className="relative overflow-hidden rounded-3xl border border-border bg-[#F7F3FA] p-5 shadow-sm dark:border-white/10 dark:bg-navy md:p-8"
+      className="relative overflow-hidden rounded-3xl border border-border bg-base p-5 shadow-sm dark:border-white/10 dark:bg-navy md:p-8"
       aria-label="Hanoi journey map"
     >
       <div className="relative z-10 mb-5 flex flex-wrap items-start justify-between gap-4 md:mb-6">

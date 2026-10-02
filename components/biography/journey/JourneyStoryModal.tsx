@@ -290,7 +290,7 @@ export function JourneyStoryModal({
                   type="button"
                   onClick={() => setMediaIndex(i)}
                   className={`h-[52px] w-[74px] shrink-0 overflow-hidden rounded-md transition-opacity ${
-                    i === mediaIndex ? "opacity-100 ring-2 ring-[#A98CFF]" : "opacity-70 hover:opacity-100"
+                    i === mediaIndex ? "opacity-100 ring-2 ring-journey-glow" : "opacity-70 hover:opacity-100"
                   }`}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -316,7 +316,7 @@ export function JourneyStoryModal({
               {String(data.index + 1).padStart(2, "0")} / {String(data.total).padStart(2, "0")} · {data.metaLabel}
             </p>
             <h2 className="mt-2 max-w-[420px] font-display text-[34px] leading-[1.05] text-surface dark:text-white">{data.title}</h2>
-            <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.16em] text-accent dark:text-[#A98CFF]">{data.theme}</p>
+            <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.16em] text-accent dark:text-journey-glow">{data.theme}</p>
             <div className="mt-5 flex gap-5 border-b border-border dark:border-white/10">
               {(["overview", "media"] as const).map((t) => (
                 <button
@@ -325,7 +325,7 @@ export function JourneyStoryModal({
                   onClick={() => setTab(t)}
                   className={`pb-3 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors ${
                     tab === t
-                      ? "border-b-2 border-[#A98CFF] text-[#A98CFF]"
+                      ? "border-b-2 border-journey-glow text-journey-glow"
                       : "border-b-2 border-transparent text-muted/70 hover:text-surface dark:text-white/45 dark:hover:text-white/70"
                   }`}
                 >
@@ -341,7 +341,7 @@ export function JourneyStoryModal({
                 {data.overviewSections.map((section, i) => (
                   <div key={i} className="flex flex-col gap-[20px]">
                     {section.label && (
-                      <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent dark:text-[#A98CFF]">
+                      <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent dark:text-journey-glow">
                         {section.label}
                       </p>
                     )}
@@ -364,7 +364,7 @@ export function JourneyStoryModal({
                       setTab("overview");
                     }}
                     className={`aspect-[4/3] overflow-hidden rounded-[13px] transition-opacity ${
-                      i === mediaIndex ? "ring-2 ring-[#A98CFF]" : "opacity-85 hover:opacity-100"
+                      i === mediaIndex ? "ring-2 ring-journey-glow" : "opacity-85 hover:opacity-100"
                     }`}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -391,7 +391,7 @@ export function JourneyStoryModal({
               type="button"
               onClick={onPrevStory}
               disabled={isFirst}
-              className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted transition-colors hover:text-accent disabled:opacity-30 disabled:hover:text-muted dark:text-white/50 dark:hover:text-[#A98CFF] dark:disabled:hover:text-white/50"
+              className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted transition-colors hover:text-accent disabled:opacity-30 disabled:hover:text-muted dark:text-white/50 dark:hover:text-journey-glow dark:disabled:hover:text-white/50"
             >
               ← Previous Story
             </button>
@@ -402,7 +402,7 @@ export function JourneyStoryModal({
               <button
                 type="button"
                 onClick={onFinishChapter}
-                className="font-mono text-[10px] uppercase tracking-[0.14em] text-accent transition-colors hover:text-accent/80 dark:text-[#A98CFF] dark:hover:text-[#C7BAFF]"
+                className="font-mono text-[10px] uppercase tracking-[0.14em] text-accent transition-colors hover:text-accent/80 dark:text-journey-glow dark:hover:text-[#C7BAFF]"
               >
                 Finish Chapter →
               </button>
@@ -410,7 +410,7 @@ export function JourneyStoryModal({
               <button
                 type="button"
                 onClick={onNextStory}
-                className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted transition-colors hover:text-accent dark:text-white/50 dark:hover:text-[#A98CFF]"
+                className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted transition-colors hover:text-accent dark:text-white/50 dark:hover:text-journey-glow"
               >
                 Next Story →
               </button>

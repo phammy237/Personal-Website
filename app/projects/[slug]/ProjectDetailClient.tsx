@@ -250,7 +250,7 @@ export function ProjectDetailClient({
       <section className="bg-base px-[5vw] py-16 border-t border-border">
         <div className="max-w-[1200px] mx-auto flex items-center justify-between">
           <Link href="/projects" className="font-mono text-sm text-muted hover:text-accent transition-colors">
-            ← All Projects
+            ← All Work
           </Link>
           <Link
             href={`/projects/${nextProject.slug}`}

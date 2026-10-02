@@ -3,12 +3,15 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { useOnScreen } from "@/lib/hooks/useOnScreen";
 import { education } from "@/data/cv";
+import { allWork } from "@/data/projects";
 
 const GPA = parseFloat(education[0].gpa.split(" / ")[0]);
+// counted from the same list the Work page shows, so it never goes stale as projects are added
+const PROJECT_COUNT = allWork.filter((p) => p.category !== "Hackathon").length;
 
 const stats = [
   { value: 3,    suffix: "",  label: "Internships" },
-  { value: 12,   suffix: "+", label: "Projects" },
+  { value: PROJECT_COUNT, suffix: "", label: "Projects" },
   { value: 6,    suffix: "+", label: "Awards" },
   { value: 350,  suffix: "+", label: "Members Led" },
   { value: GPA,  suffix: "",  label: "GPA", decimal: true },

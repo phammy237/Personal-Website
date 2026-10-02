@@ -125,7 +125,7 @@ export function Navbar() {
                 className={`font-mono text-xs tracking-wider uppercase transition-colors duration-200 hidden md:block ${
                   isActive
                     ? isJourneyLight
-                      ? "border-b-2 border-[#7C6AF2] pb-0.5 text-[#7C6AF2]"
+                      ? "border-b-2 border-journey-violet pb-0.5 text-journey-violet"
                       : "text-accent"
                     : lightText
                     ? "text-white/70 hover:text-white"
@@ -157,7 +157,7 @@ export function Navbar() {
           <Link href="/connect"
             className={`font-mono text-xs border px-3 py-1.5 transition-colors duration-200 ${
               isJourneyLight
-                ? "rounded-md border-[rgba(38,49,91,0.18)] bg-[#FBFAFD] text-[#1D2340] hover:border-[#7C6AF2] focus-visible:border-[#7C6AF2]"
+                ? "rounded-md border-[rgba(38,49,91,0.18)] bg-[#FBFAFD] text-journey-ink hover:border-journey-violet focus-visible:border-journey-violet"
                 : lightText
                 ? "border-white/30 text-white hover:bg-white hover:text-navy"
                 : "border-accent/40 text-accent hover:bg-accent hover:text-white"
